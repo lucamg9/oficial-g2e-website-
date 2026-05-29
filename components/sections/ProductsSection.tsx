@@ -2,33 +2,33 @@ const PRODUCTS = [
   {
     id: '01',
     category: 'Biological fertilizer',
-    headline: 'Returns carbon to the soil,',
-    italic:   'for generations.',
-    body:     'Hydrochar has the potential to cut chemical fertilizer use by up to 50% in corn and beans while keeping yields the same. It returns carbon and nutrients to the soil.',
+    headline: 'Returns carbon to the soil.',
+    sub:      'For generations.',
+    body:     'Hydrochar cuts chemical fertilizer use by up to 50% in corn and beans while maintaining yields. It returns carbon and nutrients — repairing land that industrial farming has degraded.',
     proof:    'Validated with COLPOS, CIMMYT, and SADER.',
-    bg:       '#2C4A35',   // Moss-600 — natural, organic
+    bg:       '#2D5A3D',
     line:     'rgba(242,239,231,0.10)',
     muted:    'rgba(242,239,231,0.50)',
   },
   {
     id: '02',
     category: 'Coal replacement',
-    headline: 'Decarbonizing the hardest',
-    italic:   'industries to clean up.',
-    body:     'Replaces thermal coal in power generation and metallurgical coal in steel production — two of the most emissions-intensive sectors on the planet.',
-    proof:    'Direct drop-in replacement. No infrastructure change required.',
-    bg:       '#11140F',   // Hydrochar-900 — industrial, precise
+    headline: 'Decarbonizing the hardest industries.',
+    sub:      'No infrastructure change required.',
+    body:     'Replaces thermal coal in power generation and metallurgical coal in steel production — two of the most emissions-intensive sectors on the planet. Drop-in compatible.',
+    proof:    'Direct replacement. No retrofitting. No compromise on energy output.',
+    bg:       '#14130F',
     line:     'rgba(242,239,231,0.08)',
     muted:    'rgba(242,239,231,0.50)',
   },
   {
     id: '03',
     category: 'Premium carbon credits',
-    headline: 'Technology-based.',
-    italic:   'Permanently verified.',
+    headline: 'Technology-based. Permanently verified.',
+    sub:      'The credits the market actually needs.',
     body:     'Credits based on technology — not forests — with proven permanence and measurable social impact. Phase II will generate 270,600 credits per year.',
-    proof:    'The kind of credit responsible companies like Apple, Microsoft, and Stripe are looking for.',
-    bg:       '#11140F',   // Hydrochar-900
+    proof:    'The kind of credit Apple, Microsoft, and Stripe are actively seeking.',
+    bg:       '#14130F',
     line:     'rgba(242,239,231,0.08)',
     muted:    'rgba(242,239,231,0.50)',
   },
@@ -80,18 +80,20 @@ export default function ProductsSection() {
           style={{ alignItems: 'end', marginBottom: 'var(--space-10)' }}
         >
           <h2
+            data-sr
+            data-sr-delay="60"
             style={{
               fontFamily: 'var(--font-display)',
+              fontWeight: 800,
               fontSize: 'var(--text-4xl)',
               lineHeight: 'var(--lh-snug)',
               letterSpacing: 'var(--ls-display)',
-              fontWeight: 400,
               color: 'var(--ink)',
               maxWidth: '560px',
             }}
           >
-            One material.<br />
-            <em>Three industries transformed.</em>
+            Hydrochar doesn&apos;t just<br />
+            <span style={{ color: 'var(--forest-mid)' }}>replace coal. It reverses the damage.</span>
           </h2>
           <p
             style={{
@@ -104,6 +106,78 @@ export default function ProductsSection() {
           >
             Hydrochar is the output. What changes is who receives it — and what they do with it.
           </p>
+        </div>
+
+        {/* ── Story 3 — hydrochar in soil visual bridge ─ */}
+        <div
+          style={{
+            position: 'relative',
+            borderRadius: 'var(--radius-2xl)',
+            overflow: 'hidden',
+            height: 'clamp(200px, 28vw, 360px)',
+            marginBottom: 'var(--space-6)',
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/motion/story-3.gif"
+            alt=""
+            aria-hidden="true"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center 60%',
+            }}
+          />
+          {/* Very subtle overlay to blend with bone bg */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to right, rgba(245,243,238,0.60) 0%, rgba(245,243,238,0) 50%)',
+            }}
+          />
+          {/* Glass caption chip */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              top: '20px',
+              left: '20px',
+              backdropFilter: 'blur(16px) saturate(140%)',
+              WebkitBackdropFilter: 'blur(16px) saturate(140%)',
+              background: 'rgba(245,243,238,0.75)',
+              color: 'var(--ink)',
+              padding: '8px 14px',
+              borderRadius: '999px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              border: '1px solid rgba(20,19,15,0.08)',
+            }}
+          >
+            <span
+              style={{
+                width: '6px', height: '6px',
+                borderRadius: '50%',
+                background: 'var(--forest-mid)',
+                display: 'block', flexShrink: 0,
+              }}
+            />
+            <span
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '10px',
+                letterSpacing: '0.10em',
+                textTransform: 'uppercase',
+                color: 'var(--ink-muted)',
+              }}
+            >
+              Hydrochar applied to soil
+            </span>
+          </div>
         </div>
 
         {/* ── Product cards grid ────────────────────── */}
@@ -142,17 +216,27 @@ export default function ProductsSection() {
               <h3
                 style={{
                   fontFamily: 'var(--font-display)',
+                  fontWeight: 700,
                   fontSize: 'var(--text-2xl)',
                   lineHeight: 'var(--lh-snug)',
                   letterSpacing: 'var(--ls-display)',
-                  fontWeight: 400,
                   color: 'var(--bone-100)',
+                  marginBottom: '6px',
+                }}
+              >
+                {product.headline}
+              </h3>
+              <p
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontWeight: 300,
+                  fontSize: 'var(--text-sm)',
+                  color: product.muted,
                   marginBottom: 'var(--space-5)',
                 }}
               >
-                {product.headline}<br />
-                <em>{product.italic}</em>
-              </h3>
+                {product.sub}
+              </p>
 
               {/* Divider */}
               <div

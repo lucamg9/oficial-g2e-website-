@@ -75,19 +75,21 @@ export default function ProcessSection() {
           {/* Left — headline + 5-step list */}
           <div>
             <h2
+              data-sr
+              data-sr-delay="60"
               style={{
                 fontFamily: 'var(--font-display)',
+                fontWeight: 800,
                 fontSize: 'var(--text-5xl)',
                 lineHeight: 'var(--lh-tight)',
                 letterSpacing: 'var(--ls-display)',
-                fontWeight: 400,
                 color: 'var(--bone-100)',
                 marginBottom: 'var(--space-10)',
                 maxWidth: '520px',
               }}
             >
-              From waste to hydrochar,<br />
-              <em>in hours.</em>
+              A material that didn&apos;t exist.<br />
+              <span style={{ color: 'rgba(245,243,238,0.48)', fontWeight: 600 }}>Until it had to.</span>
             </h2>
 
             {/* Steps */}
@@ -147,34 +149,28 @@ export default function ProcessSection() {
             </ol>
           </div>
 
-          {/* Right — GIF 2 cinematic visual */}
+          {/* Right — story-2.gif: floating hydrochar specimen on bone bg */}
+          {/* Bone background of GIF creates elegant light-card contrast on dark section */}
           <div
             style={{
               position: 'relative',
               borderRadius: 'var(--radius-2xl)',
               overflow: 'hidden',
               aspectRatio: '3 / 4',
+              background: 'var(--bg)',
+              boxShadow: '0 0 0 1px rgba(245,243,238,0.06)',
             }}
             className="hidden lg:block"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/motion/2.gif"
-              alt="Hydrothermal carbonization process at the G2E plant"
+              src="/motion/story-2.gif"
+              alt="Hydrochar — the mineral-grade carbon material produced by G2E"
               style={{
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
                 objectPosition: 'center',
-              }}
-            />
-            {/* Subtle dark overlay */}
-            <div
-              aria-hidden="true"
-              style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'rgba(17,20,15,0.30)',
               }}
             />
 
@@ -187,7 +183,7 @@ export default function ProcessSection() {
                 left: '20px',
                 backdropFilter: 'blur(18px) saturate(140%)',
                 WebkitBackdropFilter: 'blur(18px) saturate(140%)',
-                background: 'rgba(17,20,15,0.55)',
+                background: 'rgba(20,19,15,0.55)',
                 color: 'var(--bone-100)',
                 padding: '10px 14px',
                 borderRadius: '12px',
@@ -198,12 +194,10 @@ export default function ProcessSection() {
             >
               <span
                 style={{
-                  width: '6px',
-                  height: '6px',
+                  width: '6px', height: '6px',
                   borderRadius: '99px',
-                  background: 'var(--bone-100)',
-                  display: 'block',
-                  flexShrink: 0,
+                  background: 'var(--forest-light)',
+                  display: 'block', flexShrink: 0,
                 }}
               />
               <span
@@ -214,7 +208,7 @@ export default function ProcessSection() {
                   textTransform: 'uppercase',
                 }}
               >
-                Bordo Poniente · CDMX
+                Hydrochar — G2E output
               </span>
             </div>
           </div>

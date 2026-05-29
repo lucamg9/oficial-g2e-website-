@@ -6,28 +6,28 @@ const COLS = [
   {
     label: 'Company',
     links: [
-      { label: 'Who we are',            href: '#about'    },
-      { label: 'Our story',             href: '#about'    },
-      { label: 'Demonstration center',  href: '#about'    },
-      { label: 'Projects',              href: '#scale'    },
+      { label: 'Who we are',           href: '#about'    },
+      { label: 'Our story',            href: '#about'    },
+      { label: 'Demonstration center', href: '#about'    },
+      { label: 'Projects',             href: '#scale'    },
     ],
   },
   {
     label: 'Technology',
     links: [
-      { label: 'The process',           href: '#process'  },
-      { label: 'Hydrochar',             href: '#products' },
-      { label: 'Carbon credits',        href: '#products' },
-      { label: 'Biological fertilizer', href: '#products' },
+      { label: 'The process',          href: '#process'  },
+      { label: 'Hydrochar',            href: '#products' },
+      { label: 'Carbon credits',       href: '#products' },
+      { label: 'Soil regeneration',    href: '#products' },
     ],
   },
   {
     label: 'Work with us',
     links: [
-      { label: 'Off-take partners',     href: '#contact'  },
-      { label: 'Investment',            href: '#contact'  },
-      { label: 'Government',            href: '#contact'  },
-      { label: 'Research',              href: '#contact'  },
+      { label: 'Off-take partners',    href: '#contact'  },
+      { label: 'Investment',           href: '#contact'  },
+      { label: 'Government',           href: '#contact'  },
+      { label: 'Research',             href: '#contact'  },
     ],
   },
 ]
@@ -38,105 +38,74 @@ export default function Footer() {
       style={{
         position: 'relative',
         overflow: 'hidden',
-        background: 'var(--hydrochar-900)',
+        background: 'var(--bg-dark)',
       }}
     >
-
-      {/* ── Mexico landscape — Iztaccíhuatl & Popocatépetl ── */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/assets/mexico-landscape.jpg"
-        alt=""
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          objectPosition: 'center 28%',   /* mountains in the upper-mid frame */
-          opacity: 0.46,
-        }}
-      />
-
-      {/*
-        Overlay system — 3 layers tuned for THIS specific image:
-        1. Base: Hydrochar 48% — lets the warm gold & deep blue sky show through
-        2. Top gradient: hard dark → transparent, for text legibility
-        3. Warm umber tint: lifts the amber quality of the fields
-      */}
-
-      {/* Layer 1 — base Hydrochar tint */}
+      {/* ── Very subtle noise grain ──────────────────────────────────── */}
       <div
         aria-hidden="true"
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'rgba(17,20,15,0.48)',
-          zIndex: 1,
-        }}
-      />
-      {/* Layer 2 — top gradient: blends from Coming Soon dark section */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          top: 0, left: 0, right: 0,
-          height: '200px',
-          background: 'linear-gradient(to bottom, rgba(17,20,15,1) 0%, rgba(17,20,15,0) 100%)',
-          zIndex: 2,
-        }}
-      />
-      {/* Layer 3 — very subtle warm umber lift — enhances the golden sierra */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(170deg, rgba(17,20,15,0) 40%, rgba(38,22,10,0.22) 100%)',
-          zIndex: 2,
-        }}
-      />
-      {/* Layer 4 — bottom fade to pure dark */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          bottom: 0, left: 0, right: 0,
-          height: '90px',
-          background: 'linear-gradient(to top, rgba(17,20,15,1) 0%, rgba(17,20,15,0) 100%)',
-          zIndex: 2,
+          backgroundImage:
+            'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'0.035\'/%3E%3C/svg%3E")',
+          backgroundSize: '256px 256px',
+          zIndex: 0,
+          pointerEvents: 'none',
         }}
       />
 
-      {/* ── Content ───────────────────────────────── */}
+      {/* ── Ghosted brand typographic anchor ────────────────────────── */}
+      {/* à la Terrava — huge Syne 800 text, barely visible */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          bottom: '-0.12em',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontFamily: 'var(--font-display)',
+          fontWeight: 800,
+          fontSize: 'clamp(6rem, 14vw, 16rem)',
+          lineHeight: 1,
+          letterSpacing: '-0.04em',
+          color: 'rgba(245,243,238,0.035)',
+          whiteSpace: 'nowrap',
+          userSelect: 'none',
+          zIndex: 0,
+          pointerEvents: 'none',
+        }}
+      >
+        GREEN TO ENERGY
+      </div>
+
+      {/* ── Content ──────────────────────────────────────────────────── */}
       <div
         className="g2e-container"
         style={{
           position: 'relative',
-          zIndex: 3,
+          zIndex: 1,
           paddingTop: 'var(--space-16)',
           paddingBottom: 'var(--space-10)',
         }}
       >
 
-        {/* ── Brand statement — full width, editorial ── */}
+        {/* ── Brand statement row ──────────────────────────────────── */}
         <div
           style={{
             paddingBottom: 'var(--space-10)',
-            borderBottom: '1px solid rgba(242,239,231,0.08)',
+            borderBottom: '1px solid var(--line-inv)',
             marginBottom: 'var(--space-10)',
           }}
         >
-          {/* Monogram + wordmark row */}
+          {/* Monogram + wordmark */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: 'var(--space-6)' }}>
             <div
               style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '999px',
-                background: 'rgba(242,239,231,0.08)',
-                border: '1px solid rgba(242,239,231,0.14)',
+                width: '48px', height: '48px',
+                borderRadius: '50%',
+                background: 'rgba(245,243,238,0.06)',
+                border: '1px solid rgba(245,243,238,0.12)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -146,11 +115,12 @@ export default function Footer() {
               <span
                 style={{
                   fontFamily: 'var(--font-display)',
-                  fontSize: '30px',
+                  fontWeight: 800,
+                  fontSize: '28px',
                   color: 'var(--bone-100)',
                   lineHeight: 1,
                   display: 'block',
-                  marginTop: '4px',
+                  marginTop: '3px',
                 }}
               >
                 g
@@ -162,62 +132,48 @@ export default function Footer() {
                 fontSize: 'var(--text-2xs)',
                 letterSpacing: 'var(--ls-eyebrow)',
                 textTransform: 'uppercase',
-                color: 'rgba(242,239,231,0.28)',
+                color: 'rgba(245,243,238,0.22)',
               }}
             >
               Green to Energy · CDMX · Est. 2013
             </span>
           </div>
 
-          {/* Tagline — large editorial display */}
+          {/* Mission statement — large, Syne, no italic */}
           <h2
             style={{
               fontFamily: 'var(--font-display)',
+              fontWeight: 700,
               fontSize: 'var(--text-4xl)',
-              lineHeight: 'var(--lh-tight)',
+              lineHeight: 'var(--lh-snug)',
               letterSpacing: 'var(--ls-display)',
-              fontWeight: 400,
-              color: 'rgba(242,239,231,0.90)',
-              maxWidth: '640px',
+              color: 'rgba(245,243,238,0.88)',
+              maxWidth: '620px',
             }}
           >
-            From Mexico&apos;s mountains<br />
-            to the world&apos;s industry.
+            From Mexico&apos;s waste<br />to the world&apos;s industry.
           </h2>
         </div>
 
-        {/* ── Main grid — brand block + nav ─────────── */}
+        {/* ── Main grid: brand left + nav right ───────────────────── */}
         <div
           className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-12 md:gap-20"
           style={{
             paddingBottom: 'var(--space-12)',
-            borderBottom: '1px solid rgba(242,239,231,0.08)',
+            borderBottom: '1px solid var(--line-inv)',
           }}
         >
 
-          {/* Left — brand identity */}
+          {/* Left — identity + contact */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
-
-            <p
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'var(--text-xl)',
-                lineHeight: 'var(--lh-snug)',
-                letterSpacing: 'var(--ls-display)',
-                color: 'rgba(242,239,231,0.50)',
-                fontStyle: 'italic',
-              }}
-            >
-              Waste, transmuted.
-            </p>
-
             <p
               style={{
                 fontFamily: 'var(--font-sans)',
-                fontSize: 'var(--text-sm)',
+                fontWeight: 300,
+                fontSize: 'var(--text-md)',
                 lineHeight: 'var(--lh-loose)',
-                color: 'rgba(242,239,231,0.35)',
-                maxWidth: '220px',
+                color: 'rgba(245,243,238,0.45)',
+                maxWidth: '230px',
               }}
             >
               Transforming municipal organic waste into hydrochar — decarbonizing industry at scale.
@@ -233,13 +189,13 @@ export default function Footer() {
                     fontFamily: 'var(--font-mono)',
                     fontSize: 'var(--text-xs)',
                     letterSpacing: '0.03em',
-                    color: 'rgba(242,239,231,0.42)',
+                    color: 'rgba(245,243,238,0.40)',
                     textDecoration: 'none',
-                    transition: 'color 220ms var(--ease-expo)',
+                    transition: 'color 200ms var(--ease-expo)',
                     width: 'fit-content',
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--bone-100)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(242,239,231,0.42)')}
+                  onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone-100)')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(245,243,238,0.40)')}
                 >
                   {email}
                 </a>
@@ -249,6 +205,7 @@ export default function Footer() {
             {/* CTA pill */}
             <a
               href="#contact"
+              className="glass-btn"
               style={{
                 marginTop: 'var(--space-3)',
                 display: 'inline-flex',
@@ -259,23 +216,11 @@ export default function Footer() {
                 fontSize: '13px',
                 fontWeight: 500,
                 color: 'var(--bone-100)',
-                background: 'rgba(242,239,231,0.10)',
-                border: '1px solid rgba(242,239,231,0.16)',
                 padding: '10px 16px',
-                borderRadius: '999px',
                 textDecoration: 'none',
-                transition: 'background 200ms, border-color 200ms',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(242,239,231,0.16)'
-                e.currentTarget.style.borderColor = 'rgba(242,239,231,0.28)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(242,239,231,0.10)'
-                e.currentTarget.style.borderColor = 'rgba(242,239,231,0.16)'
               }}
             >
-              Get in touch
+              Join the mission
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
               </svg>
@@ -292,7 +237,7 @@ export default function Footer() {
                     fontSize: 'var(--text-2xs)',
                     letterSpacing: 'var(--ls-eyebrow)',
                     textTransform: 'uppercase',
-                    color: 'rgba(242,239,231,0.25)',
+                    color: 'rgba(245,243,238,0.22)',
                   }}
                 >
                   {col.label}
@@ -305,12 +250,12 @@ export default function Footer() {
                         style={{
                           fontFamily: 'var(--font-sans)',
                           fontSize: 'var(--text-sm)',
-                          color: 'rgba(242,239,231,0.40)',
+                          color: 'rgba(245,243,238,0.38)',
                           textDecoration: 'none',
-                          transition: 'color 200ms',
+                          transition: 'color 200ms var(--ease-expo)',
                         }}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--bone-100)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(242,239,231,0.40)')}
+                        onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone-100)')}
+                        onMouseLeave={e => (e.currentTarget.style.color = 'rgba(245,243,238,0.38)')}
                       >
                         {item.label}
                       </Link>
@@ -322,7 +267,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* ── Legal row ─────────────────────────────── */}
+        {/* ── Legal row ────────────────────────────────────────────── */}
         <div
           className="flex flex-col md:flex-row md:items-center md:justify-between gap-3"
           style={{ paddingTop: 'var(--space-6)' }}
@@ -333,7 +278,7 @@ export default function Footer() {
               fontSize: '10px',
               letterSpacing: 'var(--ls-eyebrow)',
               textTransform: 'uppercase',
-              color: 'rgba(242,239,231,0.18)',
+              color: 'rgba(245,243,238,0.16)',
             }}
           >
             Bordo Poniente · Ciudad de México · México
@@ -342,7 +287,7 @@ export default function Footer() {
             style={{
               fontFamily: 'var(--font-sans)',
               fontSize: 'var(--text-xs)',
-              color: 'rgba(242,239,231,0.18)',
+              color: 'rgba(245,243,238,0.16)',
             }}
           >
             © {new Date().getFullYear()} G2E — Green to Energy. All rights reserved.

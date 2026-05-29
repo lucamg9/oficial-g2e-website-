@@ -1,31 +1,32 @@
 import type { Metadata } from 'next'
-import { Newsreader, Geist, JetBrains_Mono } from 'next/font/google'
+import { Syne, Inter, DM_Mono } from 'next/font/google'
 import { LenisProvider } from '@/lib/lenis-provider'
 import Nav from '@/components/layout/Nav'
 import Footer from '@/components/layout/Footer'
 import ContactFab from '@/components/layout/ContactFab'
+import ScrollRevealInit from '@/components/ui/ScrollRevealInit'
 import './globals.css'
 
-const newsreader = Newsreader({
+const syne = Syne({
   subsets: ['latin'],
-  variable: '--font-newsreader',
+  variable: '--font-syne',
   display: 'swap',
-  weight: ['400', '500', '600'],
-  style: ['normal', 'italic'],
+  weight: ['400', '600', '700', '800'],
 })
 
-const geist = Geist({
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-geist',
+  variable: '--font-inter',
   display: 'swap',
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['300', '400', '500', '600'],
 })
 
-const jetbrainsMono = JetBrains_Mono({
+const dmMono = DM_Mono({
   subsets: ['latin'],
-  variable: '--font-jetbrains-mono',
+  variable: '--font-dm-mono',
   display: 'swap',
   weight: ['400', '500'],
+  style: ['normal'],
 })
 
 export const metadata: Metadata = {
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
     template: '%s | G2E — Green to Energy',
   },
   description:
-    'G2E transforms organic waste into hydrochar — a clean-burning coal replacement and agricultural soil regenerant. Operating the world\'s largest hydrothermal carbonization plant.',
+    "G2E transforms organic waste into hydrochar — a clean-burning coal replacement and agricultural soil regenerant. Operating the world's largest hydrothermal carbonization plant in Mexico City.",
   keywords: [
     'hydrothermal carbonization',
     'hydrochar',
@@ -44,13 +45,15 @@ export const metadata: Metadata = {
     'sustainable materials',
     'coal replacement',
     'Mexico cleantech',
+    'decarbonization',
+    'UNAM',
   ],
   openGraph: {
     type: 'website',
     siteName: 'G2E — Green to Energy',
     title: 'G2E — Green to Energy',
     description:
-      'Transforming organic waste into hydrochar — a premium coal replacement and soil regenerant.',
+      'Transforming organic waste into hydrochar — a premium coal replacement, soil regenerant, and premium carbon credit generator.',
   },
   robots: { index: true, follow: true },
 }
@@ -62,11 +65,12 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="es"
-      className={`${newsreader.variable} ${geist.variable} ${jetbrainsMono.variable}`}
+      lang="en"
+      className={`${syne.variable} ${inter.variable} ${dmMono.variable}`}
     >
       <body>
         <LenisProvider>
+          <ScrollRevealInit />
           <Nav />
           <main>{children}</main>
           <Footer />

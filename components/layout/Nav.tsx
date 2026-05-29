@@ -42,19 +42,19 @@ export default function Nav() {
       }}
     >
       <div className="g2e-container" style={{ width: '100%' }}>
-        {/* Pill nav — glass bone, exact design system specimen */}
+        {/* Pill nav — frosted glass */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             height: '56px',
             borderRadius: 'var(--radius-pill)',
-            background: 'rgba(242,239,231,0.72)',
-            backdropFilter: 'blur(20px) saturate(140%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(140%)',
-            boxShadow: 'var(--shadow-card)',
+            background: 'rgba(245,243,238,0.75)',
+            backdropFilter: 'blur(24px) saturate(160%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(160%)',
+            boxShadow: '0 2px 16px rgba(20,19,15,0.08), inset 0 1px 0 rgba(255,255,255,0.60)',
             padding: '0 8px 0 16px',
-            border: '1px solid var(--line)',
+            border: '1px solid rgba(20,19,15,0.07)',
           }}
         >
           {/* Logo — g disc + g2e wordmark */}
@@ -68,7 +68,7 @@ export default function Nav() {
                 width: '40px',
                 height: '40px',
                 borderRadius: '999px',
-                background: 'var(--hydrochar-900)',
+                background: 'var(--bg-dark)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -78,7 +78,8 @@ export default function Nav() {
               <span
                 style={{
                   fontFamily: 'var(--font-display)',
-                  fontSize: '26px',
+                  fontWeight: 800,
+                  fontSize: '24px',
                   color: 'var(--bone-100)',
                   lineHeight: 1,
                   display: 'block',
@@ -91,9 +92,10 @@ export default function Nav() {
             <span
               style={{
                 fontFamily: 'var(--font-display)',
-                fontSize: '22px',
-                letterSpacing: '-0.02em',
-                color: 'var(--hydrochar-900)',
+                fontWeight: 700,
+                fontSize: '20px',
+                letterSpacing: '-0.03em',
+                color: 'var(--bg-dark)',
                 lineHeight: 1,
               }}
             >
@@ -136,21 +138,21 @@ export default function Nav() {
               alignItems: 'center',
               gap: '10px',
               fontFamily: 'var(--font-sans)',
-              fontSize: '14px',
+              fontSize: '13px',
               fontWeight: 500,
-              background: 'var(--hydrochar-900)',
+              background: 'var(--bg-dark)',
               color: 'var(--bone-100)',
               padding: '11px 18px 11px 20px',
               borderRadius: '999px',
               textDecoration: 'none',
               border: 'none',
               flexShrink: 0,
-              transition: 'background 200ms',
+              transition: 'background 200ms var(--ease-expo)',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--hydrochar-700)')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--hydrochar-900)')}
+            onMouseEnter={e => (e.currentTarget.style.background = 'var(--hc-700)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'var(--bg-dark)')}
           >
-            Get in touch
+            Join the mission
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
             </svg>

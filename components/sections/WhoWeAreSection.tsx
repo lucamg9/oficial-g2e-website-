@@ -22,9 +22,30 @@ export default function WhoWeAreSection() {
         background: 'var(--bg)',
         paddingTop: 'var(--space-16)',
         paddingBottom: 'var(--space-16)',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      <div className="g2e-container">
+      {/* Story 1 — floating hydrochar on bone bg blends into section */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/motion/story-1.gif"
+        alt=""
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          right: '-4%',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          width: '52%',
+          maxWidth: '700px',
+          pointerEvents: 'none',
+          userSelect: 'none',
+          opacity: 0.70,
+          zIndex: 0,
+        }}
+      />
+      <div className="g2e-container" style={{ position: 'relative', zIndex: 1 }}>
 
         {/* ── Section label ─────────────────────────── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px' }}>
@@ -42,6 +63,7 @@ export default function WhoWeAreSection() {
           <div style={{ height: '1px', flex: 1, background: 'var(--line)' }} />
         </div>
         <p
+          data-sr
           style={{
             fontFamily: 'var(--font-mono)',
             fontSize: 'var(--text-2xs)',
@@ -63,19 +85,21 @@ export default function WhoWeAreSection() {
           {/* Left — headline + body */}
           <div>
             <h2
+              data-sr
+              data-sr-delay="80"
               style={{
                 fontFamily: 'var(--font-display)',
+                fontWeight: 800,
                 fontSize: 'var(--text-5xl)',
                 lineHeight: 'var(--lh-tight)',
                 letterSpacing: 'var(--ls-display)',
-                fontWeight: 400,
                 color: 'var(--ink)',
                 marginBottom: 'var(--space-8)',
                 maxWidth: '560px',
               }}
             >
-              G2E turns waste<br />
-              <em>into value.</em>
+              We started where<br />
+              <span style={{ color: 'var(--forest-mid)' }}>the problem is loudest.</span>
             </h2>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)', maxWidth: '500px' }}>
@@ -130,7 +154,7 @@ export default function WhoWeAreSection() {
                 textDecoration: 'none',
               }}
             >
-              See how it works
+              See the process
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
               </svg>
@@ -176,10 +200,10 @@ export default function WhoWeAreSection() {
                 <div
                   style={{
                     fontFamily: 'var(--font-display)',
+                    fontWeight: 800,
                     fontSize: 'var(--text-3xl)',
                     lineHeight: 1,
                     letterSpacing: 'var(--ls-display)',
-                    fontWeight: 400,
                     marginBottom: '6px',
                   }}
                 >

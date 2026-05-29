@@ -131,19 +131,21 @@ export default function ComingSoonSection() {
             </div>
 
             <h2
+              data-sr
+              data-sr-delay="60"
               style={{
                 fontFamily: 'var(--font-display)',
+                fontWeight: 800,
                 fontSize: 'var(--text-5xl)',
                 lineHeight: 'var(--lh-tight)',
                 letterSpacing: 'var(--ls-display)',
-                fontWeight: 400,
-                color: 'var(--bone-100)',
+                color: '#FFFFFF',
                 marginBottom: 'var(--space-6)',
                 maxWidth: '600px',
               }}
             >
               This is a preview.<br />
-              <em>The full experience is coming.</em>
+              <span style={{ color: 'rgba(245,243,238,0.45)', fontWeight: 600 }}>The full experience is coming.</span>
             </h2>
 
             <p

@@ -1,3 +1,5 @@
+'use client'
+
 const STATS = [
   { num: '792',   unit: 't / day',   label: 'Organic waste\nprocessed'       },
   { num: '96',    unit: 't / day',   label: 'Hydrochar\nproduced'            },
@@ -20,32 +22,31 @@ export default function ScaleSection() {
       }}
     >
 
-      {/* ── GIF 4 — full-bleed cinematic background ── */}
+      {/* ── Story 4 — hydrochar granules in soil, full-bleed ────────── */}
       <div
         aria-hidden="true"
         style={{ position: 'absolute', inset: 0, zIndex: 0 }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/motion/4.gif"
+          src="/motion/story-4.gif"
           alt=""
           style={{
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            objectPosition: 'center 30%',
-            opacity: 0.40,
+            objectPosition: 'center 40%',
           }}
         />
-        {/* Base overlay */}
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(17,20,15,0.55)' }} />
-        {/* Bottom gradient — stats legibility */}
+        {/* Dark tint — 30% max so granules texture remains visible */}
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(20,19,15,0.30)' }} />
+        {/* Bottom gradient — stat legibility */}
         <div
           style={{
             position: 'absolute',
             bottom: 0, left: 0, right: 0,
-            height: '55%',
-            background: 'linear-gradient(to bottom, rgba(17,20,15,0) 0%, rgba(17,20,15,0.92) 100%)',
+            height: '60%',
+            background: 'linear-gradient(to bottom, rgba(20,19,15,0) 0%, rgba(20,19,15,0.95) 100%)',
           }}
         />
         {/* Top gradient — label legibility */}
@@ -53,8 +54,8 @@ export default function ScaleSection() {
           style={{
             position: 'absolute',
             top: 0, left: 0, right: 0,
-            height: '30%',
-            background: 'linear-gradient(to top, rgba(17,20,15,0) 0%, rgba(17,20,15,0.50) 100%)',
+            height: '35%',
+            background: 'linear-gradient(to top, rgba(20,19,15,0) 0%, rgba(20,19,15,0.55) 100%)',
           }}
         />
       </div>
@@ -106,30 +107,32 @@ export default function ScaleSection() {
         }}
       >
         <h2
+          data-sr
+          data-sr-delay="60"
           style={{
             fontFamily: 'var(--font-display)',
+            fontWeight: 800,
             fontSize: 'var(--text-6xl)',
             lineHeight: 'var(--lh-tight)',
             letterSpacing: 'var(--ls-display)',
-            fontWeight: 400,
-            color: 'var(--bone-100)',
+            color: '#FFFFFF',
             marginBottom: 'var(--space-5)',
           }}
         >
-          Phase II.<br />
-          <em>2027.</em>
+          This is what scale looks like<br />
+          <span style={{ color: 'rgba(245,243,238,0.45)', fontWeight: 600 }}>when the mission is real.</span>
         </h2>
         <p
           style={{
             fontFamily: 'var(--font-sans)',
+            fontWeight: 300,
             fontSize: 'var(--text-lg)',
             lineHeight: 'var(--lh-loose)',
-            color: 'rgba(242,239,231,0.62)',
+            color: 'rgba(245,243,238,0.60)',
             maxWidth: '480px',
-            fontWeight: 300,
           }}
         >
-          From demonstration plant to real urban infrastructure — 10 new modules at Bordo Poniente. The beginning of 170.
+          Phase II — 2027. From demonstration plant to real urban infrastructure. 10 new modules at Bordo Poniente. The beginning of 170.
         </p>
       </div>
 
@@ -165,11 +168,11 @@ export default function ScaleSection() {
               <div
                 style={{
                   fontFamily: 'var(--font-display)',
+                  fontWeight: 800,
                   fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
                   lineHeight: 1,
                   letterSpacing: 'var(--ls-display)',
-                  fontWeight: 400,
-                  color: 'var(--bone-100)',
+                  color: '#FFFFFF',
                   marginBottom: '4px',
                 }}
               >
@@ -208,6 +211,7 @@ export default function ScaleSection() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
           <a
             href="#contact"
+            className="glass-btn"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -215,15 +219,13 @@ export default function ScaleSection() {
               fontFamily: 'var(--font-sans)',
               fontSize: '15px',
               fontWeight: 500,
-              background: 'var(--bone-100)',
-              color: 'var(--hydrochar-900)',
-              padding: '14px 22px 14px 26px',
-              borderRadius: '999px',
+              color: '#FFFFFF',
+              padding: '14px 24px',
               textDecoration: 'none',
             }}
           >
-            Partner with us
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            Be part of it
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
             </svg>
           </a>
@@ -234,16 +236,25 @@ export default function ScaleSection() {
               alignItems: 'center',
               fontFamily: 'var(--font-sans)',
               fontSize: '14px',
-              fontWeight: 500,
-              color: 'var(--bone-100)',
+              fontWeight: 400,
+              color: 'rgba(245,243,238,0.60)',
               background: 'transparent',
-              border: '1px solid rgba(242,239,231,0.22)',
+              border: '1px solid rgba(245,243,238,0.18)',
               padding: '13px 20px',
               borderRadius: '999px',
               textDecoration: 'none',
+              transition: 'border-color 200ms, color 200ms',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = 'rgba(245,243,238,0.40)'
+              e.currentTarget.style.color = '#FFFFFF'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = 'rgba(245,243,238,0.18)'
+              e.currentTarget.style.color = 'rgba(245,243,238,0.60)'
             }}
           >
-            Read the brief
+            Request the brief
           </a>
         </div>
       </div>
