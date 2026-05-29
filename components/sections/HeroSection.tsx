@@ -41,21 +41,24 @@ export default function HeroSection() {
         overflow: 'hidden',
       }}
     >
-      {/* ── GIF background — breathable at 25% overlay ───────────────── */}
+      {/* ── Hero image — Iztaccíhuatl & Popocatépetl with G2E mark ────── */}
       <div aria-hidden="true" style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/motion/1.gif"
-          alt=""
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center 30%',
-          }}
-        />
-        {/* Primary overlay — 25% only, backgrounds breathes */}
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(20,19,15,0.25)' }} />
+        <picture>
+          <source srcSet="/assets/hero-image.webp" type="image/webp" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/assets/hero-image.jpg"
+            alt=""
+            style={{
+              width:          '100%',
+              height:         '100%',
+              objectFit:      'cover',
+              objectPosition: 'center 35%',
+            }}
+          />
+        </picture>
+        {/* Dark tint — keeps sky readable while mountains breathe */}
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,12,10,0.38)' }} />
         {/* Bottom vignette for text legibility */}
         <div
           style={{
@@ -76,28 +79,6 @@ export default function HeroSection() {
         />
       </div>
 
-      {/* ── Oversized ghost "G2E" — depth layer ──────────────────────── */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          top: '50%',
-          right: 'clamp(-20px, -2vw, -60px)',
-          transform: 'translateY(-50%)',
-          fontFamily: 'var(--font-display)',
-          fontWeight: 800,
-          fontSize: 'clamp(22vw, 28vw, 36vw)',
-          lineHeight: 0.85,
-          letterSpacing: '-0.04em',
-          color: 'rgba(245,243,238,0.04)',
-          userSelect: 'none',
-          zIndex: 0,
-          pointerEvents: 'none',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        G2E
-      </div>
 
       {/* ── Main content ─────────────────────────────────────────────── */}
       <div
