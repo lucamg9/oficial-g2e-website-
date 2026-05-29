@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Logo — horizontal lockup</title>
+<link rel="stylesheet" href="preview.css">
+<style>
+  .card{justify-content:center; min-height:220px; gap:20px;}
+  .lockup-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .lockup-row > div {
+    border-radius: 14px;
+    padding: 28px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 130px;
+  }
+  .on-bone { background: var(--bone-50); border: 1px solid var(--line); }
+  .on-dark { background: var(--hydrochar-900); }
+  .swap-h img { height: 56px; width: auto; }
+</style>
+</head>
+<body>
+<div class="card ">
+  <div class="tag">HORIZONTAL LOCKUP · ON BONE / ON DARK</div>
+  <div class="lockup-row swap-h">
+    <div class="on-bone">
+      <img src="../assets/logo-horizontal.svg" alt="G2E horizontal"/>
+    </div>
+    <div class="on-dark">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" style="height:56px; width:auto;">
+        <circle cx="100" cy="100" r="100" fill="#F2EFE7"></circle>
+        <text x="100" y="138" text-anchor="middle" font-family="Newsreader, Times New Roman, serif" font-size="150" fill="#11140F" font-weight="500">g</text>
+        <text x="230" y="135" font-family="Newsreader, Times New Roman, serif" font-size="120" fill="#F2EFE7" font-weight="500" letter-spacing="-4">g2e</text>
+      </svg>
+    </div>
+  </div>
+  <div style="font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em; color:var(--ink-muted); text-transform:uppercase;">Disc + wordmark · ink-on-bone, bone-on-ink</div>
+</div>
+</body>
+</html>

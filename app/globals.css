@@ -1,0 +1,313 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Tailwind v4 @theme — maps G2E design tokens to utilities
+   ============================================================ */
+@theme {
+  /* ---- Colors ---- */
+  --color-bone-50:  #FAF8F2;
+  --color-bone-100: #F2EFE7;
+  --color-bone-200: #E8E4D9;
+  --color-bone-300: #D6D1C2;
+
+  --color-hydrochar-600: #3B4137;
+  --color-hydrochar-700: #272C25;
+  --color-hydrochar-800: #1A1E18;
+  --color-hydrochar-900: #11140F;
+
+  --color-moss-400: #6B8B74;
+  --color-moss-500: #3E6249;
+  --color-moss-600: #2C4A35;
+  --color-moss-700: #1F3526;
+
+  --color-tide-100: #D6DEE6;
+  --color-tide-300: #A8B9CA;
+  --color-tide-500: #6B829A;
+  --color-tide-700: #3A5066;
+  --color-tide-900: #1F2E3F;
+
+  --color-warmgray-100: #E8E5DC;
+  --color-warmgray-200: #C9C5B8;
+  --color-warmgray-300: #9B978B;
+  --color-warmgray-400: #6E6B62;
+  --color-warmgray-500: #4A4843;
+
+  /* Semantic aliases used in Tailwind classes */
+  --color-bg:            #F2EFE7;
+  --color-ink:           #11140F;
+  --color-ink-muted:     #6E6B62;
+  --color-ink-subtle:    #9B978B;
+  --color-ink-inverse:   #F2EFE7;
+
+  /* ---- Fonts ---- */
+  --font-display: var(--font-newsreader), 'Times New Roman', Georgia, serif;
+  --font-sans:    var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ---- Radius ---- */
+  --radius-xs:   4px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   20px;
+  --radius-2xl:  28px;
+  --radius-3xl:  40px;
+  --radius-pill: 999px;
+
+  /* ---- Shadows ---- */
+  --shadow-card:  0 1px 2px rgba(17,20,15,0.04), 0 8px 24px -8px rgba(17,20,15,0.08);
+  --shadow-panel: 0 2px 4px rgba(17,20,15,0.06), 0 24px 48px -16px rgba(17,20,15,0.18);
+  --shadow-pop:   0 4px 12px rgba(17,20,15,0.10), 0 32px 64px -16px rgba(17,20,15,0.22);
+
+  /* ---- Easing ---- */
+  --ease-expo:  cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ============================================================
+   G2E Design System — Primitive + Semantic tokens
+   ============================================================ */
+:root {
+  --bone-50:  #FAF8F2;
+  --bone-100: #F2EFE7;
+  --bone-200: #E8E4D9;
+  --bone-300: #D6D1C2;
+
+  --hydrochar-900: #11140F;
+  --hydrochar-800: #1A1E18;
+  --hydrochar-700: #272C25;
+  --hydrochar-600: #3B4137;
+
+  --moss-700: #1F3526;
+  --moss-600: #2C4A35;
+  --moss-500: #3E6249;
+  --moss-400: #6B8B74;
+
+  --tide-900: #1F2E3F;
+  --tide-700: #3A5066;
+  --tide-500: #6B829A;
+  --tide-300: #A8B9CA;
+  --tide-100: #D6DEE6;
+
+  --warmgray-100: #E8E5DC;
+  --warmgray-200: #C9C5B8;
+  --warmgray-300: #9B978B;
+  --warmgray-400: #6E6B62;
+  --warmgray-500: #4A4843;
+
+  --signal-success: #3E6249;
+  --signal-warning: #6B829A;
+  --signal-error:   #8C2F1F;
+  --signal-info:    #3A5066;
+
+  /* Surfaces */
+  --bg:          var(--bone-100);
+  --bg-elevated: var(--bone-50);
+  --bg-sunken:   var(--bone-200);
+  --bg-dark:     var(--hydrochar-900);
+  --bg-moss:     var(--moss-600);
+
+  /* Ink */
+  --ink:               var(--hydrochar-900);
+  --ink-muted:         var(--warmgray-400);
+  --ink-subtle:        var(--warmgray-300);
+  --ink-inverse:       var(--bone-100);
+  --ink-muted-inverse: rgba(242, 239, 231, 0.62);
+
+  /* Lines */
+  --line:                rgba(17, 20, 15, 0.10);
+  --line-strong:         rgba(17, 20, 15, 0.20);
+  --line-inverse:        rgba(242, 239, 231, 0.10);
+  --line-inverse-strong: rgba(242, 239, 231, 0.22);
+
+  /* Accent */
+  --accent:           var(--hydrochar-900);
+  --accent-hover:     var(--hydrochar-800);
+  --accent-ink:       var(--bone-100);
+  --accent-cool:      var(--tide-700);
+  --accent-cool-soft: var(--tide-100);
+
+  /* Overlays */
+  --overlay-dark:  rgba(17, 20, 15, 0.45);
+  --overlay-image: linear-gradient(180deg, rgba(17,20,15,0) 0%, rgba(17,20,15,0.55) 100%);
+  --glass-bone:    rgba(242, 239, 231, 0.66);
+  --glass-blur:    blur(18px) saturate(140%);
+
+  /* Typography */
+  --font-display: var(--font-newsreader), 'Times New Roman', Georgia, serif;
+  --font-sans:    var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --fw-light:    300;
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+
+  --text-3xs: 0.6875rem;
+  --text-2xs: 0.75rem;
+  --text-xs:  0.8125rem;
+  --text-sm:  0.875rem;
+  --text-md:  1rem;
+  --text-lg:  1.125rem;
+  --text-xl:  1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  --text-4xl: clamp(2.75rem, 4vw + 1rem, 3.75rem);
+  --text-5xl: clamp(3.5rem, 6vw + 1rem, 5.5rem);
+  --text-6xl: clamp(4.5rem, 9vw + 1rem, 8rem);
+
+  --lh-tight: 0.95;
+  --lh-snug:  1.10;
+  --lh-base:  1.45;
+  --lh-loose: 1.65;
+
+  --ls-display: -0.025em;
+  --ls-tight:   -0.01em;
+  --ls-normal:   0em;
+  --ls-eyebrow:  0.14em;
+  --ls-mono:     0.02em;
+
+  /* Spacing */
+  --space-1:   4px;  --space-2:   8px;  --space-3:  12px;
+  --space-4:  16px;  --space-5:  24px;  --space-6:  32px;
+  --space-7:  48px;  --space-8:  64px;  --space-9:  80px;
+  --space-10: 96px;  --space-12: 128px; --space-16: 192px;
+
+  /* Radius */
+  --radius-xs:   4px;  --radius-sm:   8px;  --radius-md:  12px;
+  --radius-lg:  16px;  --radius-xl:  20px;  --radius-2xl: 28px;
+  --radius-3xl: 40px;  --radius-pill: 999px;
+
+  /* Shadow */
+  --shadow-card:        0 1px 2px rgba(17,20,15,0.04), 0 8px 24px -8px rgba(17,20,15,0.08);
+  --shadow-panel:       0 2px 4px rgba(17,20,15,0.06), 0 24px 48px -16px rgba(17,20,15,0.18);
+  --shadow-pop:         0 4px 12px rgba(17,20,15,0.10), 0 32px 64px -16px rgba(17,20,15,0.22);
+  --shadow-inset-line:  inset 0 0 0 1px var(--line);
+
+  /* Motion */
+  --ease-expo:   cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-quart:  cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast:    160ms;
+  --dur-base:    320ms;
+  --dur-slow:    600ms;
+
+  /* Layout */
+  --container-max: 1440px;
+  --container-pad: clamp(24px, 4vw, 64px);
+  --nav-h: 72px;
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: auto; /* Lenis handles this */
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--lh-base);
+  font-weight: var(--fw-regular);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--hydrochar-900); color: var(--bone-100); }
+
+/* ============================================================
+   Type utility classes
+   ============================================================ */
+.g2e-display {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-6xl);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-display);
+}
+
+.g2e-h1 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-5xl);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-display);
+}
+
+.g2e-h2 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-4xl);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--ls-display);
+}
+
+.g2e-h3 {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-medium);
+  font-size: var(--text-2xl);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--ls-tight);
+}
+
+.g2e-lede {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-lg);
+  line-height: var(--lh-loose);
+}
+
+.g2e-body {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-md);
+  line-height: var(--lh-loose);
+  text-wrap: pretty;
+}
+
+.g2e-caption {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-sm);
+  line-height: var(--lh-base);
+  color: var(--ink-muted);
+}
+
+.g2e-eyebrow {
+  font-family: var(--font-mono);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-2xs);
+  line-height: 1;
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+/* ============================================================
+   Layout helpers
+   ============================================================ */
+.g2e-container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+}
+
+/* ============================================================
+   Reduced motion — disable all animation
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

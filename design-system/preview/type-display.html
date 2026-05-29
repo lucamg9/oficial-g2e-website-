@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Display — Newsreader</title>
+<link rel="stylesheet" href="preview.css">
+<style>
+  .card { min-height: 300px; gap: 20px; }
+  .specimen {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 168px;
+    line-height: 0.88;
+    letter-spacing: -0.03em;
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 72;
+  }
+  .specimen .ital { font-style: italic; }
+  .divider {
+    width: 1px;
+    align-self: stretch;
+    background: var(--line);
+    margin: 4px 4px;
+  }
+  .sample {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 52px;
+    line-height: 1;
+    letter-spacing: -0.025em;
+    font-variation-settings: "opsz" 60;
+  }
+  .sample em { font-style: italic; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="row" style="align-items:flex-end; gap:20px;">
+    <div class="specimen">Aa</div>
+    <div class="divider"></div>
+    <div class="specimen ital">Aa</div>
+    <div class="col" style="margin-left:auto; align-items:flex-end; text-align:right;">
+      <div class="tag">DISPLAY</div>
+      <div style="font-family:var(--font-display); font-size:28px; line-height:1; letter-spacing:-0.015em;">Newsreader</div>
+      <div class="tag">ROMAN · ITALIC · 400</div>
+    </div>
+  </div>
+  <div class="sample">Waste, <em>transmuted.</em></div>
+</div>
+</body>
+</html>

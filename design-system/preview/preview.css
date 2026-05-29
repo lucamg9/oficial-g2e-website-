@@ -1,0 +1,41 @@
+/* Shared styles for preview cards.
+   Each card is a 700-wide self-contained HTML demoing one concept.
+   No card has its own title — the asset name renders outside. */
+@import url('../colors_and_type.css');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 700px;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  overflow: hidden;
+}
+
+.card {
+  padding: 28px 32px;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card.dense { padding: 20px 28px; }
+.card.dark  { background: var(--bg-dark); color: var(--ink-inverse); }
+.card.moss  { background: var(--bg-moss);  color: var(--ink-inverse); }
+
+.row     { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.row-tight { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.col     { display: flex; flex-direction: column; gap: 8px; }
+.spread  { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.dark .tag, .moss .tag { color: var(--ink-muted-inverse); }

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" width="600" height="200">
+  <circle cx="100" cy="100" r="100" fill="#11140F"></circle>
+  <text x="100" y="138" text-anchor="middle" font-family="Newsreader, Times New Roman, serif" font-size="150" fill="#F2EFE7" font-weight="500">g</text>
+  <text x="230" y="135" font-family="Newsreader, Times New Roman, serif" font-size="120" fill="#11140F" font-weight="500" letter-spacing="-4">g2e</text>
+</svg>
