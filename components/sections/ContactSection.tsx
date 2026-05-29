@@ -41,7 +41,7 @@ export default function ContactSection() {
               flexShrink: 0,
             }}
           >
-            [ 06 ]
+            [ 09 ]
           </span>
           <div style={{ height: '1px', flex: 1, background: 'var(--line)' }} />
         </div>

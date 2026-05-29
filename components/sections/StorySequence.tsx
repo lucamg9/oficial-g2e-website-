@@ -206,92 +206,109 @@ export default function StorySequence() {
             textAlign:     ch.align,
           }}
         >
-          {/* Chapter pill */}
+          {/*
+            Frosted glass panel — guarantees text readability regardless of
+            what the video is showing behind it (dark hydrochar, soil, etc.)
+          */}
           <div style={{
-            display:        'inline-flex',
-            alignItems:     'center',
-            gap:            '8px',
-            marginBottom:   '24px',
-            padding:        '6px 14px',
-            background:     'rgba(20,19,15,0.06)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            border:         '1px solid rgba(20,19,15,0.10)',
-            borderRadius:   '999px',
+            display:             'flex',
+            flexDirection:       'column',
+            alignItems:          ch.align === 'right'  ? 'flex-end'
+                               : ch.align === 'center' ? 'center'
+                               :                        'flex-start',
+            background:          'rgba(245,243,238,0.82)',
+            backdropFilter:      'blur(24px) saturate(150%)',
+            WebkitBackdropFilter:'blur(24px) saturate(150%)',
+            border:              '1px solid rgba(245,243,238,0.90)',
+            borderRadius:        'var(--radius-2xl)',
+            padding:             'clamp(24px, 3vw, 40px)',
+            maxWidth:            ch.align === 'center' ? '760px' : '520px',
+            width:               '100%',
+            boxShadow:           '0 8px 40px rgba(20,19,15,0.10)',
           }}>
-            <span style={{ width:'6px', height:'6px', borderRadius:'50%', background:'var(--forest-mid)', display:'block' }} />
-            <span style={{ fontFamily:'var(--font-mono)', fontSize:'10px', letterSpacing:'0.12em', textTransform:'uppercase', color:'var(--ink-muted)' }}>
-              {ch.num} / 04 — {ch.eyebrow}
-            </span>
-          </div>
 
-          {/* Headline */}
-          <h2 style={{
-            fontFamily:    'var(--font-display)',
-            fontWeight:    800,
-            fontSize:      'clamp(2.2rem, 5vw, 5.5rem)',
-            lineHeight:    1.0,
-            letterSpacing: '-0.03em',
-            color:         'var(--ink)',
-            maxWidth:      ch.align === 'center' ? '860px' : '600px',
-            whiteSpace:    'pre-line',
-            marginBottom:  '24px',
-          }}>
-            {ch.headline}
-          </h2>
+            {/* Chapter pill */}
+            <div style={{
+              display:     'inline-flex',
+              alignItems:  'center',
+              gap:         '8px',
+              marginBottom:'20px',
+              padding:     '5px 12px',
+              background:  'rgba(20,19,15,0.06)',
+              border:      '1px solid rgba(20,19,15,0.10)',
+              borderRadius:'999px',
+            }}>
+              <span style={{ width:'6px', height:'6px', borderRadius:'50%', background:'var(--forest-mid)', display:'block', flexShrink:0 }} />
+              <span style={{ fontFamily:'var(--font-mono)', fontSize:'10px', letterSpacing:'0.12em', textTransform:'uppercase', color:'var(--ink-muted)' }}>
+                {ch.num} / 04 — {ch.eyebrow}
+              </span>
+            </div>
 
-          {/* Sub */}
-          <p style={{
-            fontFamily:  'var(--font-sans)',
-            fontWeight:  300,
-            fontSize:    'clamp(0.95rem, 1.5vw, 1.2rem)',
-            lineHeight:  1.65,
-            color:       'var(--ink-muted)',
-            maxWidth:    '480px',
-            marginBottom:'32px',
-          }}>
-            {ch.sub}
-          </p>
+            {/* Headline */}
+            <h2 style={{
+              fontFamily:    'var(--font-display)',
+              fontWeight:    800,
+              fontSize:      'clamp(1.8rem, 4vw, 4rem)',
+              lineHeight:    1.0,
+              letterSpacing: '-0.03em',
+              color:         'var(--ink)',
+              whiteSpace:    'pre-line',
+              marginBottom:  '16px',
+            }}>
+              {ch.headline}
+            </h2>
 
-          {/* Stat chips */}
-          <div style={{ display:'flex', gap:'10px', flexWrap:'wrap' }}>
-            {ch.stats.map(stat => (
-              <div
-                key={stat.value}
-                style={{
-                  padding:        '12px 18px',
-                  background:     'rgba(20,19,15,0.05)',
-                  backdropFilter: 'blur(16px) saturate(140%)',
-                  WebkitBackdropFilter: 'blur(16px) saturate(140%)',
-                  border:         '1px solid rgba(20,19,15,0.10)',
-                  borderRadius:   'var(--radius-lg)',
-                  display:        'flex',
-                  flexDirection:  'column',
-                  gap:            '3px',
-                  minWidth:       '110px',
-                }}
-              >
-                <span style={{
-                  fontFamily:    'var(--font-display)',
-                  fontWeight:    700,
-                  fontSize:      'clamp(1.1rem, 2vw, 1.5rem)',
-                  letterSpacing: '-0.02em',
-                  color:         'var(--ink)',
-                  lineHeight:    1,
-                }}>
-                  {stat.value}
-                </span>
-                <span style={{
-                  fontFamily:   'var(--font-mono)',
-                  fontSize:     '10px',
-                  letterSpacing:'0.08em',
-                  textTransform:'uppercase',
-                  color:        'var(--ink-muted)',
-                }}>
-                  {stat.label}
-                </span>
-              </div>
-            ))}
+            {/* Sub */}
+            <p style={{
+              fontFamily:  'var(--font-sans)',
+              fontWeight:  400,
+              fontSize:    'clamp(0.875rem, 1.3vw, 1.05rem)',
+              lineHeight:  1.65,
+              color:       'var(--ink-muted)',
+              marginBottom:'24px',
+            }}>
+              {ch.sub}
+            </p>
+
+            {/* Stat chips */}
+            <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
+              {ch.stats.map(stat => (
+                <div
+                  key={stat.value}
+                  style={{
+                    padding:       '10px 16px',
+                    background:    'rgba(20,19,15,0.05)',
+                    border:        '1px solid rgba(20,19,15,0.10)',
+                    borderRadius:  'var(--radius-md)',
+                    display:       'flex',
+                    flexDirection: 'column',
+                    gap:           '3px',
+                    minWidth:      '100px',
+                  }}
+                >
+                  <span style={{
+                    fontFamily:    'var(--font-display)',
+                    fontWeight:    700,
+                    fontSize:      'clamp(1rem, 1.8vw, 1.35rem)',
+                    letterSpacing: '-0.02em',
+                    color:         'var(--ink)',
+                    lineHeight:    1,
+                  }}>
+                    {stat.value}
+                  </span>
+                  <span style={{
+                    fontFamily:   'var(--font-mono)',
+                    fontSize:     '10px',
+                    letterSpacing:'0.08em',
+                    textTransform:'uppercase',
+                    color:        'var(--ink-muted)',
+                  }}>
+                    {stat.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+
           </div>
         </div>
       ))}

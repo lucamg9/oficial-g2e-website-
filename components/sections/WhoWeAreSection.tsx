@@ -62,7 +62,7 @@ export default function WhoWeAreSection() {
               flexShrink: 0,
             }}
           >
-            [ 02 ]
+            [ 05 ]
           </span>
           <div style={{ height: '1px', flex: 1, background: 'var(--line)' }} />
         </div>
@@ -77,7 +77,7 @@ export default function WhoWeAreSection() {
             marginBottom: 'var(--space-10)',
           }}
         >
-          Who we are
+          Our story
         </p>
 
         {/* ── Asymmetric 2-col grid ─────────────────── */}

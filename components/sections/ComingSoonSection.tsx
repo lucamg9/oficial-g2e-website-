@@ -78,7 +78,7 @@ export default function ComingSoonSection() {
               flexShrink: 0,
             }}
           >
-            [ 07 ]
+            [ 10 ]
           </span>
           <div style={{ height: '1px', flex: 1, background: 'rgba(242,239,231,0.08)' }} />
         </div>

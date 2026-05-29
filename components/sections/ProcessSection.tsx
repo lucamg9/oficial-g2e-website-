@@ -49,7 +49,7 @@ export default function ProcessSection() {
               flexShrink: 0,
             }}
           >
-            [ 03 ]
+            [ 06 ]
           </span>
           <div style={{ height: '1px', flex: 1, background: 'rgba(242,239,231,0.10)' }} />
         </div>
@@ -63,7 +63,7 @@ export default function ProcessSection() {
             marginBottom: 'var(--space-10)',
           }}
         >
-          The process
+          How it works
         </p>
 
         {/* ── 2-column grid ─────────────────────────── */}

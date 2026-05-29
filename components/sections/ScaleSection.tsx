@@ -86,7 +86,7 @@ export default function ScaleSection() {
               flexShrink: 0,
             }}
           >
-            [ 05 ]
+            [ 08 ]
           </span>
           <div style={{ height: '1px', flex: 1, background: 'rgba(242,239,231,0.10)' }} />
         </div>
@@ -99,7 +99,7 @@ export default function ScaleSection() {
             color: 'rgba(242,239,231,0.35)',
           }}
         >
-          Where we&apos;re going
+          Phase II · 2027
         </p>
       </div>
 

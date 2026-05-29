@@ -58,14 +58,14 @@ export default function HeroSection() {
           />
         </picture>
         {/* Dark tint — keeps sky readable while mountains breathe */}
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,12,10,0.38)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,12,10,0.42)' }} />
         {/* Bottom vignette for text legibility */}
         <div
           style={{
             position: 'absolute',
             bottom: 0, left: 0, right: 0,
             height: '55%',
-            background: 'linear-gradient(to bottom, rgba(20,19,15,0) 0%, rgba(20,19,15,0.88) 100%)',
+            background: 'linear-gradient(to bottom, rgba(10,12,10,0) 0%, rgba(10,12,10,0.92) 100%)',
           }}
         />
         {/* Left vignette — grounds the text column */}
@@ -109,7 +109,7 @@ export default function HeroSection() {
               fontSize: 'var(--text-2xs)',
               letterSpacing: 'var(--ls-eyebrow)',
               textTransform: 'uppercase',
-              color: 'rgba(245,243,238,0.38)',
+              color: 'rgba(245,243,238,0.70)',
             }}
           >
             G2E — Green to Energy
@@ -121,7 +121,7 @@ export default function HeroSection() {
               fontSize: 'var(--text-2xs)',
               letterSpacing: 'var(--ls-eyebrow)',
               textTransform: 'uppercase',
-              color: 'rgba(245,243,238,0.28)',
+              color: 'rgba(245,243,238,0.55)',
             }}
           >
             Bordo Poniente · CDMX · Est. 2013
@@ -143,7 +143,7 @@ export default function HeroSection() {
           }}
         >
           From landfill<br />to fuel.<br />
-          <span style={{ color: 'rgba(245,243,238,0.55)' }}>In hours.</span>
+          <span style={{ color: 'rgba(245,243,238,0.75)' }}>In hours.</span>
         </h1>
 
         {/* Lede */}
@@ -154,7 +154,7 @@ export default function HeroSection() {
             fontWeight: 300,
             fontSize: 'var(--text-lg)',
             lineHeight: 'var(--lh-loose)',
-            color: 'rgba(245,243,238,0.65)',
+            color: 'rgba(245,243,238,0.88)',
             maxWidth: '480px',
             marginBottom: 'var(--space-8)',
           }}
@@ -265,7 +265,7 @@ export default function HeroSection() {
                   fontSize: '10px',
                   letterSpacing: '0.10em',
                   textTransform: 'uppercase',
-                  color: 'rgba(245,243,238,0.48)',
+                  color: 'rgba(245,243,238,0.72)',
                 }}
               >
                 {stat.label}
@@ -295,7 +295,7 @@ export default function HeroSection() {
                 fontSize: 'var(--text-2xs)',
                 letterSpacing: 'var(--ls-eyebrow)',
                 textTransform: 'uppercase',
-                color: 'rgba(245,243,238,0.28)',
+                color: 'rgba(245,243,238,0.55)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 'var(--space-5)',

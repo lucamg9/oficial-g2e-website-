@@ -57,7 +57,7 @@ export default function ProductsSection() {
               flexShrink: 0,
             }}
           >
-            [ 04 ]
+            [ 07 ]
           </span>
           <div style={{ height: '1px', flex: 1, background: 'var(--line)' }} />
         </div>
@@ -71,7 +71,7 @@ export default function ProductsSection() {
             marginBottom: 'var(--space-8)',
           }}
         >
-          Three products, one technology
+          What we create
         </p>
 
         {/* ── Intro headline ────────────────────────── */}
