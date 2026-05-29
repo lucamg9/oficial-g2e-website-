@@ -26,11 +26,12 @@ export default function WhoWeAreSection() {
         overflow: 'hidden',
       }}
     >
-      {/* Story 1 — floating hydrochar on bone bg blends into section */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/motion/story-1.gif"
-        alt=""
+      {/* Story 1 — floating hydrochar, WebM video (full quality, no GIF palette) */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
         aria-hidden="true"
         style={{
           position: 'absolute',
@@ -44,7 +45,10 @@ export default function WhoWeAreSection() {
           opacity: 0.70,
           zIndex: 0,
         }}
-      />
+      >
+        <source src="/motion/story-1.webm" type="video/webm" />
+        <source src="/motion/story-1.mp4"  type="video/mp4"  />
+      </video>
       <div className="g2e-container" style={{ position: 'relative', zIndex: 1 }}>
 
         {/* ── Section label ─────────────────────────── */}

@@ -27,17 +27,24 @@ export default function ScaleSection() {
         aria-hidden="true"
         style={{ position: 'absolute', inset: 0, zIndex: 0 }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/motion/story-4.gif"
-          alt=""
+        {/* Story 4 — WebM, full quality, hydrochar granules in soil */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          aria-hidden="true"
           style={{
             width: '100%',
             height: '100%',
             objectFit: 'cover',
             objectPosition: 'center 40%',
+            display: 'block',
           }}
-        />
+        >
+          <source src="/motion/story-4.webm" type="video/webm" />
+          <source src="/motion/story-4.mp4"  type="video/mp4"  />
+        </video>
         {/* Dark tint — 30% max so granules texture remains visible */}
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(20,19,15,0.30)' }} />
         {/* Bottom gradient — stat legibility */}

@@ -162,17 +162,24 @@ export default function ProcessSection() {
             }}
             className="hidden lg:block"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/motion/story-2.gif"
-              alt="Hydrochar — the mineral-grade carbon material produced by G2E"
+            {/* Story 2 — WebM, full 1280×720, no GIF quantization */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              aria-label="Hydrochar — the mineral-grade carbon material produced by G2E"
               style={{
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
                 objectPosition: 'center',
+                display: 'block',
               }}
-            />
+            >
+              <source src="/motion/story-2.webm" type="video/webm" />
+              <source src="/motion/story-2.mp4"  type="video/mp4"  />
+            </video>
 
             {/* Glass chip — location */}
             <div

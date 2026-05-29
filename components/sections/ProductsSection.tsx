@@ -118,18 +118,24 @@ export default function ProductsSection() {
             marginBottom: 'var(--space-6)',
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/motion/story-3.gif"
-            alt=""
+          {/* Story 3 — WebM, full quality, hydrochar meeting soil */}
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
             aria-hidden="true"
             style={{
               width: '100%',
               height: '100%',
               objectFit: 'cover',
               objectPosition: 'center 60%',
+              display: 'block',
             }}
-          />
+          >
+            <source src="/motion/story-3.webm" type="video/webm" />
+            <source src="/motion/story-3.mp4"  type="video/mp4"  />
+          </video>
           {/* Very subtle overlay to blend with bone bg */}
           <div
             aria-hidden="true"
