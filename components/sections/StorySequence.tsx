@@ -1,0 +1,333 @@
+'use client'
+
+import { useEffect, useRef, useCallback } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
+
+const TOTAL_FRAMES = 480
+const FPS          = 30
+const DURATION     = TOTAL_FRAMES / FPS   // 16.0s
+const PX_PER_FRAME = 5
+const SCROLL_DIST  = TOTAL_FRAMES * PX_PER_FRAME  // 2400px
+
+/* ─── Chapter definitions ────────────────────────────────────────────── */
+/*
+  Story 1 (frames   0–119): Hydrochar floating, small — WHO WE ARE
+  Story 2 (frames 120–239): Hydrochar floating, large — THE PROCESS
+  Story 3 (frames 240–359): Hydrochar in soil          — THE PRODUCTS
+  Story 4 (frames 360–479): Granules in soil, macro    — THE VISION
+*/
+const CHAPTERS = [
+  {
+    fromFrame: 0,
+    toFrame:   119,
+    num:       '01',
+    eyebrow:   'Who We Are',
+    headline:  'We started where\nthe problem is loudest.',
+    sub:       "Mexico City's organic waste. The world's largest HTC plant. Built from scratch, in partnership with UNAM and the Mexican Government.",
+    align:     'left'   as const,
+    stats:     [
+      { value: '3 t/hr',   label: 'Live throughput'     },
+      { value: 'Est. 2013',label: 'Bordo Poniente, CDMX' },
+    ],
+  },
+  {
+    fromFrame: 120,
+    toFrame:   239,
+    num:       '02',
+    eyebrow:   'The Process',
+    headline:  'A material that didn\'t exist.\nUntil it had to.',
+    sub:       'Hydrothermal Carbonization at 220°C. Organic waste enters the reactor. Hydrochar — a mineral-grade carbon material — emerges in hours.',
+    align:     'right'  as const,
+    stats:     [
+      { value: '220°C',  label: 'Process temperature' },
+      { value: 'Hours',  label: 'Not centuries'       },
+    ],
+  },
+  {
+    fromFrame: 240,
+    toFrame:   359,
+    num:       '03',
+    eyebrow:   'The Products',
+    headline:  'Hydrochar doesn\'t just\nreplace coal.',
+    sub:       'It regenerates soil. It sequesters carbon for centuries. It generates premium technology-based carbon credits that the market actually needs.',
+    align:     'left'   as const,
+    stats:     [
+      { value: '3',         label: 'Industries transformed' },
+      { value: '270,600',   label: 'Carbon credits / yr'    },
+    ],
+  },
+  {
+    fromFrame: 360,
+    toFrame:   479,
+    num:       '04',
+    eyebrow:   'The Vision',
+    headline:  'This is what scale looks like\nwhen the mission is real.',
+    sub:       'Phase II · 2027 · 10 new modules at Bordo Poniente. The beginning of 170. $150M USD. 792 tonnes of waste processed every day.',
+    align:     'center' as const,
+    stats:     [
+      { value: '$150M',  label: 'Phase II investment' },
+      { value: '170',    label: 'Module vision'       },
+    ],
+  },
+]
+
+export default function StorySequence() {
+  const sectionRef  = useRef<HTMLDivElement>(null)
+  const videoRef    = useRef<HTMLVideoElement>(null)
+  const chapterRefs = useRef<(HTMLDivElement | null)[]>([])
+
+  /* ─── Seek deduplication ─────────────────────────────────────────── */
+  const pendingSeek = useRef(false)
+  const targetTime  = useRef(0)
+
+  const seekTo = useCallback((time: number) => {
+    const video = videoRef.current
+    if (!video) return
+    targetTime.current = time
+    if (pendingSeek.current) return
+    const delta = Math.abs(video.currentTime - time)
+    if (delta < 1 / FPS / 2) return
+    pendingSeek.current = true
+    video.currentTime   = time
+  }, [])
+
+  useEffect(() => {
+    const video   = videoRef.current
+    const section = sectionRef.current
+    if (!video || !section) return
+
+    const onSeeked = () => {
+      pendingSeek.current = false
+      const delta = Math.abs(video.currentTime - targetTime.current)
+      if (delta > 1 / FPS / 2) {
+        pendingSeek.current = true
+        video.currentTime   = targetTime.current
+      }
+    }
+    video.addEventListener('seeked', onSeeked)
+
+    const st = ScrollTrigger.create({
+      trigger: section,
+      start:   'top top',
+      end:     `+=${SCROLL_DIST}`,
+      pin:     true,
+      scrub:   true,
+      onUpdate: (self) => {
+        /* Video seek */
+        seekTo(self.progress * DURATION)
+
+        /* Chapter opacity */
+        const frame   = self.progress * (TOTAL_FRAMES - 1)
+        const fadeLen = 20   // frames for in/out fade
+
+        CHAPTERS.forEach((ch, i) => {
+          const el = chapterRefs.current[i]
+          if (!el) return
+          let opacity = 0
+          if (frame >= ch.fromFrame && frame <= ch.toFrame) {
+            const inFade  = frame - ch.fromFrame
+            const outFade = ch.toFrame - frame
+            opacity = Math.min(1, Math.min(inFade, outFade, fadeLen) / fadeLen)
+          }
+          el.style.opacity = String(opacity)
+        })
+      },
+    })
+
+    return () => {
+      st.kill()
+      video.removeEventListener('seeked', onSeeked)
+    }
+  }, [seekTo])
+
+  return (
+    <section
+      ref={sectionRef}
+      id="story"
+      aria-label="G2E story — four chapters"
+      style={{ position: 'relative', width: '100%', height: '100vh' }}
+    >
+      {/*
+        story-sequence.webm: 4 stories concatenated, all-keyframe VP9
+        objectFit: cover — fills any viewport natively, DPR-aware
+      */}
+      <video
+        ref={videoRef}
+        muted
+        playsInline
+        preload="auto"
+        style={{
+          position:  'absolute',
+          inset:     0,
+          width:     '100%',
+          height:    '100%',
+          objectFit: 'cover',
+          background:'var(--bg)',
+          display:   'block',
+        }}
+      >
+        <source src="/intro/story-sequence.webm" type="video/webm" />
+        <source src="/intro/story-sequence.mp4"  type="video/mp4"  />
+      </video>
+
+      {/* Very subtle vignette — bone bg is already light, keep minimal */}
+      <div
+        aria-hidden="true"
+        style={{
+          position:     'absolute',
+          inset:        0,
+          background:   'radial-gradient(ellipse at 60% 50%, transparent 35%, rgba(245,243,238,0.18) 100%)',
+          pointerEvents:'none',
+          zIndex:       1,
+        }}
+      />
+
+      {/* Chapter overlays */}
+      {CHAPTERS.map((ch, i) => (
+        <div
+          key={i}
+          ref={el => { chapterRefs.current[i] = el }}
+          style={{
+            position:      'absolute',
+            inset:         0,
+            zIndex:        2,
+            display:       'flex',
+            flexDirection: 'column',
+            justifyContent:'center',
+            padding:       'clamp(40px, 6vw, 96px)',
+            alignItems:    ch.align === 'right'  ? 'flex-end'
+                         : ch.align === 'center' ? 'center'
+                         :                        'flex-start',
+            opacity:       0,
+            pointerEvents: 'none',
+            textAlign:     ch.align,
+          }}
+        >
+          {/* Chapter pill */}
+          <div style={{
+            display:        'inline-flex',
+            alignItems:     'center',
+            gap:            '8px',
+            marginBottom:   '24px',
+            padding:        '6px 14px',
+            background:     'rgba(20,19,15,0.06)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            border:         '1px solid rgba(20,19,15,0.10)',
+            borderRadius:   '999px',
+          }}>
+            <span style={{ width:'6px', height:'6px', borderRadius:'50%', background:'var(--forest-mid)', display:'block' }} />
+            <span style={{ fontFamily:'var(--font-mono)', fontSize:'10px', letterSpacing:'0.12em', textTransform:'uppercase', color:'var(--ink-muted)' }}>
+              {ch.num} / 04 — {ch.eyebrow}
+            </span>
+          </div>
+
+          {/* Headline */}
+          <h2 style={{
+            fontFamily:    'var(--font-display)',
+            fontWeight:    800,
+            fontSize:      'clamp(2.2rem, 5vw, 5.5rem)',
+            lineHeight:    1.0,
+            letterSpacing: '-0.03em',
+            color:         'var(--ink)',
+            maxWidth:      ch.align === 'center' ? '860px' : '600px',
+            whiteSpace:    'pre-line',
+            marginBottom:  '24px',
+          }}>
+            {ch.headline}
+          </h2>
+
+          {/* Sub */}
+          <p style={{
+            fontFamily:  'var(--font-sans)',
+            fontWeight:  300,
+            fontSize:    'clamp(0.95rem, 1.5vw, 1.2rem)',
+            lineHeight:  1.65,
+            color:       'var(--ink-muted)',
+            maxWidth:    '480px',
+            marginBottom:'32px',
+          }}>
+            {ch.sub}
+          </p>
+
+          {/* Stat chips */}
+          <div style={{ display:'flex', gap:'10px', flexWrap:'wrap' }}>
+            {ch.stats.map(stat => (
+              <div
+                key={stat.value}
+                style={{
+                  padding:        '12px 18px',
+                  background:     'rgba(20,19,15,0.05)',
+                  backdropFilter: 'blur(16px) saturate(140%)',
+                  WebkitBackdropFilter: 'blur(16px) saturate(140%)',
+                  border:         '1px solid rgba(20,19,15,0.10)',
+                  borderRadius:   'var(--radius-lg)',
+                  display:        'flex',
+                  flexDirection:  'column',
+                  gap:            '3px',
+                  minWidth:       '110px',
+                }}
+              >
+                <span style={{
+                  fontFamily:    'var(--font-display)',
+                  fontWeight:    700,
+                  fontSize:      'clamp(1.1rem, 2vw, 1.5rem)',
+                  letterSpacing: '-0.02em',
+                  color:         'var(--ink)',
+                  lineHeight:    1,
+                }}>
+                  {stat.value}
+                </span>
+                <span style={{
+                  fontFamily:   'var(--font-mono)',
+                  fontSize:     '10px',
+                  letterSpacing:'0.08em',
+                  textTransform:'uppercase',
+                  color:        'var(--ink-muted)',
+                }}>
+                  {stat.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {/* Chapter progress — bottom right */}
+      <div style={{
+        position:  'absolute',
+        bottom:    '32px',
+        right:     'var(--container-pad)',
+        zIndex:    3,
+        display:   'flex',
+        flexDirection:'column',
+        alignItems:'flex-end',
+        gap:       '6px',
+        pointerEvents:'none',
+      }}>
+        {CHAPTERS.map((ch, i) => (
+          <div
+            key={i}
+            ref={el => {
+              /* Highlight the active chapter dot */
+              chapterRefs.current[i + 100] = el
+            }}
+            style={{
+              display:   'flex',
+              alignItems:'center',
+              gap:       '8px',
+            }}
+          >
+            <span style={{ fontFamily:'var(--font-mono)', fontSize:'9px', letterSpacing:'0.10em', textTransform:'uppercase', color:'var(--ink-subtle)' }}>
+              {ch.eyebrow}
+            </span>
+            <div style={{ width:'4px', height:'4px', borderRadius:'50%', background:'var(--ink-subtle)', flexShrink:0 }} />
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
