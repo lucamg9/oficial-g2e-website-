@@ -6,70 +6,41 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const TOTAL_FRAMES = 480
+/* ─── Only Story 3 + Story 4 (frames 240–479 of the combined video) ──── */
+const START_FRAME  = 240
+const TOTAL_FRAMES = 240          // 120 frames per story × 2
 const FPS          = 30
-const DURATION     = TOTAL_FRAMES / FPS   // 16.0s
+const START_TIME   = START_FRAME / FPS   // 8.0 s into the video
+const DURATION     = TOTAL_FRAMES / FPS  // 8.0 s of content
 const PX_PER_FRAME = 5
-const SCROLL_DIST  = TOTAL_FRAMES * PX_PER_FRAME  // 2400px
+const SCROLL_DIST  = TOTAL_FRAMES * PX_PER_FRAME  // 1200px
 
-/* ─── Chapter definitions ────────────────────────────────────────────── */
-/*
-  Story 1 (frames   0–119): Hydrochar floating, small — WHO WE ARE
-  Story 2 (frames 120–239): Hydrochar floating, large — THE PROCESS
-  Story 3 (frames 240–359): Hydrochar in soil          — THE PRODUCTS
-  Story 4 (frames 360–479): Granules in soil, macro    — THE VISION
-*/
+/* ─── Chapter definitions (local frames 0–239) ───────────────────────── */
 const CHAPTERS = [
   {
     fromFrame: 0,
     toFrame:   119,
     num:       '01',
-    eyebrow:   'Who We Are',
-    headline:  'We started where\nthe problem is loudest.',
-    sub:       "Mexico City's organic waste. The world's largest HTC plant. Built from scratch, in partnership with UNAM and the Mexican Government.",
+    eyebrow:   'The Products',
+    headline:  'Hydrochar doesn\'t just\nreplace coal.',
+    sub:       'It regenerates soil. It sequesters carbon for centuries. It generates premium technology-based carbon credits that the market actually needs.',
     align:     'left'   as const,
     stats:     [
-      { value: '3 t/hr',   label: 'Live throughput'     },
-      { value: 'Est. 2013',label: 'Bordo Poniente, CDMX' },
+      { value: '3',       label: 'Industries transformed' },
+      { value: '270,600', label: 'Carbon credits / yr'    },
     ],
   },
   {
     fromFrame: 120,
     toFrame:   239,
     num:       '02',
-    eyebrow:   'The Process',
-    headline:  'A material that didn\'t exist.\nUntil it had to.',
-    sub:       'Hydrothermal Carbonization at 220°C. Organic waste enters the reactor. Hydrochar — a mineral-grade carbon material — emerges in hours.',
-    align:     'right'  as const,
-    stats:     [
-      { value: '220°C',  label: 'Process temperature' },
-      { value: 'Hours',  label: 'Not centuries'       },
-    ],
-  },
-  {
-    fromFrame: 240,
-    toFrame:   359,
-    num:       '03',
-    eyebrow:   'The Products',
-    headline:  'Hydrochar doesn\'t just\nreplace coal.',
-    sub:       'It regenerates soil. It sequesters carbon for centuries. It generates premium technology-based carbon credits that the market actually needs.',
-    align:     'left'   as const,
-    stats:     [
-      { value: '3',         label: 'Industries transformed' },
-      { value: '270,600',   label: 'Carbon credits / yr'    },
-    ],
-  },
-  {
-    fromFrame: 360,
-    toFrame:   479,
-    num:       '04',
     eyebrow:   'The Vision',
     headline:  'This is what scale looks like\nwhen the mission is real.',
     sub:       'Phase II · 2027 · 10 new modules at Bordo Poniente. The beginning of 170. $150M USD. 792 tonnes of waste processed every day.',
     align:     'center' as const,
     stats:     [
-      { value: '$150M',  label: 'Phase II investment' },
-      { value: '170',    label: 'Module vision'       },
+      { value: '$150M', label: 'Phase II investment' },
+      { value: '170',   label: 'Module vision'       },
     ],
   },
 ]
@@ -116,8 +87,8 @@ export default function StorySequence() {
       pin:     true,
       scrub:   true,
       onUpdate: (self) => {
-        /* Video seek */
-        seekTo(self.progress * DURATION)
+        /* Video seek — offset to Story 3 start (8s into combined video) */
+        seekTo(START_TIME + self.progress * DURATION)
 
         /* Chapter opacity */
         const frame   = self.progress * (TOTAL_FRAMES - 1)
@@ -198,7 +169,7 @@ export default function StorySequence() {
             flexDirection: 'column',
             justifyContent:'center',
             padding:       'clamp(40px, 6vw, 96px)',
-            alignItems:    ch.align === 'right'  ? 'flex-end'
+            alignItems:    (ch.align as string) === 'right'  ? 'flex-end'
                          : ch.align === 'center' ? 'center'
                          :                        'flex-start',
             opacity:       0,
@@ -213,7 +184,7 @@ export default function StorySequence() {
           <div style={{
             display:             'flex',
             flexDirection:       'column',
-            alignItems:          ch.align === 'right'  ? 'flex-end'
+            alignItems:          (ch.align as string) === 'right'  ? 'flex-end'
                                : ch.align === 'center' ? 'center'
                                :                        'flex-start',
             background:          'rgba(245,243,238,0.82)',
@@ -240,7 +211,7 @@ export default function StorySequence() {
             }}>
               <span style={{ width:'6px', height:'6px', borderRadius:'50%', background:'var(--forest-mid)', display:'block', flexShrink:0 }} />
               <span style={{ fontFamily:'var(--font-mono)', fontSize:'10px', letterSpacing:'0.12em', textTransform:'uppercase', color:'var(--ink-muted)' }}>
-                {ch.num} / 04 — {ch.eyebrow}
+                {ch.num} / 02 — {ch.eyebrow}
               </span>
             </div>
 

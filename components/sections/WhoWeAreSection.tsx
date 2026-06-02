@@ -1,6 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
+
+const TOTAL_FRAMES = 120
+const FPS          = 30
+const DURATION     = TOTAL_FRAMES / FPS   // 4.0 s
+const PX_PER_FRAME = 5
+const SCROLL_DIST  = TOTAL_FRAMES * PX_PER_FRAME  // 600 px
 
 /* ─── Expandable card definitions ─────────────────────────────────────── */
 const CARDS = [
@@ -23,7 +33,7 @@ const CARDS = [
     label:   'Values',
     icon:    '◇',
     summary: 'What drives every decision.',
-    body:    'Community roots, scientific rigor, and real-world impact. We built this from an NGO in Oaxaca — not a lab. Every decision is grounded in partnership, transparency, and the conviction that technology must reach the people who need it most — not just the cities that can afford it.',
+    body:    'Community roots, scientific rigor, and real-world impact. We built this from an NGO in Oaxaca — not a lab. Every decision is grounded in partnership, transparency, and the conviction that technology must reach the people who need it most.',
   },
   {
     id:      'allies',
@@ -37,69 +47,159 @@ const CARDS = [
 export default function WhoWeAreSection() {
   const [open, setOpen] = useState<string | null>(null)
 
+  const sectionRef   = useRef<HTMLDivElement>(null)
+  const videoRef     = useRef<HTMLVideoElement>(null)
+  const pendingSeek  = useRef(false)
+  const targetTime   = useRef(0)
+
   const toggle = (id: string) => setOpen(prev => prev === id ? null : id)
+
+  const seekTo = useCallback((time: number) => {
+    const video = videoRef.current
+    if (!video) return
+    targetTime.current = time
+    if (pendingSeek.current) return
+    if (Math.abs(video.currentTime - time) < 1 / FPS / 2) return
+    pendingSeek.current = true
+    video.currentTime = time
+  }, [])
+
+  useEffect(() => {
+    const video   = videoRef.current
+    const section = sectionRef.current
+    if (!video || !section) return
+
+    const onSeeked = () => {
+      pendingSeek.current = false
+      if (Math.abs(video.currentTime - targetTime.current) > 1 / FPS / 2) {
+        pendingSeek.current = true
+        video.currentTime = targetTime.current
+      }
+    }
+    video.addEventListener('seeked', onSeeked)
+
+    const st = ScrollTrigger.create({
+      trigger: section,
+      start:   'top top',
+      end:     `+=${SCROLL_DIST}`,
+      pin:     true,
+      scrub:   true,
+      onUpdate: (self) => {
+        seekTo(self.progress * DURATION)
+      },
+    })
+
+    return () => {
+      st.kill()
+      video.removeEventListener('seeked', onSeeked)
+    }
+  }, [seekTo])
 
   return (
     <section
+      ref={sectionRef}
       id="about"
       aria-label="Who we are"
       style={{
-        background:     'var(--bg)',
-        paddingTop:     'clamp(80px, 10vw, 140px)',
-        paddingBottom:  'clamp(80px, 10vw, 140px)',
-        position:       'relative',
-        overflow:       'hidden',
+        position: 'relative',
+        width:    '100%',
+        height:   '100vh',
+        overflow: 'hidden',
       }}
     >
-      <div className="g2e-container">
+      {/* ── Story 2 video — scroll-scrubbed background ──────────────── */}
+      <video
+        ref={videoRef}
+        muted
+        playsInline
+        preload="auto"
+        style={{
+          position:       'absolute',
+          inset:          0,
+          width:          '100%',
+          height:         '100%',
+          objectFit:      'cover',
+          objectPosition: 'center center',
+          display:        'block',
+          background:     '#0A0C0A',
+          zIndex:         0,
+        }}
+      >
+        <source src="/motion/story-2.webm" type="video/webm" />
+        <source src="/motion/story-2.mp4"  type="video/mp4"  />
+      </video>
+
+      {/* Dark overlay — keeps text readable without blocking the visual */}
+      <div
+        aria-hidden="true"
+        style={{
+          position:      'absolute',
+          inset:         0,
+          background:    'rgba(10,12,10,0.58)',
+          zIndex:        1,
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* ── Content overlay ─────────────────────────────────────────── */}
+      <div
+        className="g2e-container"
+        style={{
+          position:       'absolute',
+          inset:          0,
+          zIndex:         2,
+          display:        'flex',
+          alignItems:     'center',
+          pointerEvents:  'none',   // allow clicks to pass through gaps
+        }}
+      >
         <div
           style={{
-            display:    'grid',
+            display:             'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap:        'clamp(48px, 6vw, 96px)',
-            alignItems: 'start',
+            gap:                 'clamp(48px, 6vw, 96px)',
+            alignItems:          'center',
+            width:               '100%',
+            pointerEvents:       'auto',   // re-enable for interactive children
           }}
         >
 
-          {/* ── LEFT COLUMN ─────────────────────────────────────────── */}
+          {/* ── LEFT — text + CTAs ────────────────────────────────── */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
 
-            {/* Eyebrow */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px' }}>
               <span style={{
                 fontFamily:    'var(--font-mono)',
                 fontSize:      'var(--text-2xs)',
                 letterSpacing: 'var(--ls-eyebrow)',
                 textTransform: 'uppercase',
-                color:         'var(--ink-muted)',
+                color:         'rgba(245,243,238,0.50)',
               }}>
                 Who we are
               </span>
-              <div style={{ height: '1px', width: '32px', background: 'var(--line-strong)' }} />
+              <div style={{ height: '1px', width: '32px', background: 'rgba(245,243,238,0.20)' }} />
             </div>
 
-            {/* Headline */}
             <h2 style={{
               fontFamily:    'var(--font-display)',
               fontWeight:    800,
               fontSize:      'clamp(2.2rem, 4vw, 3.8rem)',
               lineHeight:    0.95,
               letterSpacing: '-0.03em',
-              color:         'var(--ink)',
+              color:         '#FFFFFF',
               marginBottom:  '28px',
             }}>
               We turn waste<br />
-              <span style={{ color: 'var(--forest-mid)' }}>into value.</span>
+              <span style={{ color: 'rgba(245,243,238,0.48)' }}>into value.</span>
             </h2>
 
-            {/* Body */}
             <p style={{
               fontFamily:   'var(--font-sans)',
               fontSize:     'var(--text-lg)',
               lineHeight:   'var(--lh-loose)',
-              color:        'var(--ink)',
+              color:        'rgba(245,243,238,0.90)',
               marginBottom: '16px',
-              maxWidth:     '480px',
+              maxWidth:     '460px',
             }}>
               We&apos;re a Mexican technology company that takes what cities throw away — the organic waste that today releases greenhouse gases in landfills — and transforms it into hydrochar.
             </p>
@@ -108,14 +208,13 @@ export default function WhoWeAreSection() {
               fontFamily:   'var(--font-sans)',
               fontSize:     'var(--text-md)',
               lineHeight:   'var(--lh-loose)',
-              color:        'var(--ink-muted)',
+              color:        'rgba(245,243,238,0.60)',
               marginBottom: '40px',
-              maxWidth:     '460px',
+              maxWidth:     '440px',
             }}>
-              We work alongside UNAM, the Mexican Government, and international partners so this technology doesn&apos;t stay in a lab — it reaches every city that needs it. Today we operate the world&apos;s largest hydrothermal carbonization plant processing municipal organic waste.
+              We work alongside UNAM, the Mexican Government, and international partners so this technology doesn&apos;t stay in a lab — it reaches every city that needs it.
             </p>
 
-            {/* CTAs */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               <a
                 href="#contact"
@@ -126,16 +225,18 @@ export default function WhoWeAreSection() {
                   fontFamily:     'var(--font-sans)',
                   fontSize:       '14px',
                   fontWeight:     500,
-                  background:     'var(--bg-dark)',
-                  color:          'var(--bone-100)',
+                  background:     'rgba(245,243,238,0.12)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  color:          '#FFFFFF',
                   padding:        '13px 22px',
                   borderRadius:   '999px',
                   textDecoration: 'none',
-                  border:         'none',
-                  transition:     'background 200ms var(--ease-expo)',
+                  border:         '1px solid rgba(245,243,238,0.20)',
+                  transition:     'background 200ms',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'var(--hc-700)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'var(--bg-dark)')}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(245,243,238,0.22)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(245,243,238,0.12)')}
               >
                 Contact us
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -152,34 +253,33 @@ export default function WhoWeAreSection() {
                   fontFamily:     'var(--font-sans)',
                   fontSize:       '14px',
                   fontWeight:     400,
-                  color:          'var(--ink-muted)',
+                  color:          'rgba(245,243,238,0.65)',
                   padding:        '12px 20px',
                   borderRadius:   '999px',
-                  border:         '1px solid var(--line-strong)',
+                  border:         '1px solid rgba(245,243,238,0.20)',
                   textDecoration: 'none',
                   transition:     'border-color 200ms, color 200ms',
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = 'var(--ink)'
-                  e.currentTarget.style.color = 'var(--ink)'
+                  e.currentTarget.style.borderColor = 'rgba(245,243,238,0.50)'
+                  e.currentTarget.style.color = '#FFFFFF'
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = 'var(--line-strong)'
-                  e.currentTarget.style.color = 'var(--ink-muted)'
+                  e.currentTarget.style.borderColor = 'rgba(245,243,238,0.20)'
+                  e.currentTarget.style.color = 'rgba(245,243,238,0.65)'
                 }}
               >
                 Our story
               </a>
             </div>
-
           </div>
 
-          {/* ── RIGHT COLUMN — 2×2 expandable cards ─────────────────── */}
+          {/* ── RIGHT — 2×2 expandable cards ────────────────────────── */}
           <div
             style={{
               display:             'grid',
               gridTemplateColumns: '1fr 1fr',
-              gap:                 '12px',
+              gap:                 '10px',
             }}
           >
             {CARDS.map((card) => {
@@ -194,98 +294,95 @@ export default function WhoWeAreSection() {
                     display:        'flex',
                     flexDirection:  'column',
                     cursor:         'pointer',
-                    background:     isOpen ? 'var(--bg-dark)' : 'rgba(20,19,15,0.04)',
+                    background:     isOpen
+                                      ? 'rgba(245,243,238,0.14)'
+                                      : 'rgba(245,243,238,0.06)',
+                    backdropFilter:      'blur(16px) saturate(140%)',
+                    WebkitBackdropFilter:'blur(16px) saturate(140%)',
                     border:         isOpen
-                                      ? '1px solid var(--bg-dark)'
-                                      : '1px solid rgba(20,19,15,0.10)',
+                                      ? '1px solid rgba(245,243,238,0.30)'
+                                      : '1px solid rgba(245,243,238,0.12)',
                     borderRadius:   'var(--radius-2xl)',
-                    padding:        '24px',
-                    transition:     'background 280ms var(--ease-expo), border-color 280ms var(--ease-expo)',
+                    padding:        '20px',
+                    transition:     'background 280ms var(--ease-expo), border-color 280ms',
                     textAlign:      'left',
-                    minHeight:      '160px',
+                    minHeight:      '140px',
                   }}
                 >
-                  {/* Card header — always visible */}
-                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '10px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '8px' }}>
 
-                    {/* Icon + expand indicator */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span style={{
-                        fontSize:   '20px',
+                        fontSize:   '18px',
                         lineHeight:  1,
-                        color:       isOpen ? 'rgba(245,243,238,0.70)' : 'var(--forest-mid)',
-                        transition:  'color 280ms',
+                        color:      'rgba(245,243,238,0.60)',
+                        transition: 'color 280ms',
                       }}>
                         {card.icon}
                       </span>
                       <div style={{
-                        width:        '20px',
-                        height:       '20px',
-                        borderRadius: '50%',
-                        border:       `1px solid ${isOpen ? 'rgba(245,243,238,0.20)' : 'rgba(20,19,15,0.16)'}`,
-                        display:      'flex',
-                        alignItems:   'center',
+                        width:          '18px',
+                        height:         '18px',
+                        borderRadius:   '50%',
+                        border:         '1px solid rgba(245,243,238,0.22)',
+                        display:        'flex',
+                        alignItems:     'center',
                         justifyContent: 'center',
-                        flexShrink:   0,
-                        transition:   'border-color 280ms, transform 280ms',
-                        transform:    isOpen ? 'rotate(45deg)' : 'rotate(0deg)',
+                        flexShrink:     0,
+                        transition:     'transform 280ms',
+                        transform:      isOpen ? 'rotate(45deg)' : 'rotate(0deg)',
                       }}>
                         <svg width="8" height="8" viewBox="0 0 24 24" fill="none"
-                          stroke={isOpen ? 'rgba(245,243,238,0.50)' : 'rgba(20,19,15,0.40)'}
+                          stroke="rgba(245,243,238,0.45)"
                           strokeWidth="2.5" strokeLinecap="round">
                           <path d="M12 5v14M5 12h14"/>
                         </svg>
                       </div>
                     </div>
 
-                    {/* Label */}
                     <span style={{
                       fontFamily:    'var(--font-display)',
                       fontWeight:    700,
-                      fontSize:      'clamp(1rem, 1.4vw, 1.15rem)',
+                      fontSize:      'clamp(0.95rem, 1.3vw, 1.1rem)',
                       letterSpacing: '-0.02em',
-                      color:         isOpen ? '#FFFFFF' : 'var(--ink)',
+                      color:         '#FFFFFF',
                       lineHeight:    1.1,
-                      transition:    'color 280ms',
                     }}>
                       {card.label}
                     </span>
 
-                    {/* Summary — visible when closed */}
                     {!isOpen && (
                       <span style={{
-                        fontFamily:  'var(--font-sans)',
-                        fontSize:    'clamp(0.75rem, 1vw, 0.825rem)',
-                        lineHeight:  1.5,
-                        color:       'var(--ink-muted)',
+                        fontFamily: 'var(--font-sans)',
+                        fontSize:   'clamp(0.72rem, 0.9vw, 0.80rem)',
+                        lineHeight: 1.5,
+                        color:      'rgba(245,243,238,0.48)',
                       }}>
                         {card.summary}
                       </span>
                     )}
                   </div>
 
-                  {/* Expandable body */}
                   <div
                     style={{
                       overflow:   'hidden',
-                      maxHeight:  isOpen ? '200px' : '0px',
+                      maxHeight:  isOpen ? '180px' : '0px',
                       opacity:    isOpen ? 1 : 0,
-                      marginTop:  isOpen ? '16px' : '0px',
-                      transition: 'max-height 380ms var(--ease-expo), opacity 280ms, margin-top 280ms',
+                      marginTop:  isOpen ? '14px' : '0px',
+                      transition: 'max-height 380ms var(--ease-expo), opacity 260ms, margin-top 260ms',
                     }}
                   >
-                    <div style={{ height: '1px', background: 'rgba(245,243,238,0.12)', marginBottom: '14px' }} />
+                    <div style={{ height: '1px', background: 'rgba(245,243,238,0.14)', marginBottom: '12px' }} />
                     <p style={{
-                      fontFamily:  'var(--font-sans)',
-                      fontSize:    'clamp(0.78rem, 1vw, 0.875rem)',
-                      lineHeight:  1.65,
-                      color:       'rgba(245,243,238,0.70)',
-                      margin:      0,
+                      fontFamily: 'var(--font-sans)',
+                      fontSize:   'clamp(0.75rem, 0.95vw, 0.84rem)',
+                      lineHeight: 1.65,
+                      color:      'rgba(245,243,238,0.65)',
+                      margin:     0,
                     }}>
                       {card.body}
                     </p>
                   </div>
-
                 </button>
               )
             })}
