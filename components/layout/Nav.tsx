@@ -5,28 +5,28 @@ import Link from 'next/link'
 import gsap from 'gsap'
 
 const NAV_LINKS = [
-  { label: 'Story',   href: '#story'   },
-  { label: 'Contact', href: '#contact' },
+  { label: 'About',    href: '#about'    },
+  { label: 'Timeline', href: '#timeline' },
+  { label: 'Phase II', href: '#phase2'   },
 ]
 
 export default function Nav() {
   const headerRef   = useRef<HTMLElement>(null)
-  const revealedRef = useRef(false)   // sync ref for the scroll handler
+  const revealedRef = useRef(false)
   const lastY       = useRef(0)
 
-  /* ─── Reveal animation (called once) ─────────────────────────────── */
   const revealNav = () => {
     if (revealedRef.current) return
     revealedRef.current = true
     gsap.fromTo(
       headerRef.current,
-      { opacity: 0, y: -20 },
+      { opacity: 0, y: -16 },
       {
-        opacity:  1,
-        y:        0,
-        duration: 0.9,
-        ease:     'power3.out',
-        clearProps: 'transform',   // let CSS take over after
+        opacity:    1,
+        y:          0,
+        duration:   1.1,
+        ease:       'power4.out',
+        clearProps: 'transform',
       }
     )
   }
@@ -35,19 +35,15 @@ export default function Nav() {
     const header = headerRef.current
     if (!header) return
 
-    // Start invisible
-    gsap.set(header, { opacity: 0, y: -20 })
+    gsap.set(header, { opacity: 0, y: -16 })
 
-    // Return visitor: already scrolled past intro — reveal immediately
     if (sessionStorage.getItem('g2e-intro-seen') || window.scrollY > window.innerHeight * 1.5) {
       revealNav()
     }
 
-    // Listen for the hero-reveal event dispatched by IntroSequence
     const onReveal = () => revealNav()
     window.addEventListener('g2e:hero-reveal', onReveal)
 
-    // Hide/show on scroll direction (only active after reveal)
     const onScroll = () => {
       if (!revealedRef.current) return
       const y = window.scrollY
@@ -78,7 +74,7 @@ export default function Nav() {
         display:    'flex',
         alignItems: 'center',
         transition: 'transform 420ms var(--ease-expo)',
-        opacity:    0,          // GSAP overrides this after reveal
+        opacity:    0,
         willChange: 'transform, opacity',
       }}
     >
@@ -89,12 +85,12 @@ export default function Nav() {
             alignItems:          'center',
             height:              '56px',
             borderRadius:        'var(--radius-pill)',
-            background:          'rgba(245,243,238,0.80)',
-            backdropFilter:      'blur(24px) saturate(160%)',
-            WebkitBackdropFilter:'blur(24px) saturate(160%)',
-            boxShadow:           '0 2px 20px rgba(20,19,15,0.10), inset 0 1px 0 rgba(255,255,255,0.65)',
+            background:          'rgba(10,12,10,0.72)',
+            backdropFilter:      'blur(24px) saturate(140%)',
+            WebkitBackdropFilter:'blur(24px) saturate(140%)',
+            boxShadow:           '0 2px 32px rgba(0,0,0,0.28), inset 0 1px 0 rgba(245,243,238,0.07)',
             padding:             '0 8px 0 16px',
-            border:              '1px solid rgba(20,19,15,0.07)',
+            border:              '1px solid rgba(245,243,238,0.10)',
           }}
         >
           {/* Logo */}
@@ -103,43 +99,41 @@ export default function Nav() {
             aria-label="G2E home"
             style={{ display:'flex', alignItems:'center', gap:'10px', textDecoration:'none', flexShrink:0 }}
           >
-            <div
-              style={{
-                width:'40px', height:'40px', borderRadius:'999px',
-                background:'var(--bg-dark)',
-                display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
-              }}
-            >
+            <div style={{
+              width:'36px', height:'36px', borderRadius:'999px',
+              background:'rgba(245,243,238,0.10)',
+              border:'1px solid rgba(245,243,238,0.14)',
+              display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+            }}>
               <span style={{
                 fontFamily:'var(--font-display)', fontWeight:800,
-                fontSize:'24px', color:'var(--bone-100)',
+                fontSize:'20px', color:'#FFFFFF',
                 lineHeight:1, display:'block', marginTop:'2px',
               }}>g</span>
             </div>
             <span style={{
               fontFamily:'var(--font-display)', fontWeight:700,
-              fontSize:'20px', letterSpacing:'-0.03em',
-              color:'var(--bg-dark)', lineHeight:1,
+              fontSize:'18px', letterSpacing:'-0.03em',
+              color:'rgba(245,243,238,0.90)', lineHeight:1,
             }}>g2e</span>
           </Link>
 
           {/* Nav links */}
           <nav
             aria-label="Primary"
-            className="hidden md:flex"
-            style={{ display:'flex', alignItems:'center', marginLeft:'auto', gap:'28px' }}
+            style={{ display:'flex', alignItems:'center', marginLeft:'auto', gap:'24px' }}
           >
             {NAV_LINKS.map(link => (
               <Link
                 key={link.href}
                 href={link.href}
                 style={{
-                  fontFamily:'var(--font-sans)', fontSize:'14px',
-                  fontWeight:400, color:'var(--ink-muted)',
+                  fontFamily:'var(--font-sans)', fontSize:'13px',
+                  fontWeight:400, color:'rgba(245,243,238,0.55)',
                   textDecoration:'none', transition:'color 200ms',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'var(--ink)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'var(--ink-muted)')}
+                onMouseEnter={e => (e.currentTarget.style.color = 'rgba(245,243,238,0.95)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(245,243,238,0.55)')}
               >
                 {link.label}
               </Link>
@@ -150,19 +144,33 @@ export default function Nav() {
           <Link
             href="#contact"
             style={{
-              marginLeft:'20px',
-              display:'inline-flex', alignItems:'center', gap:'10px',
-              fontFamily:'var(--font-sans)', fontSize:'13px', fontWeight:500,
-              background:'var(--bg-dark)', color:'var(--bone-100)',
-              padding:'11px 18px 11px 20px', borderRadius:'999px',
-              textDecoration:'none', border:'none', flexShrink:0,
-              transition:'background 200ms var(--ease-expo)',
+              marginLeft:     '16px',
+              display:        'inline-flex',
+              alignItems:     'center',
+              gap:            '8px',
+              fontFamily:     'var(--font-sans)',
+              fontSize:       '13px',
+              fontWeight:     500,
+              background:     'rgba(245,243,238,0.12)',
+              color:          '#FFFFFF',
+              padding:        '10px 16px 10px 18px',
+              borderRadius:   '999px',
+              textDecoration: 'none',
+              border:         '1px solid rgba(245,243,238,0.16)',
+              flexShrink:     0,
+              transition:     'background 200ms var(--ease-expo), border-color 200ms',
             }}
-            onMouseEnter={e => (e.currentTarget.style.background = 'var(--hc-700)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'var(--bg-dark)')}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(245,243,238,0.20)'
+              e.currentTarget.style.borderColor = 'rgba(245,243,238,0.28)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(245,243,238,0.12)'
+              e.currentTarget.style.borderColor = 'rgba(245,243,238,0.16)'
+            }}
           >
             Join the mission
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
             </svg>
           </Link>

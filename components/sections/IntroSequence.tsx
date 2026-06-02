@@ -412,12 +412,20 @@ export default function IntroSequence() {
         }}
       >
         {/* Eyebrow */}
-        <div style={{ display:'flex', alignItems:'center', gap:'12px', marginBottom:'var(--space-5)' }}>
-          <span style={{ fontFamily:'var(--font-mono)', fontSize:'var(--text-2xs)', letterSpacing:'var(--ls-eyebrow)', textTransform:'uppercase', color:'rgba(245,243,238,0.70)' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'clamp(20px, 3vh, 32px)' }}>
+          <span style={{
+            fontFamily:'var(--font-mono)', fontSize:'var(--text-2xs)',
+            letterSpacing:'var(--ls-eyebrow)', textTransform:'uppercase',
+            color:'rgba(245,243,238,0.55)',
+          }}>
             G2E — Green to Energy
           </span>
-          <div style={{ height:'1px', width:'28px', background:'rgba(245,243,238,0.20)' }} />
-          <span style={{ fontFamily:'var(--font-mono)', fontSize:'var(--text-2xs)', letterSpacing:'var(--ls-eyebrow)', textTransform:'uppercase', color:'rgba(245,243,238,0.48)' }}>
+          <div style={{ height:'1px', width:'24px', background:'rgba(245,243,238,0.18)' }} />
+          <span style={{
+            fontFamily:'var(--font-mono)', fontSize:'var(--text-2xs)',
+            letterSpacing:'var(--ls-eyebrow)', textTransform:'uppercase',
+            color:'rgba(245,243,238,0.32)',
+          }}>
             Bordo Poniente · CDMX · Est. 2013
           </span>
         </div>
@@ -426,83 +434,91 @@ export default function IntroSequence() {
         <h1 style={{
           fontFamily:    'var(--font-display)',
           fontWeight:    800,
-          fontSize:      'var(--text-6xl)',
-          lineHeight:    0.95,
-          letterSpacing: '-0.03em',
+          fontSize:      'clamp(3rem, 7vw, 7rem)',
+          lineHeight:    0.93,
+          letterSpacing: '-0.04em',
           color:         '#FFFFFF',
-          maxWidth:      '720px',
-          marginBottom:  'var(--space-6)',
-          textShadow:    '0 2px 32px rgba(0,0,0,0.40)',
+          maxWidth:      '780px',
+          marginBottom:  'clamp(20px, 3vh, 36px)',
+          textShadow:    '0 2px 40px rgba(0,0,0,0.35)',
         }}>
-          From landfill<br />to fuel.<br />
-          <span style={{ color:'rgba(245,243,238,0.72)' }}>In hours.</span>
+          Waste in.<br />
+          <span style={{ color:'rgba(245,243,238,0.80)' }}>Hydrochar out.</span><br />
+          <span style={{
+            fontSize:   '0.52em',
+            fontWeight: 300,
+            letterSpacing: '-0.02em',
+            color:      'rgba(245,243,238,0.38)',
+          }}>In hours, not centuries.</span>
         </h1>
 
         {/* Lede */}
         <p style={{
           fontFamily:   'var(--font-sans)',
           fontWeight:   300,
-          fontSize:     'var(--text-lg)',
-          lineHeight:   'var(--lh-loose)',
-          color:        'rgba(245,243,238,0.88)',
-          maxWidth:     '480px',
-          marginBottom: 'var(--space-8)',
-          textShadow:   '0 1px 12px rgba(0,0,0,0.30)',
+          fontSize:     'clamp(0.95rem, 1.5vw, 1.15rem)',
+          lineHeight:   1.72,
+          color:        'rgba(245,243,238,0.78)',
+          maxWidth:     '460px',
+          marginBottom: 'clamp(24px, 4vh, 40px)',
+          textShadow:   '0 1px 12px rgba(0,0,0,0.25)',
         }}>
-          We collect organic waste from Mexico City and transform it into hydrochar —
-          a mineral-grade carbon material that replaces coal and regenerates soil.
+          We take Mexico City&apos;s organic waste and transform it into hydrochar —
+          a mineral-grade carbon material that replaces coal, regenerates soil,
+          and generates premium carbon credits.
         </p>
 
         {/* CTAs */}
-        <div style={{ display:'flex', alignItems:'center', gap:'12px', flexWrap:'wrap', marginBottom:'var(--space-10)' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'10px', flexWrap:'wrap', marginBottom:'clamp(24px, 4vh, 40px)' }}>
           <a
             href="#contact"
             className="glass-btn"
             style={{
               display:'inline-flex', alignItems:'center', gap:'10px',
-              fontFamily:'var(--font-sans)', fontSize:'15px', fontWeight:500,
-              color:'#FFFFFF', padding:'14px 24px', textDecoration:'none',
+              fontFamily:'var(--font-sans)', fontSize:'14px', fontWeight:500,
+              color:'#FFFFFF', padding:'13px 22px', textDecoration:'none',
               pointerEvents:'auto',
             }}
           >
             Join the mission
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
             </svg>
           </a>
           <a
-            href="#story"
+            href="#about"
             style={{
               display:'inline-flex', alignItems:'center', gap:'8px',
-              fontFamily:'var(--font-sans)', fontSize:'14px', fontWeight:400,
-              color:'rgba(245,243,238,0.72)', padding:'13px 20px',
-              borderRadius:'999px', border:'1px solid rgba(245,243,238,0.22)',
+              fontFamily:'var(--font-sans)', fontSize:'13px', fontWeight:400,
+              color:'rgba(245,243,238,0.65)', padding:'12px 18px',
+              borderRadius:'999px', border:'1px solid rgba(245,243,238,0.18)',
               textDecoration:'none', pointerEvents:'auto',
+              transition:'border-color 200ms, color 200ms',
             }}
           >
-            See the story
+            Who we are
           </a>
         </div>
 
-        {/* Glassmorphism stat chips */}
-        <div style={{ display:'flex', gap:'10px', flexWrap:'wrap', marginBottom:'var(--space-7)' }}>
+        {/* Stat chips */}
+        <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'clamp(16px, 3vh, 28px)' }}>
           {HERO_STATS.map(stat => (
             <div
               key={stat.value}
               className="glass-card"
-              style={{ padding:'14px 18px', display:'flex', flexDirection:'column', gap:'4px', minWidth:'100px' }}
+              style={{ padding:'12px 16px', display:'flex', flexDirection:'column', gap:'3px', minWidth:'90px' }}
             >
               <span style={{
                 fontFamily:'var(--font-display)', fontWeight:700,
-                fontSize:'clamp(1.1rem, 1.8vw, 1.5rem)',
+                fontSize:'clamp(1rem, 1.6vw, 1.35rem)',
                 lineHeight:1, letterSpacing:'-0.02em', color:'#FFFFFF',
               }}>
                 {stat.value}
               </span>
               <span style={{
-                fontFamily:'var(--font-mono)', fontSize:'10px',
-                letterSpacing:'0.08em', textTransform:'uppercase',
-                color:'rgba(245,243,238,0.55)',
+                fontFamily:'var(--font-mono)', fontSize:'9px',
+                letterSpacing:'0.09em', textTransform:'uppercase',
+                color:'rgba(245,243,238,0.50)',
               }}>
                 {stat.label}
               </span>
@@ -512,24 +528,28 @@ export default function IntroSequence() {
 
         {/* Credibility strip */}
         <div style={{
-          paddingTop:   'var(--space-5)',
-          borderTop:    '1px solid rgba(245,243,238,0.10)',
-          display:      'flex',
-          alignItems:   'center',
-          gap:          'var(--space-5)',
-          flexWrap:     'wrap',
+          paddingTop: 'clamp(12px, 2vh, 20px)',
+          borderTop:  '1px solid rgba(245,243,238,0.08)',
+          display:    'flex',
+          alignItems: 'center',
+          gap:        '20px',
+          flexWrap:   'wrap',
         }}>
-          {['UNAM partner','Mexican Government','International partnerships','Phase II · 2027'].map((item, i) => (
+          {['UNAM partner', 'Mexican Government', 'International partnerships', 'Phase II · 2027'].map((item, i) => (
             <span
               key={i}
               style={{
-                fontFamily:'var(--font-mono)', fontSize:'var(--text-2xs)',
-                letterSpacing:'var(--ls-eyebrow)', textTransform:'uppercase',
-                color:'rgba(245,243,238,0.48)',
-                display:'flex', alignItems:'center', gap:'var(--space-5)',
+                fontFamily:    'var(--font-mono)',
+                fontSize:      '9px',
+                letterSpacing: 'var(--ls-eyebrow)',
+                textTransform: 'uppercase',
+                color:         'rgba(245,243,238,0.38)',
+                display:       'flex',
+                alignItems:    'center',
+                gap:           '20px',
               }}
             >
-              {i > 0 && <span style={{ opacity:0.35 }}>·</span>}
+              {i > 0 && <span style={{ opacity:0.30 }}>·</span>}
               {item}
             </span>
           ))}
