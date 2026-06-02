@@ -79,29 +79,28 @@ export default function ContactSection() {
               boxShadow: 'var(--shadow-panel)',
             }}
           >
-            {/* GIF 3 */}
+            {/* Contact background photo */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/motion/3.gif"
+              src="/assets/contact-bg.jpg"
               alt=""
               aria-hidden="true"
               style={{
-                position: 'absolute',
-                inset: 0,
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                objectPosition: 'center',
-                opacity: 0.32,
+                position:       'absolute',
+                inset:          0,
+                width:          '100%',
+                height:         '100%',
+                objectFit:      'cover',
+                objectPosition: 'center top',
               }}
             />
-            {/* Overlay */}
+            {/* Overlay — preserves text legibility */}
             <div
               aria-hidden="true"
               style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(to bottom, rgba(17,20,15,0.10) 0%, rgba(17,20,15,0.80) 60%)',
+                position:   'absolute',
+                inset:      0,
+                background: 'linear-gradient(to bottom, rgba(10,12,10,0.30) 0%, rgba(10,12,10,0.82) 55%)',
               }}
             />
 
