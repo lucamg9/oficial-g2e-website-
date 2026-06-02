@@ -1,4 +1,5 @@
 import IntroSequence    from '@/components/sections/IntroSequence'
+import WhoWeAreSection  from '@/components/sections/WhoWeAreSection'
 import StorySequence    from '@/components/sections/StorySequence'
 import TimelineSection  from '@/components/sections/TimelineSection'
 import ContactSection   from '@/components/sections/ContactSection'
@@ -8,6 +9,7 @@ export default function HomePage() {
   return (
     <>
       <IntroSequence />
+      <WhoWeAreSection />
       <StorySequence />
       <TimelineSection />
       <ContactSection />
