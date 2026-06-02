@@ -191,7 +191,7 @@ export default function TimelineSection() {
           maxWidth:      '640px',
         }}>
           From a rural NGO<br />
-          <span style={{ color: 'rgba(245,243,238,0.45)' }}>to the world's largest<br />HTC plant.</span>
+          <span style={{ color: 'rgba(245,243,238,0.45)' }}>to the world&apos;s largest<br />HTC plant.</span>
         </h2>
       </div>
 
