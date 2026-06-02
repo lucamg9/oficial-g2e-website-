@@ -1,3 +1,5 @@
+'use client'
+
 /* Phase II / 2027 vision — final narrative section before Contact */
 
 const STATS = [
