@@ -104,9 +104,13 @@ export default function HowItWorksSection() {
     const section = sectionRef.current
     if (!video || !section) return
 
-    video.pause()
-    video.playbackRate = 0.000001
-    video.currentTime  = 0
+    try {
+      video.pause()
+      video.playbackRate = 0
+      video.currentTime  = 0
+    } catch {
+      // Some browsers reject playbackRate=0 — safe to ignore
+    }
 
     startRaf()
 

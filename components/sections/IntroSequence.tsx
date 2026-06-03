@@ -99,9 +99,13 @@ export default function IntroSequence() {
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
-    video.pause()
-    video.playbackRate = 0.000001  // near-zero hints browser to optimize for scrubbing
-    video.currentTime  = 0
+    try {
+      video.pause()
+      video.playbackRate = 0
+      video.currentTime  = 0
+    } catch {
+      // Some browsers reject playbackRate=0 — safe to ignore
+    }
   }, [])
 
   /* ─── RAF lerp loop ───────────────────────────────────────────────── */

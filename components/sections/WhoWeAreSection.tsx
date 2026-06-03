@@ -79,9 +79,12 @@ export default function WhoWeAreSection() {
     const section = sectionRef.current
     if (!video || !section) return
 
-    // Hint browser for scrubbing
-    video.pause()
-    video.playbackRate = 0.000001
+    try {
+      video.pause()
+      video.playbackRate = 0
+    } catch {
+      // Some browsers reject playbackRate=0 — safe to ignore
+    }
     video.currentTime  = 0
 
     startRaf()
