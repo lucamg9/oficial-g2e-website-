@@ -6,16 +6,17 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const TOTAL_FRAMES  = 688
-const FPS           = 30
-const DURATION      = TOTAL_FRAMES / FPS      // 22.93s
-const PX_PER_FRAME  = 5
-const SCROLL_DIST   = TOTAL_FRAMES * PX_PER_FRAME  // 3440px
+const TOTAL_FRAMES = 688
+const FPS          = 30
+const DURATION     = TOTAL_FRAMES / FPS        // 22.93 s
+const PX_PER_FRAME = 5
+const SCROLL_DIST  = TOTAL_FRAMES * PX_PER_FRAME  // 3440 px
+const LERP         = 0.14   // lower = smoother / more cinematic lag
 
-/* ─── Easing helper: smooth cubic in/out ─────────────────────────────── */
+/* ─── Easing helper ───────────────────────────────────────────────────── */
 const ease = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
 
-/* ─── Act overlays ───────────────────────────────────────────────────── */
+/* ─── Act overlays ────────────────────────────────────────────────────── */
 const ACTS = [
   {
     fromFrame: 0,   toFrame: 87,
@@ -50,42 +51,37 @@ const ACTS = [
   {
     fromFrame: 568, toFrame: 687,
     headline:  'This is what we built.',
-    sub:       "The world's largest hydrothermal carbonization plant. Mexico City.",
+    sub:       "The world’s largest hydrothermal carbonization plant. Mexico City.",
     align:     'center' as const,
   },
 ]
 
-/* ─── Hero stats ─────────────────────────────────────────────────────── */
 const HERO_STATS = [
-  { value: '3 t/hr',    label: 'Live throughput'    },
-  { value: '220°C',     label: 'Process temp'       },
-  { value: 'World #1',  label: 'Largest HTC plant'  },
-  { value: 'Est. 2013', label: 'Bordo Poniente'      },
+  { value: '3 t/hr',    label: 'Live throughput'   },
+  { value: '220°C',     label: 'Process temp'      },
+  { value: 'World #1',  label: 'Largest HTC plant' },
+  { value: 'Est. 2013', label: 'Bordo Poniente'    },
 ]
+
+/* ─── Micro lerp ──────────────────────────────────────────────────────── */
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 
 export default function IntroSequence() {
   const sectionRef      = useRef<HTMLDivElement>(null)
   const videoRef        = useRef<HTMLVideoElement>(null)
   const actRefs         = useRef<(HTMLDivElement | null)[]>([])
+  const headlineRefs    = useRef<(HTMLHeadingElement | null)[]>([])
+  const subRefs         = useRef<(HTMLParagraphElement | null)[]>([])
   const logoRef         = useRef<HTMLDivElement>(null)
   const heroImgRef      = useRef<HTMLDivElement>(null)
   const heroContentRef  = useRef<HTMLDivElement>(null)
   const skipRef         = useRef<HTMLButtonElement>(null)
-  const heroFiredRef    = useRef(false)   // dispatch nav event once
+  const heroFiredRef    = useRef(false)
 
-  /* ─── Seek-deduplication ──────────────────────────────────────────── */
-  const pendingSeek = useRef(false)
-  const targetTime  = useRef(0)
-
-  const seekTo = useCallback((time: number) => {
-    const video = videoRef.current
-    if (!video) return
-    targetTime.current = time
-    if (pendingSeek.current) return
-    if (Math.abs(video.currentTime - time) < 1 / FPS / 2) return
-    pendingSeek.current = true
-    video.currentTime   = time
-  }, [])
+  /* ─── RAF lerp state ──────────────────────────────────────────────── */
+  const targetTime  = useRef(0)    // set by ScrollTrigger
+  const lerpedTime  = useRef(0)    // tracks smoothed currentTime
+  const rafRef      = useRef<number>(0)
 
   /* ─── Auto-skip on return visit ───────────────────────────────────── */
   useEffect(() => {
@@ -99,20 +95,118 @@ export default function IntroSequence() {
     return () => clearTimeout(t)
   }, [])
 
+  /* ─── Video rendering hints ───────────────────────────────────────── */
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    video.pause()
+    video.playbackRate = 0.000001  // near-zero hints browser to optimize for scrubbing
+    video.currentTime  = 0
+  }, [])
+
+  /* ─── RAF lerp loop ───────────────────────────────────────────────── */
+  const startRaf = useCallback(() => {
+    const tick = () => {
+      const video = videoRef.current
+      if (!video) { rafRef.current = requestAnimationFrame(tick); return }
+
+      const next = lerp(lerpedTime.current, targetTime.current, LERP)
+      // Only seek if meaningful movement remains (sub-frame threshold: 0.5ms)
+      if (Math.abs(next - lerpedTime.current) > 0.0005) {
+        lerpedTime.current = next
+        video.currentTime  = next
+      }
+      rafRef.current = requestAnimationFrame(tick)
+    }
+    rafRef.current = requestAnimationFrame(tick)
+  }, [])
+
+  /* ─── Apply visual state from progress ───────────────────────────── */
+  const applyProgress = useCallback((p: number, frame: number) => {
+    const FADE = 18    // frames to fade in / out
+    const SUB_LAG = 6  // sub headline lags headline by this many frames
+
+    /* ── Act overlays ── */
+    ACTS.forEach((act, i) => {
+      const headEl = headlineRefs.current[i]
+      const subEl  = subRefs.current[i]
+      const wrap   = actRefs.current[i]
+      if (!wrap) return
+
+      const inP  = Math.max(0, Math.min(1, (frame - act.fromFrame) / FADE))
+      const outP = Math.max(0, Math.min(1, (act.toFrame - frame)   / FADE))
+      const actP = Math.min(inP, outP)
+
+      // Wrapper visibility
+      wrap.style.opacity = actP > 0 ? '1' : '0'
+      if (actP === 0) return
+
+      // Headline — slides up on entry, slides up on exit
+      if (headEl) {
+        const entryY = (1 - inP)  *  24   // +24px → 0 on enter
+        const exitY  = (1 - outP) * -20   // 0 → -20px on exit
+        const y      = entryY + (inP >= 1 ? exitY : 0)
+        const blur   = (1 - actP) * 5
+        headEl.style.opacity   = String(actP)
+        headEl.style.transform = `translateY(${y}px)`
+        headEl.style.filter    = `blur(${blur.toFixed(2)}px)`
+      }
+
+      // Sub — same motion but lags by SUB_LAG frames
+      if (subEl) {
+        const sInP  = Math.max(0, Math.min(1, (frame - act.fromFrame - SUB_LAG) / FADE))
+        const sOutP = Math.max(0, Math.min(1, (act.toFrame - frame - SUB_LAG)   / FADE))
+        const sActP = Math.min(sInP, sOutP)
+        const entryY = (1 - sInP)  *  18
+        const exitY  = (1 - sOutP) * -16
+        const y      = entryY + (sInP >= 1 ? exitY : 0)
+        const blur   = (1 - sActP) * 4
+        subEl.style.opacity   = String(Math.max(0, sActP))
+        subEl.style.transform = `translateY(${y}px)`
+        subEl.style.filter    = `blur(${blur.toFixed(2)}px)`
+      }
+    })
+
+    /* ── G2E identity card: 0.86 → 0.93, fades 0.93 → 0.97 ── */
+    const logoIn  = ease(Math.max(0, Math.min(1, (p - 0.86) / 0.06)))
+    const logoOut = 1 - ease(Math.max(0, Math.min(1, (p - 0.93) / 0.04)))
+    const logoOp  = logoIn * logoOut
+    if (logoRef.current) {
+      logoRef.current.style.opacity   = String(logoOp)
+      logoRef.current.style.transform = `translateY(${(1 - logoIn) * 22}px)`
+    }
+
+    /* ── Hero image: dissolves in 0.92 → 0.99 ── */
+    const heroImgP = ease(Math.max(0, Math.min(1, (p - 0.92) / 0.07)))
+    if (heroImgRef.current) heroImgRef.current.style.opacity = String(heroImgP)
+
+    /* ── Hero content: rises in 0.95 → 1.0 ── */
+    const hcP = ease(Math.max(0, Math.min(1, (p - 0.95) / 0.05)))
+    if (heroContentRef.current) {
+      heroContentRef.current.style.opacity   = String(hcP)
+      heroContentRef.current.style.transform = `translateY(${(1 - hcP) * 30}px)`
+    }
+
+    /* ── Skip button: fades out 0.88 → 0.93 ── */
+    if (skipRef.current) {
+      const skipOp = Math.max(0, 1 - Math.max(0, (p - 0.88) / 0.05))
+      skipRef.current.style.opacity      = String(skipOp)
+      skipRef.current.style.pointerEvents = skipOp < 0.05 ? 'none' : 'auto'
+    }
+
+    /* ── Nav reveal — fires once at 0.93 ── */
+    if (p >= 0.93 && !heroFiredRef.current) {
+      heroFiredRef.current = true
+      window.dispatchEvent(new CustomEvent('g2e:hero-reveal'))
+    }
+  }, [])
+
   /* ─── ScrollTrigger ───────────────────────────────────────────────── */
   useEffect(() => {
-    const video   = videoRef.current
     const section = sectionRef.current
-    if (!video || !section) return
+    if (!section) return
 
-    const onSeeked = () => {
-      pendingSeek.current = false
-      if (Math.abs(video.currentTime - targetTime.current) > 1 / FPS / 2) {
-        pendingSeek.current = true
-        video.currentTime   = targetTime.current
-      }
-    }
-    video.addEventListener('seeked', onSeeked)
+    startRaf()
 
     const st = ScrollTrigger.create({
       trigger: section,
@@ -120,84 +214,31 @@ export default function IntroSequence() {
       end:     `+=${SCROLL_DIST}`,
       pin:     true,
       scrub:   true,
-      onUpdate: (self) => {
+      onUpdate(self) {
         const p     = self.progress
         const frame = p * (TOTAL_FRAMES - 1)
-
-        /* ── 1. Video seek ── */
-        seekTo(p * DURATION)
-
-        /* ── 2. Act text overlays (active for their frame range) ── */
-        const fadeLen = 18
-        ACTS.forEach((act, i) => {
-          const el = actRefs.current[i]
-          if (!el) return
-          let opacity = 0
-          if (frame >= act.fromFrame && frame <= act.toFrame) {
-            const inFade  = frame - act.fromFrame
-            const outFade = act.toFrame - frame
-            opacity = Math.min(1, Math.min(inFade, outFade, fadeLen) / fadeLen)
-          }
-          el.style.opacity = String(opacity)
-        })
-
-        /* ── 3. G2E identity card — appears 0.86→0.92, fades 0.93→0.97 ── */
-        const logoIn   = ease(Math.max(0, Math.min(1, (p - 0.86) / 0.06)))
-        const logoOut  = 1 - ease(Math.max(0, Math.min(1, (p - 0.93) / 0.04)))
-        const logoOp   = logoIn * logoOut
-        if (logoRef.current) {
-          logoRef.current.style.opacity   = String(logoOp)
-          logoRef.current.style.transform = `translateY(${(1 - logoIn) * 22}px)`
-        }
-
-        /* ── 4. Hero image dissolves in 0.92 → 0.99 ── */
-        const heroImgP = ease(Math.max(0, Math.min(1, (p - 0.92) / 0.07)))
-        if (heroImgRef.current) {
-          heroImgRef.current.style.opacity = String(heroImgP)
-        }
-
-        /* ── 5. Hero content rises 0.95 → 1.0 ── */
-        const heroContentP = ease(Math.max(0, Math.min(1, (p - 0.95) / 0.05)))
-        if (heroContentRef.current) {
-          heroContentRef.current.style.opacity   = String(heroContentP)
-          heroContentRef.current.style.transform = `translateY(${(1 - heroContentP) * 30}px)`
-        }
-
-        /* ── 6. Skip button fades out 0.88 → 0.93 ── */
-        if (skipRef.current) {
-          const skipOp = Math.max(0, 1 - Math.max(0, (p - 0.88) / 0.05))
-          skipRef.current.style.opacity      = String(skipOp)
-          skipRef.current.style.pointerEvents = skipOp < 0.05 ? 'none' : 'auto'
-        }
-
-        /* ── 7. Fire nav reveal exactly once at 0.93 ── */
-        if (p >= 0.93 && !heroFiredRef.current) {
-          heroFiredRef.current = true
-          window.dispatchEvent(new CustomEvent('g2e:hero-reveal'))
-        }
+        // Only update target — RAF loop handles the actual seek
+        targetTime.current = p * DURATION
+        applyProgress(p, frame)
       },
     })
 
     return () => {
       st.kill()
-      video.removeEventListener('seeked', onSeeked)
+      cancelAnimationFrame(rafRef.current)
     }
-  }, [seekTo])
+  }, [startRaf, applyProgress])
 
   /* ─── Skip handler ────────────────────────────────────────────────── */
   const handleSkip = useCallback(() => {
     sessionStorage.setItem('g2e-intro-seen', '1')
-    // Ensure nav reveals even on skip
     if (!heroFiredRef.current) {
       heroFiredRef.current = true
       window.dispatchEvent(new CustomEvent('g2e:hero-reveal'))
     }
     const section = sectionRef.current
     if (!section) return
-    window.scrollTo({
-      top:      section.offsetTop + SCROLL_DIST + 10,
-      behavior: 'smooth',
-    })
+    window.scrollTo({ top: section.offsetTop + SCROLL_DIST + 10, behavior: 'smooth' })
   }, [])
 
   return (
@@ -207,7 +248,7 @@ export default function IntroSequence() {
       aria-label="G2E introduction"
       style={{ position: 'relative', width: '100%', height: '100vh' }}
     >
-      {/* ── Intro video ──────────────────────────────────────────────── */}
+      {/* ── Intro video ────────────────────────────────────────────── */}
       <video
         ref={videoRef}
         muted
@@ -222,13 +263,14 @@ export default function IntroSequence() {
           background: '#0A0908',
           display:    'block',
           zIndex:     0,
+          willChange: 'contents',
         }}
       >
         <source src="/intro/intro.webm" type="video/webm" />
         <source src="/intro/intro.mp4"  type="video/mp4"  />
       </video>
 
-      {/* ── Edge vignette (cinematic crop) ───────────────────────────── */}
+      {/* ── Edge vignette ──────────────────────────────────────────── */}
       <div
         aria-hidden="true"
         style={{
@@ -240,7 +282,7 @@ export default function IntroSequence() {
         }}
       />
 
-      {/* ── Act text overlays ─────────────────────────────────────────── */}
+      {/* ── Act overlays ───────────────────────────────────────────── */}
       {ACTS.map((act, i) => (
         <div
           key={i}
@@ -262,7 +304,7 @@ export default function IntroSequence() {
             textAlign:      act.align,
           }}
         >
-          {/* Act number pill */}
+          {/* Act pill */}
           <div style={{
             display:        'inline-flex',
             alignItems:     'center',
@@ -280,38 +322,46 @@ export default function IntroSequence() {
             </span>
           </div>
 
-          {/* Headline */}
-          <h2 style={{
-            fontFamily:    'var(--font-display)',
-            fontWeight:    800,
-            fontSize:      'clamp(2rem, 4.5vw, 5rem)',
-            lineHeight:    1.0,
-            letterSpacing: '-0.03em',
-            color:         '#FFFFFF',
-            maxWidth:      act.align === 'center' ? '900px' : '640px',
-            whiteSpace:    'pre-line',
-            marginBottom:  '20px',
-            textShadow:    '0 2px 24px rgba(0,0,0,0.50)',
-          }}>
+          {/* Headline — animated individually */}
+          <h2
+            ref={el => { headlineRefs.current[i] = el }}
+            style={{
+              fontFamily:    'var(--font-display)',
+              fontWeight:    800,
+              fontSize:      'clamp(2rem, 4.5vw, 5rem)',
+              lineHeight:    1.0,
+              letterSpacing: '-0.03em',
+              color:         '#FFFFFF',
+              maxWidth:      act.align === 'center' ? '900px' : '640px',
+              whiteSpace:    'pre-line',
+              marginBottom:  '20px',
+              textShadow:    '0 2px 24px rgba(0,0,0,0.50)',
+              willChange:    'transform, opacity, filter',
+            }}
+          >
             {act.headline}
           </h2>
 
-          {/* Sub */}
-          <p style={{
-            fontFamily:  'var(--font-sans)',
-            fontWeight:  300,
-            fontSize:    'clamp(0.9rem, 1.5vw, 1.2rem)',
-            lineHeight:  1.6,
-            color:       'rgba(245,243,238,0.75)',
-            maxWidth:    '520px',
-            textShadow:  '0 1px 8px rgba(0,0,0,0.35)',
-          }}>
+          {/* Sub — lags behind headline */}
+          <p
+            ref={el => { subRefs.current[i] = el }}
+            style={{
+              fontFamily:  'var(--font-sans)',
+              fontWeight:  300,
+              fontSize:    'clamp(0.9rem, 1.5vw, 1.2rem)',
+              lineHeight:  1.6,
+              color:       'rgba(245,243,238,0.75)',
+              maxWidth:    '520px',
+              textShadow:  '0 1px 8px rgba(0,0,0,0.35)',
+              willChange:  'transform, opacity, filter',
+            }}
+          >
             {act.sub}
           </p>
         </div>
       ))}
 
-      {/* ── G2E identity moment — brand reveal before hero ────────────── */}
+      {/* ── G2E identity moment ─────────────────────────────────────── */}
       <div
         ref={logoRef}
         style={{
@@ -346,56 +396,27 @@ export default function IntroSequence() {
         </p>
       </div>
 
-      {/* ── Hero image — dissolves in over the video ──────────────────── */}
-      {/* z:4, sits above intro video but below hero content text */}
+      {/* ── Hero image — dissolves over video ───────────────────────── */}
       <div
         ref={heroImgRef}
         aria-hidden="true"
-        style={{
-          position: 'absolute',
-          inset:    0,
-          zIndex:   4,
-          opacity:  0,
-        }}
+        style={{ position:'absolute', inset:0, zIndex:4, opacity:0 }}
       >
-        {/* Mountain panorama */}
         <picture>
           <source srcSet="/assets/hero-image.webp" type="image/webp" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/assets/hero-image.jpg"
             alt=""
-            style={{
-              width:          '100%',
-              height:         '100%',
-              objectFit:      'cover',
-              objectPosition: 'center 35%',
-              display:        'block',
-            }}
+            style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 35%', display:'block' }}
           />
         </picture>
-
-        {/* Base dark tint */}
         <div style={{ position:'absolute', inset:0, background:'rgba(10,12,10,0.42)' }} />
-
-        {/* Bottom gradient — anchors text */}
-        <div style={{
-          position: 'absolute',
-          bottom:0, left:0, right:0,
-          height:   '62%',
-          background:'linear-gradient(to bottom, rgba(10,12,10,0) 0%, rgba(10,12,10,0.94) 100%)',
-        }} />
-
-        {/* Left vignette — softens left edge */}
-        <div style={{
-          position: 'absolute',
-          top:0, bottom:0, left:0,
-          width: '45%',
-          background:'linear-gradient(to right, rgba(10,12,10,0.38) 0%, rgba(10,12,10,0) 100%)',
-        }} />
+        <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'62%', background:'linear-gradient(to bottom, rgba(10,12,10,0) 0%, rgba(10,12,10,0.94) 100%)' }} />
+        <div style={{ position:'absolute', top:0, bottom:0, left:0, width:'45%', background:'linear-gradient(to right, rgba(10,12,10,0.38) 0%, rgba(10,12,10,0) 100%)' }} />
       </div>
 
-      {/* ── Hero content — rises in as mountain appears ───────────────── */}
+      {/* ── Hero content ────────────────────────────────────────────── */}
       <div
         ref={heroContentRef}
         style={{
@@ -409,146 +430,71 @@ export default function IntroSequence() {
           paddingBottom:  'clamp(40px, 6vh, 80px)',
           opacity:        0,
           pointerEvents:  'none',
+          willChange:     'transform, opacity',
         }}
       >
-        {/* Eyebrow */}
         <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'clamp(20px, 3vh, 32px)' }}>
-          <span style={{
-            fontFamily:'var(--font-mono)', fontSize:'var(--text-2xs)',
-            letterSpacing:'var(--ls-eyebrow)', textTransform:'uppercase',
-            color:'rgba(245,243,238,0.55)',
-          }}>
+          <span style={{ fontFamily:'var(--font-mono)', fontSize:'var(--text-2xs)', letterSpacing:'var(--ls-eyebrow)', textTransform:'uppercase', color:'rgba(245,243,238,0.55)' }}>
             G2E — Green to Energy
           </span>
           <div style={{ height:'1px', width:'24px', background:'rgba(245,243,238,0.18)' }} />
-          <span style={{
-            fontFamily:'var(--font-mono)', fontSize:'var(--text-2xs)',
-            letterSpacing:'var(--ls-eyebrow)', textTransform:'uppercase',
-            color:'rgba(245,243,238,0.32)',
-          }}>
+          <span style={{ fontFamily:'var(--font-mono)', fontSize:'var(--text-2xs)', letterSpacing:'var(--ls-eyebrow)', textTransform:'uppercase', color:'rgba(245,243,238,0.32)' }}>
             Bordo Poniente · CDMX · Est. 2013
           </span>
         </div>
 
-        {/* Headline */}
         <h1 style={{
-          fontFamily:    'var(--font-display)',
-          fontWeight:    800,
-          fontSize:      'clamp(3rem, 7vw, 7rem)',
-          lineHeight:    0.93,
-          letterSpacing: '-0.04em',
-          color:         '#FFFFFF',
-          maxWidth:      '780px',
-          marginBottom:  'clamp(20px, 3vh, 36px)',
-          textShadow:    '0 2px 40px rgba(0,0,0,0.35)',
+          fontFamily:'var(--font-display)', fontWeight:800,
+          fontSize:'clamp(3rem, 7vw, 7rem)', lineHeight:0.93,
+          letterSpacing:'-0.04em', color:'#FFFFFF',
+          maxWidth:'780px', marginBottom:'clamp(20px, 3vh, 36px)',
+          textShadow:'0 2px 40px rgba(0,0,0,0.35)',
         }}>
           Waste in.<br />
           <span style={{ color:'rgba(245,243,238,0.80)' }}>Hydrochar out.</span><br />
-          <span style={{
-            fontSize:   '0.52em',
-            fontWeight: 300,
-            letterSpacing: '-0.02em',
-            color:      'rgba(245,243,238,0.38)',
-          }}>In hours, not centuries.</span>
+          <span style={{ fontSize:'0.52em', fontWeight:300, letterSpacing:'-0.02em', color:'rgba(245,243,238,0.38)' }}>
+            In hours, not centuries.
+          </span>
         </h1>
 
-        {/* Lede */}
         <p style={{
-          fontFamily:   'var(--font-sans)',
-          fontWeight:   300,
-          fontSize:     'clamp(0.95rem, 1.5vw, 1.15rem)',
-          lineHeight:   1.72,
-          color:        'rgba(245,243,238,0.78)',
-          maxWidth:     '460px',
-          marginBottom: 'clamp(24px, 4vh, 40px)',
-          textShadow:   '0 1px 12px rgba(0,0,0,0.25)',
+          fontFamily:'var(--font-sans)', fontWeight:300,
+          fontSize:'clamp(0.95rem, 1.5vw, 1.15rem)', lineHeight:1.72,
+          color:'rgba(245,243,238,0.78)', maxWidth:'460px',
+          marginBottom:'clamp(24px, 4vh, 40px)',
+          textShadow:'0 1px 12px rgba(0,0,0,0.25)',
         }}>
           We take Mexico City&apos;s organic waste and transform it into hydrochar —
           a mineral-grade carbon material that replaces coal, regenerates soil,
           and generates premium carbon credits.
         </p>
 
-        {/* CTAs */}
         <div style={{ display:'flex', alignItems:'center', gap:'10px', flexWrap:'wrap', marginBottom:'clamp(24px, 4vh, 40px)' }}>
-          <a
-            href="#contact"
-            className="glass-btn"
-            style={{
-              display:'inline-flex', alignItems:'center', gap:'10px',
-              fontFamily:'var(--font-sans)', fontSize:'14px', fontWeight:500,
-              color:'#FFFFFF', padding:'13px 22px', textDecoration:'none',
-              pointerEvents:'auto',
-            }}
-          >
+          <a href="#contact" className="glass-btn" style={{ display:'inline-flex', alignItems:'center', gap:'10px', fontFamily:'var(--font-sans)', fontSize:'14px', fontWeight:500, color:'#FFFFFF', padding:'13px 22px', textDecoration:'none', pointerEvents:'auto' }}>
             Join the mission
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
-            </svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
           </a>
-          <a
-            href="#about"
-            style={{
-              display:'inline-flex', alignItems:'center', gap:'8px',
-              fontFamily:'var(--font-sans)', fontSize:'13px', fontWeight:400,
-              color:'rgba(245,243,238,0.65)', padding:'12px 18px',
-              borderRadius:'999px', border:'1px solid rgba(245,243,238,0.18)',
-              textDecoration:'none', pointerEvents:'auto',
-              transition:'border-color 200ms, color 200ms',
-            }}
-          >
+          <a href="#about" style={{ display:'inline-flex', alignItems:'center', gap:'8px', fontFamily:'var(--font-sans)', fontSize:'13px', fontWeight:400, color:'rgba(245,243,238,0.65)', padding:'12px 18px', borderRadius:'999px', border:'1px solid rgba(245,243,238,0.18)', textDecoration:'none', pointerEvents:'auto', transition:'border-color 200ms, color 200ms' }}>
             Who we are
           </a>
         </div>
 
-        {/* Stat chips */}
         <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'clamp(16px, 3vh, 28px)' }}>
           {HERO_STATS.map(stat => (
-            <div
-              key={stat.value}
-              className="glass-card"
-              style={{ padding:'12px 16px', display:'flex', flexDirection:'column', gap:'3px', minWidth:'90px' }}
-            >
-              <span style={{
-                fontFamily:'var(--font-display)', fontWeight:700,
-                fontSize:'clamp(1rem, 1.6vw, 1.35rem)',
-                lineHeight:1, letterSpacing:'-0.02em', color:'#FFFFFF',
-              }}>
+            <div key={stat.value} className="glass-card" style={{ padding:'12px 16px', display:'flex', flexDirection:'column', gap:'3px', minWidth:'90px' }}>
+              <span style={{ fontFamily:'var(--font-display)', fontWeight:700, fontSize:'clamp(1rem, 1.6vw, 1.35rem)', lineHeight:1, letterSpacing:'-0.02em', color:'#FFFFFF' }}>
                 {stat.value}
               </span>
-              <span style={{
-                fontFamily:'var(--font-mono)', fontSize:'9px',
-                letterSpacing:'0.09em', textTransform:'uppercase',
-                color:'rgba(245,243,238,0.50)',
-              }}>
+              <span style={{ fontFamily:'var(--font-mono)', fontSize:'9px', letterSpacing:'0.09em', textTransform:'uppercase', color:'rgba(245,243,238,0.50)' }}>
                 {stat.label}
               </span>
             </div>
           ))}
         </div>
 
-        {/* Credibility strip */}
-        <div style={{
-          paddingTop: 'clamp(12px, 2vh, 20px)',
-          borderTop:  '1px solid rgba(245,243,238,0.08)',
-          display:    'flex',
-          alignItems: 'center',
-          gap:        '20px',
-          flexWrap:   'wrap',
-        }}>
+        <div style={{ paddingTop:'clamp(12px, 2vh, 20px)', borderTop:'1px solid rgba(245,243,238,0.08)', display:'flex', alignItems:'center', gap:'20px', flexWrap:'wrap' }}>
           {['UNAM partner', 'Mexican Government', 'International partnerships', 'Phase II · 2027'].map((item, i) => (
-            <span
-              key={i}
-              style={{
-                fontFamily:    'var(--font-mono)',
-                fontSize:      '9px',
-                letterSpacing: 'var(--ls-eyebrow)',
-                textTransform: 'uppercase',
-                color:         'rgba(245,243,238,0.38)',
-                display:       'flex',
-                alignItems:    'center',
-                gap:           '20px',
-              }}
-            >
+            <span key={i} style={{ fontFamily:'var(--font-mono)', fontSize:'9px', letterSpacing:'var(--ls-eyebrow)', textTransform:'uppercase', color:'rgba(245,243,238,0.38)', display:'flex', alignItems:'center', gap:'20px' }}>
               {i > 0 && <span style={{ opacity:0.30 }}>·</span>}
               {item}
             </span>
@@ -556,30 +502,23 @@ export default function IntroSequence() {
         </div>
       </div>
 
-      {/* ── Skip button ───────────────────────────────────────────────── */}
+      {/* ── Skip button ─────────────────────────────────────────────── */}
       <button
         ref={skipRef}
         onClick={handleSkip}
         style={{
-          position:            'fixed',
-          top:                 '24px',
-          right:               '24px',
-          zIndex:              100,
-          display:             'inline-flex',
-          alignItems:          'center',
-          gap:                 '8px',
-          padding:             '10px 18px',
-          background:          'rgba(245,243,238,0.10)',
-          backdropFilter:      'blur(16px) saturate(140%)',
+          position:'fixed', top:'24px', right:'24px', zIndex:100,
+          display:'inline-flex', alignItems:'center', gap:'8px',
+          padding:'10px 18px',
+          background:'rgba(245,243,238,0.10)',
+          backdropFilter:'blur(16px) saturate(140%)',
           WebkitBackdropFilter:'blur(16px) saturate(140%)',
-          border:              '1px solid rgba(245,243,238,0.18)',
-          borderRadius:        '999px',
-          fontFamily:          'var(--font-sans)',
-          fontSize:            '13px',
-          fontWeight:          500,
-          color:               'rgba(245,243,238,0.80)',
-          cursor:              'pointer',
-          transition:          'background 180ms, color 180ms',
+          border:'1px solid rgba(245,243,238,0.18)',
+          borderRadius:'999px',
+          fontFamily:'var(--font-sans)', fontSize:'13px', fontWeight:500,
+          color:'rgba(245,243,238,0.80)',
+          cursor:'pointer',
+          transition:'background 180ms, color 180ms',
         }}
         onMouseEnter={e => { e.currentTarget.style.background='rgba(245,243,238,0.20)'; e.currentTarget.style.color='#F5F3EE' }}
         onMouseLeave={e => { e.currentTarget.style.background='rgba(245,243,238,0.10)'; e.currentTarget.style.color='rgba(245,243,238,0.80)' }}
