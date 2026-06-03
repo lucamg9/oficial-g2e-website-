@@ -11,6 +11,9 @@ const FPS          = 30
 const DURATION     = TOTAL_FRAMES / FPS   // 4.0 s
 const PX_PER_FRAME = 5
 const SCROLL_DIST  = TOTAL_FRAMES * PX_PER_FRAME  // 600 px
+const LERP         = 0.14
+
+const lerpFn = (a: number, b: number, t: number) => a + (b - a) * t
 
 /* ─── Expandable card definitions ─────────────────────────────────────── */
 const CARDS = [
@@ -47,21 +50,28 @@ const CARDS = [
 export default function WhoWeAreSection() {
   const [open, setOpen] = useState<string | null>(null)
 
-  const sectionRef   = useRef<HTMLDivElement>(null)
-  const videoRef     = useRef<HTMLVideoElement>(null)
-  const pendingSeek  = useRef(false)
-  const targetTime   = useRef(0)
+  const sectionRef  = useRef<HTMLDivElement>(null)
+  const videoRef    = useRef<HTMLVideoElement>(null)
+  const targetTime  = useRef(0)
+  const lerpedTime  = useRef(0)
+  const rafRef      = useRef<number>(0)
 
   const toggle = (id: string) => setOpen(prev => prev === id ? null : id)
 
-  const seekTo = useCallback((time: number) => {
-    const video = videoRef.current
-    if (!video) return
-    targetTime.current = time
-    if (pendingSeek.current) return
-    if (Math.abs(video.currentTime - time) < 1 / FPS / 2) return
-    pendingSeek.current = true
-    video.currentTime = time
+  /* ─── RAF lerp loop ─────────────────────────────────────────────── */
+  const startRaf = useCallback(() => {
+    const tick = () => {
+      const video = videoRef.current
+      if (video) {
+        const next = lerpFn(lerpedTime.current, targetTime.current, LERP)
+        if (Math.abs(next - lerpedTime.current) > 0.0005) {
+          lerpedTime.current = next
+          video.currentTime  = next
+        }
+      }
+      rafRef.current = requestAnimationFrame(tick)
+    }
+    rafRef.current = requestAnimationFrame(tick)
   }, [])
 
   useEffect(() => {
@@ -69,14 +79,12 @@ export default function WhoWeAreSection() {
     const section = sectionRef.current
     if (!video || !section) return
 
-    const onSeeked = () => {
-      pendingSeek.current = false
-      if (Math.abs(video.currentTime - targetTime.current) > 1 / FPS / 2) {
-        pendingSeek.current = true
-        video.currentTime = targetTime.current
-      }
-    }
-    video.addEventListener('seeked', onSeeked)
+    // Hint browser for scrubbing
+    video.pause()
+    video.playbackRate = 0.000001
+    video.currentTime  = 0
+
+    startRaf()
 
     const st = ScrollTrigger.create({
       trigger: section,
@@ -84,16 +92,16 @@ export default function WhoWeAreSection() {
       end:     `+=${SCROLL_DIST}`,
       pin:     true,
       scrub:   true,
-      onUpdate: (self) => {
-        seekTo(self.progress * DURATION)
+      onUpdate(self) {
+        targetTime.current = self.progress * DURATION
       },
     })
 
     return () => {
       st.kill()
-      video.removeEventListener('seeked', onSeeked)
+      cancelAnimationFrame(rafRef.current)
     }
-  }, [seekTo])
+  }, [startRaf])
 
   return (
     <section
@@ -123,6 +131,7 @@ export default function WhoWeAreSection() {
           display:        'block',
           background:     '#0A0C0A',
           zIndex:         0,
+          willChange:     'contents',
         }}
       >
         <source src="/motion/story-2.webm" type="video/webm" />
