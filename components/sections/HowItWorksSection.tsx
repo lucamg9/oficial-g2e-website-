@@ -6,8 +6,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const SCROLL_DIST  = 3600   // px — more scroll = slower / more precise scrubbing
-const CLIP_COUNT   = 6
+const SCROLL_DIST  = 4200   // px — 600px per clip × 7 clips
+const CLIP_COUNT   = 7
 const LERP         = 0.12   // smoothing factor (lower = smoother but laggier)
 
 const lerpFn = (a: number, b: number, t: number) => a + (b - a) * t
@@ -19,20 +19,21 @@ const CLIPS = [
   '/motion/hiw/4.mp4',
   '/motion/hiw/5.mp4',
   '/motion/hiw/6.mp4',
+  '/motion/hiw/7.mp4',
 ]
 
-// 9 narrative beats mapped across 6 clips (clip 0-5)
+// 9 narrative beats mapped across 7 clips (clip 0-6)
 // t = when this beat triggers (0–1 of total scroll progress)
 const BEATS = [
   { t: 0 / 9, clip: 0, phase: '01', label: 'Collection',            caption: 'G2E trucks collect organic municipal waste from Bordo Poniente.' },
-  { t: 1 / 9, clip: 0, phase: '02', label: 'Intake',                caption: 'The waste is deposited into the plant\'s intake system.' },
+  { t: 1 / 9, clip: 1, phase: '02', label: 'Intake',                caption: 'The waste is deposited into the plant\'s intake system.' },
   { t: 2 / 9, clip: 1, phase: '03', label: 'Concentration',         caption: 'Organic mass is accumulated and prepared for processing.' },
-  { t: 3 / 9, clip: 1, phase: '04', label: 'Slurry',                caption: 'Waste is converted into a homogeneous liquid slurry inside a sealed reactor vessel.' },
-  { t: 4 / 9, clip: 2, phase: '05', label: 'Pressurization',        caption: 'The reactor reaches operating pressure. Temperature climbs. The process begins.' },
-  { t: 5 / 9, clip: 2, phase: '06', label: 'Hydrothermal reaction', caption: 'Under pressure and heat, organic molecules break down. Bubbles rise. Carbon bonds form.' },
-  { t: 6 / 9, clip: 3, phase: '07', label: 'Carbonization',         caption: 'The reaction completes. Bubbling stops. Water recedes. Hydrochar remains.' },
-  { t: 7 / 9, clip: 4, phase: '08', label: 'First product',         caption: 'The first sealed G2E bag of hydrochar — mineral-grade, stable, measurable.' },
-  { t: 8 / 9, clip: 5, phase: '09', label: 'Scale',                 caption: 'Every batch repeats. Every module replicates. From one plant to city infrastructure.' },
+  { t: 3 / 9, clip: 2, phase: '04', label: 'Slurry',                caption: 'Waste is converted into a homogeneous liquid slurry inside a sealed reactor vessel.' },
+  { t: 4 / 9, clip: 3, phase: '05', label: 'Pressurization',        caption: 'The reactor reaches operating pressure. Temperature climbs. The process begins.' },
+  { t: 5 / 9, clip: 4, phase: '06', label: 'Hydrothermal reaction', caption: 'Under pressure and heat, organic molecules break down. Bubbles rise. Carbon bonds form.' },
+  { t: 6 / 9, clip: 5, phase: '07', label: 'Carbonization',         caption: 'The reaction completes. Bubbling stops. Water recedes. Hydrochar remains.' },
+  { t: 7 / 9, clip: 5, phase: '08', label: 'First product',         caption: 'The first sealed G2E bag of hydrochar — mineral-grade, stable, measurable.' },
+  { t: 8 / 9, clip: 6, phase: '09', label: 'Scale',                 caption: 'Every batch repeats. Every module replicates. From one plant to city infrastructure.' },
 ]
 
 export default function HowItWorksSection() {

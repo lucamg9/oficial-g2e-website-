@@ -6,14 +6,18 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const TOTAL_FRAMES = 120
-const FPS          = 30
-const DURATION     = TOTAL_FRAMES / FPS   // 4.0 s
-const PX_PER_FRAME = 5
-const SCROLL_DIST  = TOTAL_FRAMES * PX_PER_FRAME  // 600 px
-const LERP         = 0.14
+const CLIP_COUNT  = 4
+const SCROLL_DIST = 2400   // px — 600px per clip
+const LERP        = 0.14
 
 const lerpFn = (a: number, b: number, t: number) => a + (b - a) * t
+
+const CLIPS = [
+  '/motion/story/1.mp4',
+  '/motion/story/2.mp4',
+  '/motion/story/3.mp4',
+  '/motion/story/4.mp4',
+]
 
 /* ─── Expandable card definitions ─────────────────────────────────────── */
 const CARDS = [
@@ -50,23 +54,25 @@ const CARDS = [
 export default function WhoWeAreSection() {
   const [open, setOpen] = useState<string | null>(null)
 
-  const sectionRef  = useRef<HTMLDivElement>(null)
-  const videoRef    = useRef<HTMLVideoElement>(null)
-  const targetTime  = useRef(0)
-  const lerpedTime  = useRef(0)
-  const rafRef      = useRef<number>(0)
+  const sectionRef    = useRef<HTMLDivElement>(null)
+  const videoRefs     = useRef<(HTMLVideoElement | null)[]>([])
+  const targetClipIdx = useRef(0)
+  const targetTime    = useRef(0)
+  const lerpedTime    = useRef(0)
+  const rafRef        = useRef<number>(0)
+  const activeClipIdx = useRef(0)
 
   const toggle = (id: string) => setOpen(prev => prev === id ? null : id)
 
   /* ─── RAF lerp loop ─────────────────────────────────────────────── */
   const startRaf = useCallback(() => {
     const tick = () => {
-      const video = videoRef.current
-      if (video) {
+      const video = videoRefs.current[targetClipIdx.current]
+      if (video && video.readyState >= 2) {
         const next = lerpFn(lerpedTime.current, targetTime.current, LERP)
         if (Math.abs(next - lerpedTime.current) > 0.0005) {
           lerpedTime.current = next
-          video.currentTime  = next
+          try { video.currentTime = next } catch { /* ignore */ }
         }
       }
       rafRef.current = requestAnimationFrame(tick)
@@ -74,18 +80,40 @@ export default function WhoWeAreSection() {
     rafRef.current = requestAnimationFrame(tick)
   }, [])
 
-  useEffect(() => {
-    const video   = videoRef.current
-    const section = sectionRef.current
-    if (!video || !section) return
+  /* ─── Clip crossfade ─────────────────────────────────────────────── */
+  const switchClip = useCallback((nextIdx: number) => {
+    if (nextIdx === activeClipIdx.current) return
+    const prevIdx = activeClipIdx.current
+    activeClipIdx.current = nextIdx
+    lerpedTime.current = 0
 
-    try {
-      video.pause()
-      video.playbackRate = 0
-    } catch {
-      // Some browsers reject playbackRate=0 — safe to ignore
-    }
-    video.currentTime  = 0
+    const prev = videoRefs.current[prevIdx]
+    const next = videoRefs.current[nextIdx]
+    if (!next) return
+
+    next.style.zIndex     = '2'
+    next.style.transition = 'opacity 500ms ease'
+    next.style.opacity    = '1'
+
+    setTimeout(() => {
+      if (prev) {
+        prev.style.transition = 'opacity 500ms ease'
+        prev.style.opacity    = '0'
+        prev.style.zIndex     = '1'
+      }
+    }, 200)
+  }, [])
+
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+
+    videoRefs.current.forEach(v => {
+      if (!v) return
+      try { v.pause(); v.currentTime = 0 } catch { /* ignore */ }
+    })
+    const first = videoRefs.current[0]
+    if (first) { first.style.opacity = '1'; first.style.zIndex = '2' }
 
     startRaf()
 
@@ -96,15 +124,26 @@ export default function WhoWeAreSection() {
       pin:     true,
       scrub:   true,
       onUpdate(self) {
-        targetTime.current = self.progress * DURATION
+        const p = self.progress
+        const zone    = Math.min(p * CLIP_COUNT, CLIP_COUNT - 0.0001)
+        const clipIdx = Math.floor(zone)
+        const clipPrg = zone - clipIdx
+
+        targetClipIdx.current = clipIdx
+        const video = videoRefs.current[clipIdx]
+        targetTime.current = clipPrg * (video?.duration || 0)
+
+        switchClip(clipIdx)
       },
     })
 
+    const videos = videoRefs.current.slice()
     return () => {
       st.kill()
       cancelAnimationFrame(rafRef.current)
+      videos.forEach(v => { try { v?.pause() } catch { /* ignore */ } })
     }
-  }, [startRaf])
+  }, [startRaf, switchClip])
 
   return (
     <section
@@ -118,28 +157,31 @@ export default function WhoWeAreSection() {
         overflow: 'hidden',
       }}
     >
-      {/* ── Story 2 video — scroll-scrubbed background ──────────────── */}
-      <video
-        ref={videoRef}
-        muted
-        playsInline
-        preload="auto"
-        style={{
-          position:       'absolute',
-          inset:          0,
-          width:          '100%',
-          height:         '100%',
-          objectFit:      'cover',
-          objectPosition: 'center center',
-          display:        'block',
-          background:     '#0A0C0A',
-          zIndex:         0,
-          willChange:     'contents',
-        }}
-      >
-        <source src="/motion/story-2.webm" type="video/webm" />
-        <source src="/motion/story-2.mp4"  type="video/mp4"  />
-      </video>
+      {/* ── Story clips — stacked, scroll-scrubbed background ──────── */}
+      {CLIPS.map((src, i) => (
+        // eslint-disable-next-line jsx-a11y/media-has-caption
+        <video
+          key={src}
+          ref={el => { videoRefs.current[i] = el }}
+          src={src}
+          muted
+          playsInline
+          preload="auto"
+          style={{
+            position:       'absolute',
+            inset:          0,
+            width:          '100%',
+            height:         '100%',
+            objectFit:      'cover',
+            objectPosition: 'center center',
+            display:        'block',
+            background:     '#0A0C0A',
+            zIndex:         i === 0 ? 2 : 1,
+            opacity:        0,
+            willChange:     'contents',
+          }}
+        />
+      ))}
 
       {/* Dark overlay — keeps text readable without blocking the visual */}
       <div

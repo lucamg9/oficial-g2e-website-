@@ -6,53 +6,53 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const TOTAL_FRAMES = 688
-const FPS          = 30
-const DURATION     = TOTAL_FRAMES / FPS        // 22.93 s
-const PX_PER_FRAME = 5
-const SCROLL_DIST  = TOTAL_FRAMES * PX_PER_FRAME  // 3440 px
-const LERP         = 0.14   // lower = smoother / more cinematic lag
+const CLIP_COUNT  = 6
+const SCROLL_DIST = 3600   // px — 600px per clip
+const LERP        = 0.14
 
-/* ─── Easing helper ───────────────────────────────────────────────────── */
-const ease = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+const lerpFn = (a: number, b: number, t: number) => a + (b - a) * t
+const ease   = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
 
-/* ─── Act overlays ────────────────────────────────────────────────────── */
+const CLIPS = [
+  '/intro/clips/1.mp4',
+  '/intro/clips/2.mp4',
+  '/intro/clips/3.mp4',
+  '/intro/clips/4.mp4',
+  '/intro/clips/5.mp4',
+  '/intro/clips/6.mp4',
+]
+
+// One act per clip — text appears while that clip is playing
 const ACTS = [
   {
-    fromFrame: 0,   toFrame: 87,
-    headline:  'Every day, cities generate thousands\nof tonnes of organic waste.',
-    sub:       'It rots. It burns. It poisons the ground.',
-    align:     'left'   as const,
+    headline: 'Every day, cities generate thousands\nof tonnes of organic waste.',
+    sub:      'It rots. It burns. It poisons the ground.',
+    align:    'left'   as const,
   },
   {
-    fromFrame: 88,  toFrame: 207,
-    headline:  'What if that waste had\na different destination?',
-    sub:       'We built one.',
-    align:     'left'   as const,
+    headline: 'What if that waste had\na different destination?',
+    sub:      'We built one.',
+    align:    'left'   as const,
   },
   {
-    fromFrame: 208, toFrame: 327,
-    headline:  '220°C. Controlled pressure.\nZero combustion.',
-    sub:       'Hydrothermal Carbonization — the process that changes everything.',
-    align:     'right'  as const,
+    headline: '220°C. Controlled pressure.\nZero combustion.',
+    sub:      'Hydrothermal Carbonization — the process that changes everything.',
+    align:    'right'  as const,
   },
   {
-    fromFrame: 328, toFrame: 447,
-    headline:  'Hydrochar.',
-    sub:       'A mineral-grade carbon material — born from organic waste.',
-    align:     'center' as const,
+    headline: 'Hydrochar.',
+    sub:      'A mineral-grade carbon material — born from organic waste.',
+    align:    'center' as const,
   },
   {
-    fromFrame: 448, toFrame: 567,
-    headline:  'Applied to soil,\nit sequesters carbon for centuries.',
-    sub:       'And makes barren land productive again.',
-    align:     'left'   as const,
+    headline: 'Applied to soil,\nit sequesters carbon for centuries.',
+    sub:      'And makes barren land productive again.',
+    align:    'left'   as const,
   },
   {
-    fromFrame: 568, toFrame: 687,
-    headline:  'This is what we built.',
-    sub:       "The world’s largest hydrothermal carbonization plant. Mexico City.",
-    align:     'center' as const,
+    headline: 'This is what we built.',
+    sub:      "The world's largest hydrothermal carbonization plant. Mexico City.",
+    align:    'center' as const,
   },
 ]
 
@@ -63,27 +63,26 @@ const HERO_STATS = [
   { value: 'Est. 2013', label: 'Bordo Poniente'    },
 ]
 
-/* ─── Micro lerp ──────────────────────────────────────────────────────── */
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t
-
 export default function IntroSequence() {
-  const sectionRef      = useRef<HTMLDivElement>(null)
-  const videoRef        = useRef<HTMLVideoElement>(null)
-  const actRefs         = useRef<(HTMLDivElement | null)[]>([])
-  const headlineRefs    = useRef<(HTMLHeadingElement | null)[]>([])
-  const subRefs         = useRef<(HTMLParagraphElement | null)[]>([])
-  const logoRef         = useRef<HTMLDivElement>(null)
-  const heroImgRef      = useRef<HTMLDivElement>(null)
-  const heroContentRef  = useRef<HTMLDivElement>(null)
-  const skipRef         = useRef<HTMLButtonElement>(null)
-  const heroFiredRef    = useRef(false)
+  const sectionRef     = useRef<HTMLDivElement>(null)
+  const videoRefs      = useRef<(HTMLVideoElement | null)[]>([])
+  const actRefs        = useRef<(HTMLDivElement | null)[]>([])
+  const headlineRefs   = useRef<(HTMLHeadingElement | null)[]>([])
+  const subRefs        = useRef<(HTMLParagraphElement | null)[]>([])
+  const logoRef        = useRef<HTMLDivElement>(null)
+  const heroImgRef     = useRef<HTMLDivElement>(null)
+  const heroContentRef = useRef<HTMLDivElement>(null)
+  const skipRef        = useRef<HTMLButtonElement>(null)
+  const heroFiredRef   = useRef(false)
 
-  /* ─── RAF lerp state ──────────────────────────────────────────────── */
-  const targetTime  = useRef(0)    // set by ScrollTrigger
-  const lerpedTime  = useRef(0)    // tracks smoothed currentTime
-  const rafRef      = useRef<number>(0)
+  // Scrub state
+  const targetClipIdx = useRef(0)
+  const targetTime    = useRef(0)
+  const lerpedTime    = useRef(0)
+  const rafRef        = useRef<number>(0)
+  const activeClipIdx = useRef(0)
 
-  /* ─── Auto-skip on return visit ───────────────────────────────────── */
+  /* ─── Auto-skip on return visit ──────────────────────────────────────── */
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!sessionStorage.getItem('g2e-intro-seen')) return
@@ -95,60 +94,71 @@ export default function IntroSequence() {
     return () => clearTimeout(t)
   }, [])
 
-  /* ─── Video rendering hints ───────────────────────────────────────── */
-  useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
-    try {
-      video.pause()
-      video.playbackRate = 0
-      video.currentTime  = 0
-    } catch {
-      // Some browsers reject playbackRate=0 — safe to ignore
-    }
-  }, [])
-
-  /* ─── RAF lerp loop ───────────────────────────────────────────────── */
+  /* ─── RAF lerp loop ───────────────────────────────────────────────────── */
   const startRaf = useCallback(() => {
     const tick = () => {
-      const video = videoRef.current
-      if (!video) { rafRef.current = requestAnimationFrame(tick); return }
-
-      const next = lerp(lerpedTime.current, targetTime.current, LERP)
-      // Only seek if meaningful movement remains (sub-frame threshold: 0.5ms)
-      if (Math.abs(next - lerpedTime.current) > 0.0005) {
-        lerpedTime.current = next
-        video.currentTime  = next
+      const video = videoRefs.current[targetClipIdx.current]
+      if (video && video.readyState >= 2) {
+        const next = lerpFn(lerpedTime.current, targetTime.current, LERP)
+        if (Math.abs(next - lerpedTime.current) > 0.0005) {
+          lerpedTime.current = next
+          try { video.currentTime = next } catch { /* ignore */ }
+        }
       }
       rafRef.current = requestAnimationFrame(tick)
     }
     rafRef.current = requestAnimationFrame(tick)
   }, [])
 
-  /* ─── Apply visual state from progress ───────────────────────────── */
-  const applyProgress = useCallback((p: number, frame: number) => {
-    const FADE = 18    // frames to fade in / out
-    const SUB_LAG = 6  // sub headline lags headline by this many frames
+  /* ─── Clip crossfade ─────────────────────────────────────────────────── */
+  const switchClip = useCallback((nextIdx: number) => {
+    if (nextIdx === activeClipIdx.current) return
+    const prevIdx = activeClipIdx.current
+    activeClipIdx.current = nextIdx
+    lerpedTime.current = 0
 
-    /* ── Act overlays ── */
+    const prev = videoRefs.current[prevIdx]
+    const next = videoRefs.current[nextIdx]
+    if (!next) return
+
+    next.style.zIndex     = '2'
+    next.style.transition = 'opacity 500ms ease'
+    next.style.opacity    = '1'
+
+    setTimeout(() => {
+      if (prev) {
+        prev.style.transition = 'opacity 500ms ease'
+        prev.style.opacity    = '0'
+        prev.style.zIndex     = '1'
+      }
+    }, 200)
+  }, [])
+
+  /* ─── Apply visual state from scroll progress ────────────────────────── */
+  const applyProgress = useCallback((p: number) => {
+    const ZONE_W    = 1 / CLIP_COUNT   // width of each clip zone
+    const FADE_IN   = 0.18             // fraction of zone used to fade in
+    const FADE_OUT  = 0.18             // fraction of zone used to fade out
+
     ACTS.forEach((act, i) => {
       const headEl = headlineRefs.current[i]
       const subEl  = subRefs.current[i]
       const wrap   = actRefs.current[i]
       if (!wrap) return
 
-      const inP  = Math.max(0, Math.min(1, (frame - act.fromFrame) / FADE))
-      const outP = Math.max(0, Math.min(1, (act.toFrame - frame)   / FADE))
+      const zoneStart = i * ZONE_W
+      const local     = (p - zoneStart) / ZONE_W  // 0–1 within this zone
+
+      const inP  = Math.max(0, Math.min(1, local / FADE_IN))
+      const outP = Math.max(0, Math.min(1, (1 - local) / FADE_OUT))
       const actP = Math.min(inP, outP)
 
-      // Wrapper visibility
       wrap.style.opacity = actP > 0 ? '1' : '0'
       if (actP === 0) return
 
-      // Headline — slides up on entry, slides up on exit
       if (headEl) {
-        const entryY = (1 - inP)  *  24   // +24px → 0 on enter
-        const exitY  = (1 - outP) * -20   // 0 → -20px on exit
+        const entryY = (1 - inP)  *  24
+        const exitY  = (1 - outP) * -20
         const y      = entryY + (inP >= 1 ? exitY : 0)
         const blur   = (1 - actP) * 5
         headEl.style.opacity   = String(actP)
@@ -156,10 +166,10 @@ export default function IntroSequence() {
         headEl.style.filter    = `blur(${blur.toFixed(2)}px)`
       }
 
-      // Sub — same motion but lags by SUB_LAG frames
+      // Sub lags slightly
       if (subEl) {
-        const sInP  = Math.max(0, Math.min(1, (frame - act.fromFrame - SUB_LAG) / FADE))
-        const sOutP = Math.max(0, Math.min(1, (act.toFrame - frame - SUB_LAG)   / FADE))
+        const sInP  = Math.max(0, Math.min(1, (local - 0.04) / FADE_IN))
+        const sOutP = Math.max(0, Math.min(1, (1 - local - 0.04) / FADE_OUT))
         const sActP = Math.min(sInP, sOutP)
         const entryY = (1 - sInP)  *  18
         const exitY  = (1 - sOutP) * -16
@@ -171,7 +181,7 @@ export default function IntroSequence() {
       }
     })
 
-    /* ── G2E identity card: 0.86 → 0.93, fades 0.93 → 0.97 ── */
+    // G2E identity card: appears in last clip zone 0.86–0.97
     const logoIn  = ease(Math.max(0, Math.min(1, (p - 0.86) / 0.06)))
     const logoOut = 1 - ease(Math.max(0, Math.min(1, (p - 0.93) / 0.04)))
     const logoOp  = logoIn * logoOut
@@ -180,35 +190,43 @@ export default function IntroSequence() {
       logoRef.current.style.transform = `translateY(${(1 - logoIn) * 22}px)`
     }
 
-    /* ── Hero image: dissolves in 0.92 → 0.99 ── */
+    // Hero image dissolves in 0.92 → 0.99
     const heroImgP = ease(Math.max(0, Math.min(1, (p - 0.92) / 0.07)))
     if (heroImgRef.current) heroImgRef.current.style.opacity = String(heroImgP)
 
-    /* ── Hero content: rises in 0.95 → 1.0 ── */
+    // Hero content rises in 0.95 → 1.0
     const hcP = ease(Math.max(0, Math.min(1, (p - 0.95) / 0.05)))
     if (heroContentRef.current) {
       heroContentRef.current.style.opacity   = String(hcP)
       heroContentRef.current.style.transform = `translateY(${(1 - hcP) * 30}px)`
     }
 
-    /* ── Skip button: fades out 0.88 → 0.93 ── */
+    // Skip button fades out at 0.88 → 0.93
     if (skipRef.current) {
       const skipOp = Math.max(0, 1 - Math.max(0, (p - 0.88) / 0.05))
-      skipRef.current.style.opacity      = String(skipOp)
+      skipRef.current.style.opacity       = String(skipOp)
       skipRef.current.style.pointerEvents = skipOp < 0.05 ? 'none' : 'auto'
     }
 
-    /* ── Nav reveal — fires once at 0.93 ── */
+    // Nav reveal — fires once at 0.93
     if (p >= 0.93 && !heroFiredRef.current) {
       heroFiredRef.current = true
       window.dispatchEvent(new CustomEvent('g2e:hero-reveal'))
     }
   }, [])
 
-  /* ─── ScrollTrigger ───────────────────────────────────────────────── */
+  /* ─── ScrollTrigger ───────────────────────────────────────────────────── */
   useEffect(() => {
     const section = sectionRef.current
     if (!section) return
+
+    // Pause all videos, show first
+    videoRefs.current.forEach(v => {
+      if (!v) return
+      try { v.pause(); v.currentTime = 0 } catch { /* ignore */ }
+    })
+    const first = videoRefs.current[0]
+    if (first) { first.style.opacity = '1'; first.style.zIndex = '2' }
 
     startRaf()
 
@@ -219,21 +237,30 @@ export default function IntroSequence() {
       pin:     true,
       scrub:   true,
       onUpdate(self) {
-        const p     = self.progress
-        const frame = p * (TOTAL_FRAMES - 1)
-        // Only update target — RAF loop handles the actual seek
-        targetTime.current = p * DURATION
-        applyProgress(p, frame)
+        const p = self.progress
+
+        const zone    = Math.min(p * CLIP_COUNT, CLIP_COUNT - 0.0001)
+        const clipIdx = Math.floor(zone)
+        const clipPrg = zone - clipIdx
+
+        targetClipIdx.current = clipIdx
+        const video = videoRefs.current[clipIdx]
+        targetTime.current = clipPrg * (video?.duration || 0)
+
+        switchClip(clipIdx)
+        applyProgress(p)
       },
     })
 
+    const videos = videoRefs.current.slice()
     return () => {
       st.kill()
       cancelAnimationFrame(rafRef.current)
+      videos.forEach(v => { try { v?.pause() } catch { /* ignore */ } })
     }
-  }, [startRaf, applyProgress])
+  }, [startRaf, switchClip, applyProgress])
 
-  /* ─── Skip handler ────────────────────────────────────────────────── */
+  /* ─── Skip handler ────────────────────────────────────────────────────── */
   const handleSkip = useCallback(() => {
     sessionStorage.setItem('g2e-intro-seen', '1')
     if (!heroFiredRef.current) {
@@ -252,29 +279,32 @@ export default function IntroSequence() {
       aria-label="G2E introduction"
       style={{ position: 'relative', width: '100%', height: '100vh' }}
     >
-      {/* ── Intro video ────────────────────────────────────────────── */}
-      <video
-        ref={videoRef}
-        muted
-        playsInline
-        preload="auto"
-        style={{
-          position:   'absolute',
-          inset:      0,
-          width:      '100%',
-          height:     '100%',
-          objectFit:  'cover',
-          background: '#0A0908',
-          display:    'block',
-          zIndex:     0,
-          willChange: 'contents',
-        }}
-      >
-        <source src="/intro/intro.webm" type="video/webm" />
-        <source src="/intro/intro.mp4"  type="video/mp4"  />
-      </video>
+      {/* ── Video clips — stacked, scrubbed by scroll ─────────────────── */}
+      {CLIPS.map((src, i) => (
+        // eslint-disable-next-line jsx-a11y/media-has-caption
+        <video
+          key={src}
+          ref={el => { videoRefs.current[i] = el }}
+          src={src}
+          muted
+          playsInline
+          preload="auto"
+          style={{
+            position:   'absolute',
+            inset:      0,
+            width:      '100%',
+            height:     '100%',
+            objectFit:  'cover',
+            background: '#0A0908',
+            display:    'block',
+            zIndex:     1,
+            opacity:    0,
+            willChange: 'contents',
+          }}
+        />
+      ))}
 
-      {/* ── Edge vignette ──────────────────────────────────────────── */}
+      {/* ── Edge vignette ─────────────────────────────────────────────── */}
       <div
         aria-hidden="true"
         style={{
@@ -282,11 +312,11 @@ export default function IntroSequence() {
           inset:         0,
           background:    'radial-gradient(ellipse at center, transparent 38%, rgba(0,0,0,0.40) 100%)',
           pointerEvents: 'none',
-          zIndex:        1,
+          zIndex:        3,
         }}
       />
 
-      {/* ── Act overlays ───────────────────────────────────────────── */}
+      {/* ── Act overlays ──────────────────────────────────────────────── */}
       {ACTS.map((act, i) => (
         <div
           key={i}
@@ -294,7 +324,7 @@ export default function IntroSequence() {
           style={{
             position:       'absolute',
             inset:          0,
-            zIndex:         2,
+            zIndex:         4,
             display:        'flex',
             flexDirection:  'column',
             justifyContent: 'flex-end',
@@ -302,23 +332,17 @@ export default function IntroSequence() {
             paddingBottom:  'clamp(64px, 10vh, 120px)',
             alignItems:     act.align === 'right'  ? 'flex-end'
                           : act.align === 'center' ? 'center'
-                          :                         'flex-start',
+                          :                          'flex-start',
             opacity:        0,
             pointerEvents:  'none',
             textAlign:      act.align,
           }}
         >
-          {/* Act pill */}
           <div style={{
-            display:        'inline-flex',
-            alignItems:     'center',
-            gap:            '8px',
-            marginBottom:   '20px',
-            padding:        '6px 14px',
-            background:     'rgba(245,243,238,0.08)',
-            backdropFilter: 'blur(12px)',
-            border:         '1px solid rgba(245,243,238,0.14)',
-            borderRadius:   '999px',
+            display:        'inline-flex', alignItems: 'center', gap: '8px',
+            marginBottom:   '20px', padding: '6px 14px',
+            background:     'rgba(245,243,238,0.08)', backdropFilter: 'blur(12px)',
+            border:         '1px solid rgba(245,243,238,0.14)', borderRadius: '999px',
           }}>
             <span style={{ width:'6px', height:'6px', borderRadius:'50%', background:'var(--forest-light)', display:'block' }} />
             <span style={{ fontFamily:'var(--font-mono)', fontSize:'10px', letterSpacing:'0.12em', textTransform:'uppercase', color:'rgba(245,243,238,0.50)' }}>
@@ -326,38 +350,29 @@ export default function IntroSequence() {
             </span>
           </div>
 
-          {/* Headline — animated individually */}
           <h2
             ref={el => { headlineRefs.current[i] = el }}
             style={{
-              fontFamily:    'var(--font-display)',
-              fontWeight:    800,
-              fontSize:      'clamp(2rem, 4.5vw, 5rem)',
-              lineHeight:    1.0,
-              letterSpacing: '-0.03em',
-              color:         '#FFFFFF',
-              maxWidth:      act.align === 'center' ? '900px' : '640px',
-              whiteSpace:    'pre-line',
-              marginBottom:  '20px',
-              textShadow:    '0 2px 24px rgba(0,0,0,0.50)',
-              willChange:    'transform, opacity, filter',
+              fontFamily: 'var(--font-display)', fontWeight: 800,
+              fontSize: 'clamp(2rem, 4.5vw, 5rem)', lineHeight: 1.0,
+              letterSpacing: '-0.03em', color: '#FFFFFF',
+              maxWidth: act.align === 'center' ? '900px' : '640px',
+              whiteSpace: 'pre-line', marginBottom: '20px',
+              textShadow: '0 2px 24px rgba(0,0,0,0.50)',
+              willChange: 'transform, opacity, filter',
             }}
           >
             {act.headline}
           </h2>
 
-          {/* Sub — lags behind headline */}
           <p
             ref={el => { subRefs.current[i] = el }}
             style={{
-              fontFamily:  'var(--font-sans)',
-              fontWeight:  300,
-              fontSize:    'clamp(0.9rem, 1.5vw, 1.2rem)',
-              lineHeight:  1.6,
-              color:       'rgba(245,243,238,0.75)',
-              maxWidth:    '520px',
-              textShadow:  '0 1px 8px rgba(0,0,0,0.35)',
-              willChange:  'transform, opacity, filter',
+              fontFamily: 'var(--font-sans)', fontWeight: 300,
+              fontSize: 'clamp(0.9rem, 1.5vw, 1.2rem)', lineHeight: 1.6,
+              color: 'rgba(245,243,238,0.75)', maxWidth: '520px',
+              textShadow: '0 1px 8px rgba(0,0,0,0.35)',
+              willChange: 'transform, opacity, filter',
             }}
           >
             {act.sub}
@@ -365,30 +380,21 @@ export default function IntroSequence() {
         </div>
       ))}
 
-      {/* ── G2E identity moment ─────────────────────────────────────── */}
+      {/* ── G2E identity moment ───────────────────────────────────────── */}
       <div
         ref={logoRef}
         style={{
-          position:       'absolute',
-          inset:          0,
-          zIndex:         3,
-          display:        'flex',
-          flexDirection:  'column',
-          alignItems:     'center',
-          justifyContent: 'center',
-          opacity:        0,
-          pointerEvents:  'none',
-          gap:            '14px',
+          position: 'absolute', inset: 0, zIndex: 5,
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', opacity: 0, pointerEvents: 'none', gap: '14px',
         }}
       >
         <div style={{
           width:'80px', height:'80px', borderRadius:'50%',
-          background:'rgba(245,243,238,0.10)',
-          backdropFilter:'blur(20px) saturate(140%)',
+          background:'rgba(245,243,238,0.10)', backdropFilter:'blur(20px) saturate(140%)',
           border:'1px solid rgba(245,243,238,0.20)',
           display:'flex', alignItems:'center', justifyContent:'center',
-          marginBottom:'6px',
-          boxShadow:'0 0 60px rgba(245,243,238,0.08)',
+          marginBottom:'6px', boxShadow:'0 0 60px rgba(245,243,238,0.08)',
         }}>
           <span style={{ fontFamily:'var(--font-display)', fontSize:'42px', fontWeight:800, color:'#F5F3EE', lineHeight:1, marginTop:'4px' }}>g</span>
         </div>
@@ -400,11 +406,11 @@ export default function IntroSequence() {
         </p>
       </div>
 
-      {/* ── Hero image — dissolves over video ───────────────────────── */}
+      {/* ── Hero image — dissolves over video ─────────────────────────── */}
       <div
         ref={heroImgRef}
         aria-hidden="true"
-        style={{ position:'absolute', inset:0, zIndex:4, opacity:0 }}
+        style={{ position:'absolute', inset:0, zIndex:6, opacity:0 }}
       >
         <picture>
           <source srcSet="/assets/hero-image.webp" type="image/webp" />
@@ -420,21 +426,17 @@ export default function IntroSequence() {
         <div style={{ position:'absolute', top:0, bottom:0, left:0, width:'45%', background:'linear-gradient(to right, rgba(10,12,10,0.38) 0%, rgba(10,12,10,0) 100%)' }} />
       </div>
 
-      {/* ── Hero content ────────────────────────────────────────────── */}
+      {/* ── Hero content ──────────────────────────────────────────────── */}
       <div
         ref={heroContentRef}
         style={{
-          position:       'absolute',
-          inset:          0,
-          zIndex:         5,
-          display:        'flex',
-          flexDirection:  'column',
+          position: 'absolute', inset: 0, zIndex: 7,
+          display: 'flex', flexDirection: 'column',
           justifyContent: 'flex-end',
-          padding:        'var(--container-pad)',
-          paddingBottom:  'clamp(40px, 6vh, 80px)',
-          opacity:        0,
-          pointerEvents:  'none',
-          willChange:     'transform, opacity',
+          padding: 'var(--container-pad)',
+          paddingBottom: 'clamp(40px, 6vh, 80px)',
+          opacity: 0, pointerEvents: 'none',
+          willChange: 'transform, opacity',
         }}
       >
         <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'clamp(20px, 3vh, 32px)' }}>
@@ -506,7 +508,7 @@ export default function IntroSequence() {
         </div>
       </div>
 
-      {/* ── Skip button ─────────────────────────────────────────────── */}
+      {/* ── Skip button ───────────────────────────────────────────────── */}
       <button
         ref={skipRef}
         onClick={handleSkip}
@@ -517,11 +519,9 @@ export default function IntroSequence() {
           background:'rgba(245,243,238,0.10)',
           backdropFilter:'blur(16px) saturate(140%)',
           WebkitBackdropFilter:'blur(16px) saturate(140%)',
-          border:'1px solid rgba(245,243,238,0.18)',
-          borderRadius:'999px',
+          border:'1px solid rgba(245,243,238,0.18)', borderRadius:'999px',
           fontFamily:'var(--font-sans)', fontSize:'13px', fontWeight:500,
-          color:'rgba(245,243,238,0.80)',
-          cursor:'pointer',
+          color:'rgba(245,243,238,0.80)', cursor:'pointer',
           transition:'background 180ms, color 180ms',
         }}
         onMouseEnter={e => { e.currentTarget.style.background='rgba(245,243,238,0.20)'; e.currentTarget.style.color='#F5F3EE' }}
