@@ -6,10 +6,23 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const SCROLL_DIST = 2700
+const SCROLL_DIST  = 3600   // px — more scroll = slower / more precise scrubbing
+const CLIP_COUNT   = 6
+const LERP         = 0.12   // smoothing factor (lower = smoother but laggier)
 
-// 9 beats across 6 video clips
-// clip index 0-5 maps to /motion/hiw/1.mp4 – /motion/hiw/6.mp4
+const lerpFn = (a: number, b: number, t: number) => a + (b - a) * t
+
+const CLIPS = [
+  '/motion/hiw/1.mp4',
+  '/motion/hiw/2.mp4',
+  '/motion/hiw/3.mp4',
+  '/motion/hiw/4.mp4',
+  '/motion/hiw/5.mp4',
+  '/motion/hiw/6.mp4',
+]
+
+// 9 narrative beats mapped across 6 clips (clip 0-5)
+// t = when this beat triggers (0–1 of total scroll progress)
 const BEATS = [
   { t: 0 / 9, clip: 0, phase: '01', label: 'Collection',            caption: 'G2E trucks collect organic municipal waste from Bordo Poniente.' },
   { t: 1 / 9, clip: 0, phase: '02', label: 'Intake',                caption: 'The waste is deposited into the plant\'s intake system.' },
@@ -22,15 +35,6 @@ const BEATS = [
   { t: 8 / 9, clip: 5, phase: '09', label: 'Scale',                 caption: 'Every batch repeats. Every module replicates. From one plant to city infrastructure.' },
 ]
 
-const CLIPS = [
-  '/motion/hiw/1.mp4',
-  '/motion/hiw/2.mp4',
-  '/motion/hiw/3.mp4',
-  '/motion/hiw/4.mp4',
-  '/motion/hiw/5.mp4',
-  '/motion/hiw/6.mp4',
-]
-
 export default function HowItWorksSection() {
   const sectionRef   = useRef<HTMLDivElement>(null)
   const stickyRef    = useRef<HTMLDivElement>(null)
@@ -41,35 +45,57 @@ export default function HowItWorksSection() {
   const captionRef   = useRef<HTMLParagraphElement>(null)
   const dotsRef      = useRef<(HTMLDivElement | null)[]>([])
 
-  const activeBeatIdx = useRef(-1)
+  // Scroll-scrub state
+  const targetClipIdx = useRef(0)
+  const targetTime    = useRef(0)
+  const lerpedTime    = useRef(0)
+  const rafRef        = useRef<number>(0)
+
+  // UI state
   const activeClipIdx = useRef(0)
+  const activeBeatIdx = useRef(-1)
   const fadeTimer     = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  /* ─── Video crossfade ───────────────────────────────────────────────── */
-  const switchClip = useCallback((nextClip: number) => {
-    if (nextClip === activeClipIdx.current) return
+  /* ─── RAF lerp loop — runs continuously, scrubs active clip ─────────── */
+  const startRaf = useCallback(() => {
+    const tick = () => {
+      const video = videoRefs.current[targetClipIdx.current]
+      if (video && video.readyState >= 2) {
+        const next = lerpFn(lerpedTime.current, targetTime.current, LERP)
+        if (Math.abs(next - lerpedTime.current) > 0.0005) {
+          lerpedTime.current = next
+          try { video.currentTime = next } catch { /* ignore */ }
+        }
+      }
+      rafRef.current = requestAnimationFrame(tick)
+    }
+    rafRef.current = requestAnimationFrame(tick)
+  }, [])
+
+  /* ─── Clip crossfade ─────────────────────────────────────────────────── */
+  const switchClip = useCallback((nextIdx: number) => {
+    if (nextIdx === activeClipIdx.current) return
     const prevIdx = activeClipIdx.current
-    activeClipIdx.current = nextClip
+    activeClipIdx.current = nextIdx
 
     const prev = videoRefs.current[prevIdx]
-    const next = videoRefs.current[nextClip]
+    const next = videoRefs.current[nextIdx]
     if (!next) return
 
-    // Bring next on top and fade in
-    next.style.zIndex     = '2'
-    next.style.transition = 'opacity 500ms ease'
-    next.style.opacity    = '1'
-    try { next.play() } catch { /* ignore */ }
+    // Reset lerpedTime so the new clip starts from its correct position
+    lerpedTime.current = targetTime.current
 
-    // Fade out the previous after crossfade starts
+    next.style.zIndex     = '2'
+    next.style.transition = 'opacity 450ms ease'
+    next.style.opacity    = '1'
+
     setTimeout(() => {
       if (prev) {
-        prev.style.transition = 'opacity 500ms ease'
+        prev.style.transition = 'opacity 450ms ease'
         prev.style.opacity    = '0'
         prev.style.zIndex     = '1'
-        try { prev.pause() } catch { /* ignore */ }
       }
-    }, 200)
+    }, 150)
   }, [])
 
   /* ─── Caption / label / phase crossfade ─────────────────────────────── */
@@ -107,18 +133,25 @@ export default function HowItWorksSection() {
     }, 90)
   }, [])
 
-  /* ─── ScrollTrigger ─────────────────────────────────────────────────── */
+  /* ─── ScrollTrigger + RAF boot ──────────────────────────────────────── */
   useEffect(() => {
     const section = sectionRef.current
     if (!section) return
 
-    // Boot first clip
+    // Pause all videos — we control currentTime manually
+    videoRefs.current.forEach(v => {
+      if (!v) return
+      try { v.pause(); v.currentTime = 0 } catch { /* ignore */ }
+    })
+
+    // Show first clip
     const firstVideo = videoRefs.current[0]
     if (firstVideo) {
       firstVideo.style.opacity = '1'
       firstVideo.style.zIndex  = '2'
-      try { firstVideo.play() } catch { /* ignore */ }
     }
+
+    startRaf()
 
     const st = ScrollTrigger.create({
       trigger: section,
@@ -129,18 +162,31 @@ export default function HowItWorksSection() {
       onUpdate(self) {
         const p = self.progress
 
+        // Progress bar
         if (progressRef.current) {
           progressRef.current.style.transform = `scaleX(${p})`
         }
 
+        // Which clip zone are we in? Each clip gets 1/CLIP_COUNT of scroll
+        const zone     = Math.min(p * CLIP_COUNT, CLIP_COUNT - 0.0001)
+        const clipIdx  = Math.floor(zone)
+        const clipProg = zone - clipIdx   // 0–1 within this clip
+
+        // Set scrub target
+        targetClipIdx.current = clipIdx
+        const video = videoRefs.current[clipIdx]
+        const dur   = video?.duration || 0
+        targetTime.current = clipProg * dur
+
+        // Crossfade to next clip if needed
+        switchClip(clipIdx)
+
+        // Beat for caption / dots
         let beatIdx = 0
         for (let i = 0; i < BEATS.length; i++) {
           if (p >= BEATS[i].t) beatIdx = i
         }
-        const beat = BEATS[beatIdx]
-
-        switchClip(beat.clip)
-        crossfadeTo(beat, beatIdx)
+        crossfadeTo(BEATS[beatIdx], beatIdx)
 
         dotsRef.current.forEach((dot, i) => {
           if (!dot) return
@@ -158,10 +204,11 @@ export default function HowItWorksSection() {
     const videos = videoRefs.current.slice()
     return () => {
       st.kill()
+      cancelAnimationFrame(rafRef.current)
       if (fadeTimer.current) clearTimeout(fadeTimer.current)
       videos.forEach(v => { try { v?.pause() } catch { /* ignore */ } })
     }
-  }, [switchClip, crossfadeTo])
+  }, [startRaf, switchClip, crossfadeTo])
 
   return (
     <section
@@ -180,7 +227,7 @@ export default function HowItWorksSection() {
           background: '#0A0C0A',
         }}
       >
-        {/* Video layers — stacked, crossfaded via opacity */}
+        {/* Video layers — stacked, scrubbed via currentTime, crossfaded via opacity */}
         {CLIPS.map((src, i) => (
           <video
             key={src}
@@ -188,8 +235,7 @@ export default function HowItWorksSection() {
             src={src}
             muted
             playsInline
-            loop
-            preload={i === 0 ? 'auto' : 'metadata'}
+            preload="auto"
             style={{
               position:   'absolute',
               inset:      0,
@@ -198,6 +244,7 @@ export default function HowItWorksSection() {
               objectFit:  'cover',
               opacity:    0,
               zIndex:     1,
+              willChange: 'contents',
             }}
           />
         ))}
