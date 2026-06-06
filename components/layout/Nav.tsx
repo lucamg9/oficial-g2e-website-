@@ -5,15 +5,15 @@ import Link from 'next/link'
 import gsap from 'gsap'
 
 const NAV_LINKS = [
-  { label: 'About',    href: '#about'    },
-  { label: 'Timeline', href: '#timeline' },
-  { label: 'Phase II', href: '#phase2'   },
+  { label: 'Technology',           href: '#technology' },
+  { label: 'Services',             href: '#services'   },
+  { label: 'Demonstration Center', href: '#demo'       },
+  { label: 'Presence',             href: '#presence'   },
 ]
 
 export default function Nav() {
   const headerRef   = useRef<HTMLElement>(null)
   const revealedRef = useRef(false)
-  const lastY       = useRef(0)
 
   const revealNav = () => {
     if (revealedRef.current) return
@@ -21,13 +21,7 @@ export default function Nav() {
     gsap.fromTo(
       headerRef.current,
       { opacity: 0, y: -16 },
-      {
-        opacity:    1,
-        y:          0,
-        duration:   1.1,
-        ease:       'power4.out',
-        clearProps: 'transform',
-      }
+      { opacity: 1, y: 0, duration: 1.1, ease: 'power4.out', clearProps: 'transform' }
     )
   }
 
@@ -43,21 +37,7 @@ export default function Nav() {
 
     const onReveal = () => revealNav()
     window.addEventListener('g2e:hero-reveal', onReveal)
-
-    const onScroll = () => {
-      if (!revealedRef.current) return
-      const y = window.scrollY
-      const shouldHide = y > lastY.current && y > 120
-      header.style.transform = shouldHide ? 'translateY(-110%)' : 'translateY(0)'
-      lastY.current = y
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-
-    return () => {
-      window.removeEventListener('g2e:hero-reveal', onReveal)
-      window.removeEventListener('scroll', onScroll)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => window.removeEventListener('g2e:hero-reveal', onReveal)
   }, [])
 
   return (
@@ -65,117 +45,115 @@ export default function Nav() {
       ref={headerRef}
       aria-label="Site navigation"
       style={{
-        position:   'fixed',
-        top:        0,
-        left:       0,
-        right:      0,
-        zIndex:     50,
-        height:     'var(--nav-h)',
-        display:    'flex',
-        alignItems: 'center',
-        transition: 'transform 420ms var(--ease-expo)',
-        opacity:    0,
-        willChange: 'transform, opacity',
+        position:        'fixed',
+        top:             '18px',
+        left:            0,
+        right:           0,
+        zIndex:          100,
+        display:         'flex',
+        justifyContent:  'center',
+        padding:         '0 20px',
+        opacity:         0,
+        willChange:      'opacity',
+        pointerEvents:   'none',
       }}
     >
-      <div className="g2e-container" style={{ width: '100%' }}>
-        <div
+      {/* Pill container — matches Daniel's .g2e-nav spec exactly */}
+      <nav
+        aria-label="Primary"
+        style={{
+          width:                '100%',
+          maxWidth:             '1060px',
+          display:              'flex',
+          alignItems:           'center',
+          gap:                  '4px',
+          background:           `color-mix(in srgb, #FCFBF6 86%, transparent)`,
+          backdropFilter:       'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          border:               '1px solid var(--sand-300)',
+          borderRadius:         'var(--radius-pill)',
+          padding:              '9px 9px 9px 18px',
+          boxShadow:            'var(--shadow-card)',
+          pointerEvents:        'auto',
+        }}
+      >
+        {/* Logo — full SVG lockup (mark + G2E text) */}
+        <Link
+          href="/"
+          aria-label="G2E home"
           style={{
-            display:             'flex',
-            alignItems:          'center',
-            height:              '56px',
-            borderRadius:        'var(--radius-pill)',
-            background:          'rgba(10,12,10,0.72)',
-            backdropFilter:      'blur(24px) saturate(140%)',
-            WebkitBackdropFilter:'blur(24px) saturate(140%)',
-            boxShadow:           '0 2px 32px rgba(0,0,0,0.28), inset 0 1px 0 rgba(245,243,238,0.07)',
-            padding:             '0 8px 0 16px',
-            border:              '1px solid rgba(245,243,238,0.10)',
+            display:        'flex',
+            alignItems:     'center',
+            marginRight:    'auto',
+            textDecoration: 'none',
+            flexShrink:     0,
           }}
         >
-          {/* Logo */}
-          <Link
-            href="/"
-            aria-label="G2E home"
-            style={{ display:'flex', alignItems:'center', gap:'10px', textDecoration:'none', flexShrink:0 }}
-          >
-            <div style={{
-              width:'36px', height:'36px', borderRadius:'999px',
-              background:'rgba(245,243,238,0.10)',
-              border:'1px solid rgba(245,243,238,0.14)',
-              display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
-            }}>
-              <span style={{
-                fontFamily:'var(--font-display)', fontWeight:800,
-                fontSize:'20px', color:'#FFFFFF',
-                lineHeight:1, display:'block', marginTop:'2px',
-              }}>g</span>
-            </div>
-            <span style={{
-              fontFamily:'var(--font-display)', fontWeight:700,
-              fontSize:'18px', letterSpacing:'-0.03em',
-              color:'rgba(245,243,238,0.90)', lineHeight:1,
-            }}>g2e</span>
-          </Link>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/assets/g2e-logo.svg"
+            alt="G2E"
+            height={28}
+            style={{ display: 'block' }}
+          />
+        </Link>
 
-          {/* Nav links */}
-          <nav
-            aria-label="Primary"
-            style={{ display:'flex', alignItems:'center', marginLeft:'auto', gap:'24px' }}
-          >
-            {NAV_LINKS.map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                style={{
-                  fontFamily:'var(--font-sans)', fontSize:'13px',
-                  fontWeight:400, color:'rgba(245,243,238,0.55)',
-                  textDecoration:'none', transition:'color 200ms',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'rgba(245,243,238,0.95)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(245,243,238,0.55)')}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* CTA */}
+        {/* Nav links */}
+        {NAV_LINKS.map(link => (
           <Link
-            href="#contact"
+            key={link.href}
+            href={link.href}
             style={{
-              marginLeft:     '16px',
-              display:        'inline-flex',
-              alignItems:     'center',
-              gap:            '8px',
               fontFamily:     'var(--font-sans)',
-              fontSize:       '13px',
+              fontSize:       '14px',
               fontWeight:     500,
-              background:     'rgba(245,243,238,0.12)',
-              color:          '#FFFFFF',
-              padding:        '10px 16px 10px 18px',
-              borderRadius:   '999px',
+              color:          'var(--ink-600)',
+              padding:        '9px 15px',
+              borderRadius:   'var(--radius-pill)',
               textDecoration: 'none',
-              border:         '1px solid rgba(245,243,238,0.16)',
-              flexShrink:     0,
-              transition:     'background 200ms var(--ease-expo), border-color 200ms',
+              whiteSpace:     'nowrap',
+              transition:     'background 220ms, color 220ms',
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(245,243,238,0.20)'
-              e.currentTarget.style.borderColor = 'rgba(245,243,238,0.28)'
+              e.currentTarget.style.background = 'var(--oat-200)'
+              e.currentTarget.style.color = 'var(--ink-900)'
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(245,243,238,0.12)'
-              e.currentTarget.style.borderColor = 'rgba(245,243,238,0.16)'
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.color = 'var(--ink-600)'
             }}
           >
-            Join the mission
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
-            </svg>
+            {link.label}
           </Link>
-        </div>
-      </div>
+        ))}
+
+        {/* CTA — clay accent pill */}
+        <Link
+          href="#contact"
+          style={{
+            display:        'inline-flex',
+            alignItems:     'center',
+            gap:            '8px',
+            fontFamily:     'var(--font-sans)',
+            fontSize:       '14px',
+            fontWeight:     600,
+            background:     'var(--clay-500)',
+            color:          '#FCFBF6',
+            padding:        '10px 20px',
+            borderRadius:   'var(--radius-pill)',
+            textDecoration: 'none',
+            flexShrink:     0,
+            marginLeft:     '4px',
+            boxShadow:      '0 6px 20px -8px rgba(148,75,40,0.55)',
+            transition:     'background 180ms var(--ease-expo)',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'var(--clay-600)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'var(--clay-500)')}
+        >
+          Get in touch
+          <span aria-hidden="true" style={{ display: 'inline-block', transition: 'transform 200ms var(--ease-expo)' }}>→</span>
+        </Link>
+      </nav>
     </header>
   )
 }

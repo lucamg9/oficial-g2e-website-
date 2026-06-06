@@ -1,6 +1,8 @@
 'use client'
 
+import { useRef, RefObject } from 'react'
 import Link from 'next/link'
+import { useReveal } from '@/lib/use-reveal'
 
 const COLS = [
   {
@@ -33,6 +35,34 @@ const COLS = [
 ]
 
 export default function Footer() {
+  const logoRowRef  = useRef<HTMLDivElement>(null)
+  const missionRef  = useRef<HTMLHeadingElement>(null)
+  const leftColRef  = useRef<HTMLDivElement>(null)
+  const legalRowRef = useRef<HTMLDivElement>(null)
+  /* One ref per nav column — COLS has 3 items */
+  const navCol0Ref  = useRef<HTMLDivElement>(null)
+  const navCol1Ref  = useRef<HTMLDivElement>(null)
+  const navCol2Ref  = useRef<HTMLDivElement>(null)
+  const navColRefs  = [navCol0Ref, navCol1Ref, navCol2Ref] as RefObject<HTMLElement | null>[]
+
+  useReveal(
+    [
+      { ref: logoRowRef,  from: { opacity: 0, y: 60  }, duration: 0.90, ease: 'power4.out' },
+      { ref: missionRef,  from: { opacity: 0, y: 100 }, duration: 1.20, ease: 'power4.out', delay: 0.12 },
+      { ref: leftColRef,  from: { opacity: 0, y: 60  }, duration: 0.90, ease: 'power3.out', delay: 0.24 },
+      { ref: legalRowRef, from: { opacity: 0, y: 30  }, duration: 0.80, delay: 0.40 },
+    ],
+    [
+      {
+        refs:     navColRefs,
+        from:     { opacity: 0, y: 60 },
+        stagger:  0.15,
+        duration: 0.95,
+        ease:     'power4.out',
+      },
+    ]
+  )
+
   return (
     <footer
       style={{
@@ -98,49 +128,31 @@ export default function Footer() {
             marginBottom: 'var(--space-10)',
           }}
         >
-          {/* Monogram + wordmark */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: 'var(--space-6)' }}>
-            <div
-              style={{
-                width: '48px', height: '48px',
-                borderRadius: '50%',
-                background: 'rgba(245,243,238,0.06)',
-                border: '1px solid rgba(245,243,238,0.12)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontWeight: 800,
-                  fontSize: '28px',
-                  color: 'var(--bone-100)',
-                  lineHeight: 1,
-                  display: 'block',
-                  marginTop: '3px',
-                }}
-              >
-                g
-              </span>
-            </div>
+          {/* Logo */}
+          <div ref={logoRowRef} style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: 'var(--space-6)' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/assets/g2e-logo-light.svg"
+              alt="G2E"
+              height={36}
+              style={{ display: 'block', flexShrink: 0 }}
+            />
             <span
               style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: 'var(--text-2xs)',
+                fontFamily:    'var(--font-mono)',
+                fontSize:      'var(--text-2xs)',
                 letterSpacing: 'var(--ls-eyebrow)',
                 textTransform: 'uppercase',
-                color: 'rgba(245,243,238,0.22)',
+                color:         'rgba(245,243,238,0.22)',
               }}
             >
-              Green to Energy · CDMX · Est. 2013
+              Transforming Waste · CDMX · Est. 2013
             </span>
           </div>
 
           {/* Mission statement — large, Syne, no italic */}
           <h2
+            ref={missionRef}
             style={{
               fontFamily: 'var(--font-display)',
               fontWeight: 700,
@@ -165,7 +177,7 @@ export default function Footer() {
         >
 
           {/* Left — identity + contact */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+          <div ref={leftColRef} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
             <p
               style={{
                 fontFamily: 'var(--font-sans)',
@@ -229,8 +241,8 @@ export default function Footer() {
 
           {/* Right — nav columns */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-10">
-            {COLS.map((col) => (
-              <div key={col.label} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            {COLS.map((col, i) => (
+              <div key={col.label} ref={[navCol0Ref, navCol1Ref, navCol2Ref][i] as RefObject<HTMLDivElement>} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                 <p
                   style={{
                     fontFamily: 'var(--font-mono)',
@@ -269,6 +281,7 @@ export default function Footer() {
 
         {/* ── Legal row ────────────────────────────────────────────── */}
         <div
+          ref={legalRowRef}
           className="flex flex-col md:flex-row md:items-center md:justify-between gap-3"
           style={{ paddingTop: 'var(--space-6)' }}
         >
@@ -290,7 +303,7 @@ export default function Footer() {
               color: 'rgba(245,243,238,0.16)',
             }}
           >
-            © {new Date().getFullYear()} G2E — Green to Energy. All rights reserved.
+            © {new Date().getFullYear()} G2E. All rights reserved.
           </p>
         </div>
 

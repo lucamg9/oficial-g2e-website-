@@ -1,12 +1,42 @@
 'use client'
 
+import { useRef } from 'react'
 import { useState } from 'react'
+import { useReveal } from '@/lib/use-reveal'
 
 const INTERESTS = ['Off-take', 'Investment', 'Government', 'Research', 'Press']
 
 export default function ContactSection() {
   const [selected, setSelected] = useState<string[]>([])
   const [sent, setSent]         = useState(false)
+
+  const headingRef  = useRef<HTMLParagraphElement>(null)
+  const leftPanelRef  = useRef<HTMLDivElement>(null)
+  const rightPanelRef = useRef<HTMLDivElement>(null)
+
+  useReveal([
+    {
+      ref:      headingRef,
+      from:     { opacity: 0, y: 60 },
+      duration: 0.90,
+      ease:     'power4.out',
+    },
+    {
+      ref:      leftPanelRef,
+      from:     { opacity: 0, x: -110, y: 40 },
+      duration: 1.10,
+      ease:     'power4.out',
+      threshold:0.06,
+    },
+    {
+      ref:      rightPanelRef,
+      from:     { opacity: 0, x: 110, y: 40 },
+      duration: 1.10,
+      ease:     'power4.out',
+      delay:    0.16,
+      threshold:0.06,
+    },
+  ])
 
   const toggle = (item: string) =>
     setSelected((prev) =>
@@ -46,6 +76,7 @@ export default function ContactSection() {
           <div style={{ height: '1px', flex: 1, background: 'var(--line)' }} />
         </div>
         <p
+          ref={headingRef}
           style={{
             fontFamily: 'var(--font-mono)',
             fontSize: 'var(--text-2xs)',
@@ -66,6 +97,7 @@ export default function ContactSection() {
 
           {/* Left — Hydrochar panel with GIF 3 ─────── */}
           <div
+            ref={leftPanelRef}
             style={{
               position: 'relative',
               background: 'var(--hydrochar-900)',
@@ -185,6 +217,7 @@ export default function ContactSection() {
 
           {/* Right — Form on bone ────────────────── */}
           <div
+            ref={rightPanelRef}
             style={{
               background: 'var(--bone-50)',
               border: '1px solid var(--line)',

@@ -1,18 +1,11 @@
 import type { Metadata } from 'next'
-import { Syne, Inter, DM_Mono } from 'next/font/google'
+import { Inter, DM_Mono } from 'next/font/google'
 import { LenisProvider } from '@/lib/lenis-provider'
 import Nav from '@/components/layout/Nav'
 import Footer from '@/components/layout/Footer'
 import ContactFab from '@/components/layout/ContactFab'
 import ScrollRevealInit from '@/components/ui/ScrollRevealInit'
 import './globals.css'
-
-const syne = Syne({
-  subsets: ['latin'],
-  variable: '--font-syne',
-  display: 'swap',
-  weight: ['400', '600', '700', '800'],
-})
 
 const inter = Inter({
   subsets: ['latin'],
@@ -31,8 +24,8 @@ const dmMono = DM_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'G2E — Green to Energy',
-    template: '%s | G2E — Green to Energy',
+    default: 'G2E — Transforming Waste into Value',
+    template: '%s | G2E — Transforming Waste into Value',
   },
   description:
     "G2E transforms organic waste into hydrochar — a clean-burning coal replacement and agricultural soil regenerant. Operating the world's largest hydrothermal carbonization plant in Mexico City.",
@@ -50,8 +43,8 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: 'website',
-    siteName: 'G2E — Green to Energy',
-    title: 'G2E — Green to Energy',
+    siteName: 'G2E — Transforming Waste into Value',
+    title: 'G2E — Transforming Waste into Value',
     description:
       'Transforming organic waste into hydrochar — a premium coal replacement, soil regenerant, and premium carbon credit generator.',
   },
@@ -66,7 +59,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${syne.variable} ${inter.variable} ${dmMono.variable}`}
+      className={`${inter.variable} ${dmMono.variable}`}
     >
       <body>
         <LenisProvider>

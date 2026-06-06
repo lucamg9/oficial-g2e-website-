@@ -1,149 +1,151 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { gsap } from 'gsap'
+import { useEffect, useRef } from 'react'
+import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const CLIP_COUNT  = 4
-const SCROLL_DIST = 2400   // px — 600px per clip
-const LERP        = 0.14
+const VIDEO_SRC   = '/motion/story/who-we-are.mp4'
+const SCROLL_DIST = 3600   // 900px per chapter — snappier pacing
+const LERP        = 0.18   // higher = more immediate video response
+const FADE        = 0.08   // fraction of total progress for fade window
 
-const lerpFn = (a: number, b: number, t: number) => a + (b - a) * t
-
-const CLIPS = [
-  '/motion/story/1.mp4',
-  '/motion/story/2.mp4',
-  '/motion/story/3.mp4',
-  '/motion/story/4.mp4',
+/* ─── 4 chapters mapped to progress 0 → 1 ─────────────────────────────── */
+const CHAPTERS = [
+  {
+    eyebrow:  '01 · Carbon',
+    headline: 'Circular economy,\nat scale.',
+    body:     'G2E is a pioneering Mexican technology firm dedicated to the circular economy. We capture urban organic waste — which traditionally generates greenhouse gases in landfills.',
+    in:  0.00,
+    out: 0.25,
+  },
+  {
+    eyebrow:  '02 · Hydrochar',
+    headline: 'Waste becomes\nhigh-value material.',
+    body:     'We convert organic waste into hydrochar — a sustainable replacement for mineral coal that regenerates agricultural soil and creates lasting carbon sequestration.',
+    in:  0.22,
+    out: 0.50,
+  },
+  {
+    eyebrow:  '03 · Agriculture',
+    headline: 'Barren land\nbecomes productive.',
+    body:     'Hydrochar restores farmland and facilitates the decarbonization of the steel industry — turning what cities discard into a foundation for regenerative growth.',
+    in:  0.47,
+    out: 0.75,
+  },
+  {
+    eyebrow:  '04 · Impact',
+    headline: 'From laboratory\nto urban infrastructure.',
+    body:     'Collaborating with UNAM, the Mexican Government, and international stakeholders, we operate the world\'s largest hydrothermal carbonization plant dedicated to municipal organic waste.',
+    in:  0.72,
+    out: 1.00,
+  },
 ]
 
-/* ─── Expandable card definitions ─────────────────────────────────────── */
-const CARDS = [
-  {
-    id:      'info',
-    label:   'Info',
-    icon:    '◎',
-    summary: 'What we are and what we do.',
-    body:    'G2E turns organic waste into hydrochar — a mineral-grade carbon material that replaces coal, regenerates farmland soil, and decarbonizes the steel industry. We operate the world\'s largest hydrothermal carbonization plant processing municipal organic waste at Bordo Poniente, Mexico City.',
-  },
-  {
-    id:      'goals',
-    label:   'Goals',
-    icon:    '◈',
-    summary: 'Where we are going.',
-    body:    'Decarbonize Mexican industry and cities through scalable waste-to-value technology. Replace mineral coal. Regenerate farmland soil. Generate premium technology-based carbon credits. Phase II targets 10 new modules in 2027 and a long-term vision of 170 replicable plants worldwide.',
-  },
-  {
-    id:      'values',
-    label:   'Values',
-    icon:    '◇',
-    summary: 'What drives every decision.',
-    body:    'Community roots, scientific rigor, and real-world impact. We built this from an NGO in Oaxaca — not a lab. Every decision is grounded in partnership, transparency, and the conviction that technology must reach the people who need it most.',
-  },
-  {
-    id:      'allies',
-    label:   'Allies',
-    icon:    '◉',
-    summary: 'Who we work with.',
-    body:    'UNAM Institute of Engineering · Gobierno de México · SEMARNAT · Government of Mexico City · COLPOS · CIMMYT · SADER · International clean-tech partners. Science, policy, and agriculture — aligned around one mission.',
-  },
-]
+function clamp(v: number, lo: number, hi: number) { return Math.max(lo, Math.min(hi, v)) }
 
 export default function WhoWeAreSection() {
-  const [open, setOpen] = useState<string | null>(null)
+  const sectionRef  = useRef<HTMLDivElement>(null)
+  const videoRef    = useRef<HTMLVideoElement>(null)
+  const chapterRefs = useRef<(HTMLDivElement | null)[]>([])
+  const dotRefs     = useRef<(HTMLDivElement | null)[]>([])
+  const targetTime  = useRef(0)
+  const lerpedTime  = useRef(0)
+  const rafRef      = useRef<number>(0)
+  const wipeRef     = useRef<HTMLDivElement>(null)
+  const last         = CHAPTERS.length - 1
 
-  const sectionRef    = useRef<HTMLDivElement>(null)
-  const videoRefs     = useRef<(HTMLVideoElement | null)[]>([])
-  const targetClipIdx = useRef(0)
-  const targetTime    = useRef(0)
-  const lerpedTime    = useRef(0)
-  const rafRef        = useRef<number>(0)
-  const activeClipIdx = useRef(0)
-
-  const toggle = (id: string) => setOpen(prev => prev === id ? null : id)
-
-  /* ─── RAF lerp loop ─────────────────────────────────────────────── */
-  const startRaf = useCallback(() => {
+  /* ─── RAF lerp scrub ──────────────────────────────────────────────────── */
+  useEffect(() => {
     const tick = () => {
-      const video = videoRefs.current[targetClipIdx.current]
-      if (video && video.readyState >= 2) {
-        const next = lerpFn(lerpedTime.current, targetTime.current, LERP)
+      const v = videoRef.current
+      if (v && v.readyState >= 2) {
+        const next = lerpedTime.current + (targetTime.current - lerpedTime.current) * LERP
         if (Math.abs(next - lerpedTime.current) > 0.0005) {
           lerpedTime.current = next
-          try { video.currentTime = next } catch { /* ignore */ }
+          try { v.currentTime = next } catch { /* ignore */ }
         }
       }
       rafRef.current = requestAnimationFrame(tick)
     }
     rafRef.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafRef.current)
   }, [])
 
-  /* ─── Clip crossfade ─────────────────────────────────────────────── */
-  const switchClip = useCallback((nextIdx: number) => {
-    if (nextIdx === activeClipIdx.current) return
-    const prevIdx = activeClipIdx.current
-    activeClipIdx.current = nextIdx
-    lerpedTime.current = 0
-
-    const prev = videoRefs.current[prevIdx]
-    const next = videoRefs.current[nextIdx]
-    if (!next) return
-
-    next.style.zIndex     = '2'
-    next.style.transition = 'opacity 500ms ease'
-    next.style.opacity    = '1'
-
-    setTimeout(() => {
-      if (prev) {
-        prev.style.transition = 'opacity 500ms ease'
-        prev.style.opacity    = '0'
-        prev.style.zIndex     = '1'
-      }
-    }, 200)
-  }, [])
-
+  /* ─── ScrollTrigger ───────────────────────────────────────────────────── */
   useEffect(() => {
     const section = sectionRef.current
     if (!section) return
 
-    videoRefs.current.forEach(v => {
-      if (!v) return
-      try { v.pause(); v.currentTime = 0 } catch { /* ignore */ }
-    })
-    const first = videoRefs.current[0]
-    if (first) { first.style.opacity = '1'; first.style.zIndex = '2' }
-
-    startRaf()
+    const resetToStart = () => {
+      targetTime.current  = 0
+      lerpedTime.current  = 0
+      chapterRefs.current.forEach((el, i) => {
+        if (!el) return
+        el.style.opacity   = i === 0 ? '1' : '0'
+        el.style.transform = 'translateY(0px)'
+        el.style.filter    = 'blur(0px)'
+      })
+      dotRefs.current.forEach((d, i) => {
+        if (!d) return
+        d.style.background = i === 0 ? 'var(--clay-500)' : 'rgba(245,243,238,0.28)'
+        d.style.transform  = i === 0 ? 'scaleY(2.8)' : 'scaleY(1)'
+      })
+    }
 
     const st = ScrollTrigger.create({
       trigger: section,
       start:   'top top',
       end:     `+=${SCROLL_DIST}`,
       pin:     true,
-      scrub:   true,
+      scrub:   0.4,
+      onLeave() { resetToStart() },
       onUpdate(self) {
         const p = self.progress
-        const zone    = Math.min(p * CLIP_COUNT, CLIP_COUNT - 0.0001)
-        const clipIdx = Math.floor(zone)
-        const clipPrg = zone - clipIdx
 
-        targetClipIdx.current = clipIdx
-        const video = videoRefs.current[clipIdx]
-        targetTime.current = clipPrg * (video?.duration || 0)
+        /* entry/exit wipe */
+        if (wipeRef.current) {
+          const eIn  = Math.min(p / 0.04, 1)
+          const eOut = Math.max(0, (p - 0.96) / 0.04)
+          wipeRef.current.style.opacity = String(Math.max(1 - eIn, eOut))
+        }
 
-        switchClip(clipIdx)
+        /* video scrub */
+        targetTime.current = p * (videoRef.current?.duration || 30)
+
+        /* chapter opacity + lift */
+        CHAPTERS.forEach((ch, i) => {
+          const el = chapterRefs.current[i]
+          if (!el) return
+
+          const inP  = clamp((p - ch.in)  / FADE, 0, 1)
+          const outP = clamp((ch.out - p) / FADE, 0, 1)
+          const alpha = i === last ? clamp(inP, 0, 1) : Math.min(inP, outP)
+
+          const yBase  = i === last ? (1 - inP) * 18 : (outP < inP ? -14 : 18)
+          const yShift = i === last ? (1 - inP) * 18 : (1 - Math.min(inP, outP)) * yBase
+
+          el.style.opacity   = String(alpha)
+          el.style.transform = `translateY(${yShift}px)`
+          el.style.filter    = alpha < 0.55
+            ? `blur(${(1 - alpha / 0.55) * 5}px)`
+            : 'blur(0px)'
+        })
+
+        /* dot indicator */
+        const activeIdx = clamp(Math.floor(p * CHAPTERS.length), 0, last)
+        dotRefs.current.forEach((d, i) => {
+          if (!d) return
+          d.style.background = i === activeIdx ? 'var(--clay-500)' : 'rgba(245,243,238,0.28)'
+          d.style.transform  = i === activeIdx ? 'scaleY(2.8)' : 'scaleY(1)'
+        })
       },
     })
 
-    const videos = videoRefs.current.slice()
-    return () => {
-      st.kill()
-      cancelAnimationFrame(rafRef.current)
-      videos.forEach(v => { try { v?.pause() } catch { /* ignore */ } })
-    }
-  }, [startRaf, switchClip])
+    return () => st.kill()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [last])
 
   return (
     <section
@@ -151,299 +153,304 @@ export default function WhoWeAreSection() {
       id="about"
       aria-label="Who we are"
       style={{
-        position: 'relative',
-        width:    '100%',
-        height:   '100vh',
-        overflow: 'hidden',
+        position:   'relative',
+        width:      '100%',
+        height:     '100vh',
+        overflow:   'hidden',
+        background: '#090C08',
       }}
     >
-      {/* ── Story clips — stacked, scroll-scrubbed background ──────── */}
-      {CLIPS.map((src, i) => (
-        // eslint-disable-next-line jsx-a11y/media-has-caption
-        <video
-          key={src}
-          ref={el => { videoRefs.current[i] = el }}
-          src={src}
-          muted
-          playsInline
-          preload="auto"
-          style={{
-            position:       'absolute',
-            inset:          0,
-            width:          '100%',
-            height:         '100%',
-            objectFit:      'cover',
-            objectPosition: 'center center',
-            display:        'block',
-            background:     '#0A0C0A',
-            zIndex:         i === 0 ? 2 : 1,
-            opacity:        0,
-            willChange:     'contents',
-          }}
-        />
-      ))}
 
-      {/* Dark overlay — keeps text readable without blocking the visual */}
-      <div
-        aria-hidden="true"
-        style={{
-          position:      'absolute',
-          inset:         0,
-          background:    'rgba(10,12,10,0.58)',
-          zIndex:        1,
-          pointerEvents: 'none',
-        }}
-      />
-
-      {/* ── Content overlay ─────────────────────────────────────────── */}
-      <div
-        className="g2e-container"
+      {/* ── Full-bleed video ─────────────────────────────────────────── */}
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+      <video
+        ref={videoRef}
+        src={VIDEO_SRC}
+        muted
+        playsInline
+        preload="auto"
         style={{
           position:       'absolute',
           inset:          0,
-          zIndex:         2,
-          display:        'flex',
-          alignItems:     'center',
-          pointerEvents:  'none',   // allow clicks to pass through gaps
+          width:          '100%',
+          height:         '100%',
+          objectFit:      'cover',
+          objectPosition: 'center center',
+          display:        'block',
+        }}
+      />
+
+      {/* Left anchor gradient — text panel readability */}
+      <div aria-hidden="true" style={{
+        position:      'absolute',
+        inset:         0,
+        background:    'linear-gradient(to right, rgba(9,12,8,0.62) 0%, rgba(9,12,8,0.22) 48%, rgba(9,12,8,0.02) 100%)',
+        zIndex:        1,
+        pointerEvents: 'none',
+      }} />
+      {/* Entry fade */}
+      <div aria-hidden="true" style={{
+        position:      'absolute',
+        top:           0, left: 0, right: 0,
+        height:        '14%',
+        background:    'linear-gradient(to top, transparent 0%, rgba(9,12,8,0.60) 100%)',
+        zIndex:        1,
+        pointerEvents: 'none',
+      }} />
+      {/* Exit fade */}
+      <div aria-hidden="true" style={{
+        position:      'absolute',
+        bottom:        0, left: 0, right: 0,
+        height:        '16%',
+        background:    'linear-gradient(to bottom, transparent 0%, rgba(9,12,8,0.75) 100%)',
+        zIndex:        1,
+        pointerEvents: 'none',
+      }} />
+
+      {/* ── Content layer ────────────────────────────────────────────── */}
+      <div
+        className="g2e-container"
+        style={{
+          position:      'absolute',
+          inset:         0,
+          zIndex:        2,
+          display:       'flex',
+          alignItems:    'center',
+          pointerEvents: 'none',
         }}
       >
-        <div
-          style={{
-            display:             'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap:                 'clamp(48px, 6vw, 96px)',
-            alignItems:          'center',
-            width:               '100%',
-            pointerEvents:       'auto',   // re-enable for interactive children
-          }}
-        >
+        <div style={{
+          width:               '100%',
+          display:             'grid',
+          gridTemplateColumns: '1fr 1fr',
+          alignItems:          'center',
+          gap:                 '40px',
+        }}>
 
-          {/* ── LEFT — text + CTAs ────────────────────────────────── */}
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px' }}>
-              <span style={{
-                fontFamily:    'var(--font-mono)',
-                fontSize:      'var(--text-2xs)',
-                letterSpacing: 'var(--ls-eyebrow)',
-                textTransform: 'uppercase',
-                color:         'rgba(245,243,238,0.50)',
-              }}>
-                Who we are
-              </span>
-              <div style={{ height: '1px', width: '32px', background: 'rgba(245,243,238,0.20)' }} />
-            </div>
-
-            <h2 style={{
-              fontFamily:    'var(--font-display)',
-              fontWeight:    800,
-              fontSize:      'clamp(2.2rem, 4vw, 3.8rem)',
-              lineHeight:    0.95,
-              letterSpacing: '-0.03em',
-              color:         '#FFFFFF',
-              marginBottom:  '28px',
-            }}>
-              We turn waste<br />
-              <span style={{ color: 'rgba(245,243,238,0.48)' }}>into value.</span>
-            </h2>
-
-            <p style={{
-              fontFamily:   'var(--font-sans)',
-              fontSize:     'var(--text-lg)',
-              lineHeight:   'var(--lh-loose)',
-              color:        'rgba(245,243,238,0.90)',
-              marginBottom: '16px',
-              maxWidth:     '460px',
-            }}>
-              We&apos;re a Mexican technology company that takes what cities throw away — the organic waste that today releases greenhouse gases in landfills — and transforms it into hydrochar.
-            </p>
-
-            <p style={{
-              fontFamily:   'var(--font-sans)',
-              fontSize:     'var(--text-md)',
-              lineHeight:   'var(--lh-loose)',
-              color:        'rgba(245,243,238,0.60)',
-              marginBottom: '40px',
-              maxWidth:     '440px',
-            }}>
-              We work alongside UNAM, the Mexican Government, and international partners so this technology doesn&apos;t stay in a lab — it reaches every city that needs it.
-            </p>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-              <a
-                href="#contact"
+          {/* ── LEFT — stacked chapter panels ────────────────────────── */}
+          <div style={{ position: 'relative', height: '360px' }}>
+            {CHAPTERS.map((ch, i) => (
+              <div
+                key={i}
+                ref={el => { chapterRefs.current[i] = el }}
                 style={{
-                  display:        'inline-flex',
-                  alignItems:     'center',
-                  gap:            '10px',
-                  fontFamily:     'var(--font-sans)',
-                  fontSize:       '14px',
-                  fontWeight:     500,
-                  background:     'rgba(245,243,238,0.12)',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                  color:          '#FFFFFF',
-                  padding:        '13px 22px',
-                  borderRadius:   '999px',
-                  textDecoration: 'none',
-                  border:         '1px solid rgba(245,243,238,0.20)',
-                  transition:     'background 200ms',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(245,243,238,0.22)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(245,243,238,0.12)')}
-              >
-                Contact us
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
-                </svg>
-              </a>
-
-              <a
-                href="#timeline"
-                style={{
-                  display:        'inline-flex',
-                  alignItems:     'center',
-                  gap:            '8px',
-                  fontFamily:     'var(--font-sans)',
-                  fontSize:       '14px',
-                  fontWeight:     400,
-                  color:          'rgba(245,243,238,0.65)',
-                  padding:        '12px 20px',
-                  borderRadius:   '999px',
-                  border:         '1px solid rgba(245,243,238,0.20)',
-                  textDecoration: 'none',
-                  transition:     'border-color 200ms, color 200ms',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = 'rgba(245,243,238,0.50)'
-                  e.currentTarget.style.color = '#FFFFFF'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = 'rgba(245,243,238,0.20)'
-                  e.currentTarget.style.color = 'rgba(245,243,238,0.65)'
+                  position:      'absolute',
+                  top:           0,
+                  left:          0,
+                  right:         0,
+                  opacity:       i === 0 ? 1 : 0,
+                  transform:     'translateY(0px)',
+                  willChange:    'opacity, transform, filter',
+                  pointerEvents: 'none',
                 }}
               >
-                Our story
-              </a>
-            </div>
+                {/* Eyebrow */}
+                <div style={{
+                  display:      'flex',
+                  alignItems:   'center',
+                  gap:          '10px',
+                  marginBottom: '22px',
+                }}>
+                  <span style={{
+                    fontFamily:    'var(--font-mono)',
+                    fontSize:      '10px',
+                    letterSpacing: '0.20em',
+                    textTransform: 'uppercase' as const,
+                    color:         'var(--clay-500)',
+                  }}>
+                    {ch.eyebrow}
+                  </span>
+                  <div style={{ height: '1px', width: '28px', background: 'rgba(197,106,56,0.35)' }} />
+                  <span style={{
+                    fontFamily:    'var(--font-mono)',
+                    fontSize:      '10px',
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase' as const,
+                    color:         'rgba(245,243,238,0.28)',
+                  }}>
+                    Who we are
+                  </span>
+                </div>
+
+                {/* Headline */}
+                <h2 style={{
+                  fontFamily:    'var(--font-display)',
+                  fontWeight:    800,
+                  fontSize:      'clamp(2.2rem, 3.8vw, 3.8rem)',
+                  lineHeight:    0.96,
+                  letterSpacing: '-0.03em',
+                  color:         '#FFFFFF',
+                  marginBottom:  '26px',
+                  whiteSpace:    'pre-line',
+                }}>
+                  {ch.headline}
+                </h2>
+
+                {/* Body */}
+                <p style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontWeight: 300,
+                  fontSize:   'clamp(0.92rem, 1.2vw, 1.06rem)',
+                  lineHeight: 1.74,
+                  color:      'rgba(245,243,238,0.74)',
+                  maxWidth:   '420px',
+                }}>
+                  {ch.body}
+                </p>
+
+                {/* CTAs — last chapter only */}
+                {i === last && (
+                  <div style={{
+                    marginTop:     '30px',
+                    display:       'flex',
+                    gap:           '12px',
+                    flexWrap:      'wrap',
+                    pointerEvents: 'auto',
+                  }}>
+                    <a
+                      href="#contact"
+                      style={{
+                        display:        'inline-flex',
+                        alignItems:     'center',
+                        gap:            '9px',
+                        fontFamily:     'var(--font-sans)',
+                        fontSize:       '14px',
+                        fontWeight:     600,
+                        background:     'var(--clay-500)',
+                        color:          '#FCFBF6',
+                        padding:        '12px 22px',
+                        borderRadius:   'var(--radius-pill)',
+                        textDecoration: 'none',
+                        boxShadow:      '0 6px 24px -8px rgba(148,75,40,0.55)',
+                        transition:     'background 180ms',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--clay-600)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'var(--clay-500)')}
+                    >
+                      Contact our team <span aria-hidden="true">→</span>
+                    </a>
+                    <a
+                      href="#timeline"
+                      style={{
+                        display:        'inline-flex',
+                        alignItems:     'center',
+                        gap:            '8px',
+                        fontFamily:     'var(--font-sans)',
+                        fontSize:       '14px',
+                        fontWeight:     400,
+                        color:          'rgba(245,243,238,0.58)',
+                        padding:        '11px 20px',
+                        borderRadius:   'var(--radius-pill)',
+                        border:         '1px solid rgba(245,243,238,0.18)',
+                        textDecoration: 'none',
+                        transition:     'border-color 200ms, color 200ms',
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.borderColor = 'rgba(245,243,238,0.45)'
+                        e.currentTarget.style.color = '#FFFFFF'
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.borderColor = 'rgba(245,243,238,0.18)'
+                        e.currentTarget.style.color = 'rgba(245,243,238,0.58)'
+                      }}
+                    >
+                      Our story
+                    </a>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
 
-          {/* ── RIGHT — 2×2 expandable cards ────────────────────────── */}
-          <div
-            style={{
-              display:             'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap:                 '10px',
-            }}
-          >
-            {CARDS.map((card) => {
-              const isOpen = open === card.id
-              return (
-                <button
-                  key={card.id}
-                  onClick={() => toggle(card.id)}
-                  aria-expanded={isOpen}
+          {/* ── RIGHT — vertical chapter dot indicator ───────────────── */}
+          <div style={{
+            display:        'flex',
+            justifyContent: 'flex-end',
+            alignItems:     'center',
+          }}>
+            <div style={{
+              display:         'flex',
+              flexDirection:   'column',
+              gap:             '10px',
+              alignItems:      'center',
+              paddingRight:    '8px',
+            }}>
+              {CHAPTERS.map((_, i) => (
+                <div
+                  key={i}
+                  ref={el => { dotRefs.current[i] = el }}
                   style={{
-                    all:            'unset',
-                    display:        'flex',
-                    flexDirection:  'column',
-                    cursor:         'pointer',
-                    background:     isOpen
-                                      ? 'rgba(245,243,238,0.14)'
-                                      : 'rgba(245,243,238,0.06)',
-                    backdropFilter:      'blur(16px) saturate(140%)',
-                    WebkitBackdropFilter:'blur(16px) saturate(140%)',
-                    border:         isOpen
-                                      ? '1px solid rgba(245,243,238,0.30)'
-                                      : '1px solid rgba(245,243,238,0.12)',
-                    borderRadius:   'var(--radius-2xl)',
-                    padding:        '20px',
-                    transition:     'background 280ms var(--ease-expo), border-color 280ms',
-                    textAlign:      'left',
-                    minHeight:      '140px',
+                    width:           '3px',
+                    height:          '14px',
+                    borderRadius:    '99px',
+                    background:      i === 0 ? 'var(--clay-500)' : 'rgba(245,243,238,0.28)',
+                    transform:       i === 0 ? 'scaleY(2.8)' : 'scaleY(1)',
+                    transition:      'background 380ms, transform 380ms var(--ease-expo)',
+                    transformOrigin: 'center',
                   }}
-                >
-                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '8px' }}>
-
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{
-                        fontSize:   '18px',
-                        lineHeight:  1,
-                        color:      'rgba(245,243,238,0.60)',
-                        transition: 'color 280ms',
-                      }}>
-                        {card.icon}
-                      </span>
-                      <div style={{
-                        width:          '18px',
-                        height:         '18px',
-                        borderRadius:   '50%',
-                        border:         '1px solid rgba(245,243,238,0.22)',
-                        display:        'flex',
-                        alignItems:     'center',
-                        justifyContent: 'center',
-                        flexShrink:     0,
-                        transition:     'transform 280ms',
-                        transform:      isOpen ? 'rotate(45deg)' : 'rotate(0deg)',
-                      }}>
-                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none"
-                          stroke="rgba(245,243,238,0.45)"
-                          strokeWidth="2.5" strokeLinecap="round">
-                          <path d="M12 5v14M5 12h14"/>
-                        </svg>
-                      </div>
-                    </div>
-
-                    <span style={{
-                      fontFamily:    'var(--font-display)',
-                      fontWeight:    700,
-                      fontSize:      'clamp(0.95rem, 1.3vw, 1.1rem)',
-                      letterSpacing: '-0.02em',
-                      color:         '#FFFFFF',
-                      lineHeight:    1.1,
-                    }}>
-                      {card.label}
-                    </span>
-
-                    {!isOpen && (
-                      <span style={{
-                        fontFamily: 'var(--font-sans)',
-                        fontSize:   'clamp(0.72rem, 0.9vw, 0.80rem)',
-                        lineHeight: 1.5,
-                        color:      'rgba(245,243,238,0.48)',
-                      }}>
-                        {card.summary}
-                      </span>
-                    )}
-                  </div>
-
-                  <div
-                    style={{
-                      overflow:   'hidden',
-                      maxHeight:  isOpen ? '180px' : '0px',
-                      opacity:    isOpen ? 1 : 0,
-                      marginTop:  isOpen ? '14px' : '0px',
-                      transition: 'max-height 380ms var(--ease-expo), opacity 260ms, margin-top 260ms',
-                    }}
-                  >
-                    <div style={{ height: '1px', background: 'rgba(245,243,238,0.14)', marginBottom: '12px' }} />
-                    <p style={{
-                      fontFamily: 'var(--font-sans)',
-                      fontSize:   'clamp(0.75rem, 0.95vw, 0.84rem)',
-                      lineHeight: 1.65,
-                      color:      'rgba(245,243,238,0.65)',
-                      margin:     0,
-                    }}>
-                      {card.body}
-                    </p>
-                  </div>
-                </button>
-              )
-            })}
+                />
+              ))}
+            </div>
           </div>
 
         </div>
       </div>
+
+      {/* ── Entry/exit wipe ──────────────────────────────────────────── */}
+      <div
+        ref={wipeRef}
+        aria-hidden="true"
+        style={{
+          position:      'absolute',
+          inset:         0,
+          zIndex:        10,
+          background:    '#090C08',
+          opacity:       1,
+          pointerEvents: 'none',
+          willChange:    'opacity',
+        }}
+      />
+
+      {/* ── Partner strip — bottom ────────────────────────────────────── */}
+      <div style={{
+        position:       'absolute',
+        bottom:         '30px',
+        left:           0,
+        right:          0,
+        zIndex:         3,
+        display:        'flex',
+        justifyContent: 'center',
+        pointerEvents:  'none',
+      }}>
+        <div style={{
+          display:        'flex',
+          alignItems:     'center',
+          gap:            '20px',
+          flexWrap:       'wrap',
+          justifyContent: 'center',
+        }}>
+          {['UNAM', 'Mexican Government', 'SEMARNAT', 'COLPOS · CIMMYT'].map((name, i) => (
+            <span key={name} style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              {i > 0 && (
+                <span style={{
+                  width: '3px', height: '3px', borderRadius: '50%',
+                  background: 'rgba(245,243,238,0.18)', display: 'inline-block',
+                }} />
+              )}
+              <span style={{
+                fontFamily:    'var(--font-mono)',
+                fontSize:      '9.5px',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase' as const,
+                color:         'rgba(245,243,238,0.28)',
+              }}>
+                {name}
+              </span>
+            </span>
+          ))}
+        </div>
+      </div>
+
     </section>
   )
 }

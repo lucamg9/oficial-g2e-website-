@@ -8,7 +8,7 @@ gsap.registerPlugin(ScrollTrigger)
 
 const SCROLL_DIST  = 4200   // px — 600px per clip × 7 clips
 const CLIP_COUNT   = 7
-const LERP         = 0.12   // smoothing factor (lower = smoother but laggier)
+const LERP         = 0.17   // higher = tighter coupling to scroll position
 
 const lerpFn = (a: number, b: number, t: number) => a + (b - a) * t
 
@@ -45,6 +45,7 @@ export default function HowItWorksSection() {
   const labelRef     = useRef<HTMLSpanElement>(null)
   const captionRef   = useRef<HTMLParagraphElement>(null)
   const dotsRef      = useRef<(HTMLDivElement | null)[]>([])
+  const wipeRef      = useRef<HTMLDivElement>(null)
 
   // Scroll-scrub state
   const targetClipIdx = useRef(0)
@@ -55,7 +56,6 @@ export default function HowItWorksSection() {
   // UI state
   const activeClipIdx = useRef(0)
   const activeBeatIdx = useRef(-1)
-  const fadeTimer     = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   /* ─── RAF lerp loop — runs continuously, scrubs active clip ─────────── */
   const startRaf = useCallback(() => {
@@ -87,19 +87,19 @@ export default function HowItWorksSection() {
     lerpedTime.current = targetTime.current
 
     next.style.zIndex     = '2'
-    next.style.transition = 'opacity 450ms ease'
+    next.style.transition = 'opacity 260ms ease'
     next.style.opacity    = '1'
 
     setTimeout(() => {
       if (prev) {
-        prev.style.transition = 'opacity 450ms ease'
+        prev.style.transition = 'opacity 260ms ease'
         prev.style.opacity    = '0'
         prev.style.zIndex     = '1'
       }
-    }, 150)
+    }, 60)
   }, [])
 
-  /* ─── Caption / label / phase crossfade ─────────────────────────────── */
+  /* ─── Beat transition — GSAP choreographed ──────────────────────────── */
   const crossfadeTo = useCallback((beat: typeof BEATS[0], beatIdx: number) => {
     if (beatIdx === activeBeatIdx.current) return
     activeBeatIdx.current = beatIdx
@@ -109,29 +109,53 @@ export default function HowItWorksSection() {
     const phase   = phaseRef.current
     if (!caption || !label || !phase) return
 
-    if (fadeTimer.current) clearTimeout(fadeTimer.current)
+    /* ── OUT ─────────────────────────────────────────────────────────────
+       Headline snaps upward with slight rotation.
+       Eyebrow label slides left. Phase counter slides right.
+    ──────────────────────────────────────────────────────────────────── */
+    gsap.to(caption, {
+      opacity:  0,
+      y:        -22,
+      rotation: -0.8,
+      duration: 0.13,
+      ease:     'power2.in',
+    })
+    gsap.to(label, {
+      opacity:  0,
+      x:        -14,
+      duration: 0.10,
+      ease:     'power2.in',
+    })
+    gsap.to(phase, {
+      opacity:  0,
+      x:        10,
+      duration: 0.09,
+      ease:     'power2.in',
+      onComplete() {
+        /* ── Swap content ─────────────────────────────────────────────── */
+        caption.textContent = beat.caption
+        label.textContent   = beat.label
+        phase.textContent   = beat.phase
 
-    caption.style.transition = 'opacity 80ms ease, transform 80ms ease'
-    caption.style.opacity    = '0'
-    caption.style.transform  = 'translateY(6px)'
-    label.style.transition   = 'opacity 80ms ease'
-    label.style.opacity      = '0'
-    phase.style.transition   = 'opacity 80ms ease'
-    phase.style.opacity      = '0'
-
-    fadeTimer.current = setTimeout(() => {
-      caption.textContent = beat.caption
-      label.textContent   = beat.label
-      phase.textContent   = beat.phase
-
-      caption.style.transition = 'opacity 160ms ease, transform 160ms ease'
-      caption.style.opacity    = '1'
-      caption.style.transform  = 'translateY(0px)'
-      label.style.transition   = 'opacity 160ms ease'
-      label.style.opacity      = '1'
-      phase.style.transition   = 'opacity 160ms ease'
-      phase.style.opacity      = '1'
-    }, 90)
+        /* ── IN — cascade: phase → label → headline ──────────────────────
+           Phase badge slides in from left.
+           Step label rises cleanly.
+           Headline lifts from below with a rotational snap — the star.
+        ──────────────────────────────────────────────────────────────── */
+        gsap.fromTo(phase,
+          { opacity: 0, x: -12 },
+          { opacity: 1, x: 0, duration: 0.22, ease: 'power3.out', delay: 0 }
+        )
+        gsap.fromTo(label,
+          { opacity: 0, x: -16 },
+          { opacity: 1, x: 0, duration: 0.26, ease: 'power3.out', delay: 0.04 }
+        )
+        gsap.fromTo(caption,
+          { opacity: 0, y: 36, rotation: 1.4 },
+          { opacity: 1, y: 0, rotation: 0, duration: 0.52, ease: 'power3.out', delay: 0.07 }
+        )
+      },
+    })
   }, [])
 
   /* ─── ScrollTrigger + RAF boot ──────────────────────────────────────── */
@@ -154,14 +178,54 @@ export default function HowItWorksSection() {
 
     startRaf()
 
+    const resetToStart = () => {
+      activeBeatIdx.current = -1
+      activeClipIdx.current = 0
+      targetClipIdx.current = 0
+      targetTime.current    = 0
+      lerpedTime.current    = 0
+
+      videoRefs.current.forEach((v, i) => {
+        if (!v) return
+        v.style.transition = 'none'
+        v.style.opacity    = i === 0 ? '1' : '0'
+        v.style.zIndex     = i === 0 ? '2' : '1'
+        try { v.currentTime = 0 } catch { /* ignore */ }
+      })
+
+      const caption = captionRef.current
+      const label   = labelRef.current
+      const phase   = phaseRef.current
+      if (caption) { gsap.set(caption, { opacity: 1, y: 0, rotation: 0 }); caption.textContent = BEATS[0].caption }
+      if (label)   { gsap.set(label,   { opacity: 1, x: 0 });               label.textContent   = BEATS[0].label   }
+      if (phase)   { gsap.set(phase,   { opacity: 1, x: 0 });               phase.textContent   = BEATS[0].phase   }
+
+      dotsRef.current.forEach((dot, i) => {
+        if (!dot) return
+        dot.style.background = i === 0 ? '#4a8c5c' : 'rgba(245,243,238,0.20)'
+        dot.style.transform  = i === 0 ? 'scaleY(2.8)' : 'scaleY(1)'
+        dot.style.opacity    = i === 0 ? '1' : '0.38'
+      })
+
+      if (progressRef.current) progressRef.current.style.transform = 'scaleX(0)'
+    }
+
     const st = ScrollTrigger.create({
       trigger: section,
       pin:     stickyRef.current,
       start:   'top top',
       end:     `+=${SCROLL_DIST}`,
-      scrub:   true,
+      scrub:   0.4,
+      onLeave() { resetToStart() },
       onUpdate(self) {
         const p = self.progress
+
+        // Entry/exit wipe overlay
+        if (wipeRef.current) {
+          const eIn  = Math.min(p / 0.04, 1)
+          const eOut = Math.max(0, (p - 0.96) / 0.04)
+          wipeRef.current.style.opacity = String(Math.max(1 - eIn, eOut))
+        }
 
         // Progress bar
         if (progressRef.current) {
@@ -193,11 +257,9 @@ export default function HowItWorksSection() {
           if (!dot) return
           const active    = i <= beatIdx
           const isCurrent = i === beatIdx
-          dot.style.background = active
-            ? 'var(--forest-mid, #4a8c5c)'
-            : 'rgba(245,243,238,0.15)'
-          dot.style.transform  = isCurrent ? 'scale(1.6)' : active ? 'scale(1.1)' : 'scale(1)'
-          dot.style.opacity    = active ? '1' : '0.5'
+          dot.style.background    = active ? '#4a8c5c' : 'rgba(245,243,238,0.20)'
+          dot.style.transform     = isCurrent ? 'scaleY(2.8)' : 'scaleY(1)'
+          dot.style.opacity       = active ? '1' : '0.38'
         })
       },
     })
@@ -206,7 +268,6 @@ export default function HowItWorksSection() {
     return () => {
       st.kill()
       cancelAnimationFrame(rafRef.current)
-      if (fadeTimer.current) clearTimeout(fadeTimer.current)
       videos.forEach(v => { try { v?.pause() } catch { /* ignore */ } })
     }
   }, [startRaf, switchClip, crossfadeTo])
@@ -260,90 +321,137 @@ export default function HowItWorksSection() {
           background: 'linear-gradient(to bottom, rgba(10,12,10,0.20) 0%, rgba(10,12,10,0.55) 100%)',
         }} />
 
-        {/* ── Top left label ──────────────────────────────────────────── */}
+        {/* ── Top-left section identifier ──────────────────────────────── */}
         <div style={{
           position: 'absolute', zIndex: 20,
           top: 'clamp(24px, 4vw, 48px)', left: 'clamp(24px, 5vw, 80px)',
-          display: 'flex', alignItems: 'center', gap: '12px',
+          display: 'flex', alignItems: 'center', gap: '10px',
         }}>
           <span style={{
-            fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs, 10px)',
-            letterSpacing: 'var(--ls-eyebrow, 0.14em)', textTransform: 'uppercase',
-            color: 'rgba(245,243,238,0.45)',
+            fontFamily: 'var(--font-mono)', fontSize: '10px',
+            letterSpacing: '0.16em', textTransform: 'uppercase' as const,
+            color: 'rgba(245,243,238,0.40)',
           }}>How it works</span>
-          <div style={{ width: '24px', height: '1px', background: 'rgba(245,243,238,0.20)' }} />
+          <div style={{ width: '20px', height: '1px', background: 'rgba(245,243,238,0.18)' }} />
           <span style={{
-            fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs, 10px)',
-            letterSpacing: 'var(--ls-eyebrow, 0.14em)', textTransform: 'uppercase',
-            color: 'rgba(245,243,238,0.22)',
+            fontFamily: 'var(--font-mono)', fontSize: '10px',
+            letterSpacing: '0.14em', textTransform: 'uppercase' as const,
+            color: 'rgba(245,243,238,0.20)',
           }}>Hydrothermal carbonization</span>
         </div>
 
-        {/* ── Phase counter — top right ────────────────────────────────── */}
+        {/* ── Right-side vertical dot column ───────────────────────────── */}
         <div style={{
-          position: 'absolute', zIndex: 20,
-          top: 'clamp(24px, 4vw, 48px)', right: 'clamp(24px, 5vw, 80px)',
-          display: 'flex', alignItems: 'baseline', gap: '6px',
+          position:       'absolute',
+          right:          'clamp(24px, 4vw, 56px)',
+          top:            '50%',
+          transform:      'translateY(-50%)',
+          zIndex:         20,
+          display:        'flex',
+          flexDirection:  'column',
+          alignItems:     'center',
+          gap:            '10px',
+          pointerEvents:  'none',
         }}>
-          <span
-            ref={phaseRef}
-            style={{
-              fontFamily: 'var(--font-display)', fontWeight: 800,
-              fontSize: 'clamp(2rem, 4vw, 3.5rem)', lineHeight: 1,
-              letterSpacing: '-0.05em', color: 'rgba(245,243,238,0.12)',
-              display: 'block',
-            }}
-          >01</span>
-          <span style={{
-            fontFamily: 'var(--font-mono)', fontSize: '10px',
-            color: 'rgba(245,243,238,0.18)', letterSpacing: '0.1em',
-          }}>/ 09</span>
+          {BEATS.map((_, i) => (
+            <div
+              key={i}
+              ref={el => { dotsRef.current[i] = el }}
+              style={{
+                width:           '3px',
+                height:          '14px',
+                borderRadius:    '99px',
+                background:      i === 0 ? '#4a8c5c' : 'rgba(245,243,238,0.20)',
+                transform:       i === 0 ? 'scaleY(2.8)' : 'scaleY(1)',
+                transition:      'background 380ms ease, transform 380ms cubic-bezier(0.34,1.56,0.64,1), opacity 380ms ease',
+                transformOrigin: 'center',
+                opacity:         i === 0 ? 1 : 0.38,
+              }}
+            />
+          ))}
         </div>
 
-        {/* ── Bottom caption area ──────────────────────────────────────── */}
+        {/* ── Bottom text panel ─────────────────────────────────────────
+            Three-level hierarchy: eyebrow → headline → body.
+            Full left side — dots no longer compete here.
+        ──────────────────────────────────────────────────────────────── */}
         <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 20,
-          padding: 'clamp(24px, 4vw, 48px) clamp(24px, 5vw, 80px)',
-          background: 'linear-gradient(to top, rgba(10,12,10,0.90) 0%, rgba(10,12,10,0.60) 55%, transparent 100%)',
+          position:      'absolute',
+          bottom:        0,
+          left:          0,
+          right:         0,
+          zIndex:        20,
+          padding:       'clamp(40px, 6vw, 80px) clamp(24px, 5vw, 80px) clamp(44px, 5vw, 68px)',
+          paddingRight:  'clamp(80px, 14vw, 200px)',  /* clear the dot column */
+          background:    'linear-gradient(to top, rgba(10,12,10,0.96) 0%, rgba(10,12,10,0.70) 45%, transparent 100%)',
           pointerEvents: 'none',
         }}>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', alignItems: 'center' }}>
-            {BEATS.map((beat, i) => (
-              <div
-                key={beat.phase}
-                ref={el => { dotsRef.current[i] = el }}
-                style={{
-                  width:  i === 0 ? '8px' : '6px',
-                  height: i === 0 ? '8px' : '6px',
-                  borderRadius: '999px',
-                  background: i === 0 ? 'var(--forest-mid, #4a8c5c)' : 'rgba(245,243,238,0.15)',
-                  transition: 'background 300ms ease, transform 300ms ease, opacity 300ms ease',
-                  transformOrigin: 'center',
-                  opacity: i === 0 ? 1 : 0.5,
-                }}
-              />
-            ))}
+
+          {/* Eyebrow — phase counter + step label */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+            <span
+              ref={phaseRef}
+              style={{
+                fontFamily:    'var(--font-mono)',
+                fontSize:      '11px',
+                letterSpacing: '0.20em',
+                textTransform: 'uppercase' as const,
+                color:         'rgba(245,243,238,0.50)',
+              }}
+            >01</span>
+            <span style={{ color: 'rgba(245,243,238,0.16)', fontSize: '9px' }}>—</span>
+            <span style={{
+              fontFamily:    'var(--font-mono)',
+              fontSize:      '10px',
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase' as const,
+              color:         'rgba(245,243,238,0.22)',
+            }}>09</span>
+            <div style={{ width: '24px', height: '1px', background: 'rgba(245,243,238,0.14)' }} />
+            <span
+              ref={labelRef}
+              style={{
+                fontFamily:    'var(--font-mono)',
+                fontSize:      '10px',
+                letterSpacing: '0.16em',
+                textTransform: 'uppercase' as const,
+                color:         'rgba(245,243,238,0.46)',
+              }}
+            >Collection</span>
           </div>
 
-          <p style={{
-            fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs, 10px)',
-            letterSpacing: 'var(--ls-eyebrow, 0.14em)', textTransform: 'uppercase',
-            color: 'rgba(245,243,238,0.45)', marginBottom: '10px',
-          }}>
-            <span ref={labelRef}>Collection</span>
-          </p>
-
-          <p
+          {/* Headline — BIG, the cinematic moment */}
+          <h3
             ref={captionRef}
             style={{
-              fontFamily: 'var(--font-sans)', fontWeight: 300,
-              fontSize: 'clamp(1rem, 1.6vw, 1.2rem)', lineHeight: 1.55,
-              color: 'rgba(245,243,238,0.78)', maxWidth: '580px', margin: 0,
+              fontFamily:    'var(--font-display)',
+              fontWeight:    800,
+              fontSize:      'clamp(2.6rem, 5.5vw, 5rem)',
+              lineHeight:    1.02,
+              letterSpacing: '-0.03em',
+              color:         'rgba(245,243,238,0.93)',
+              margin:        0,
+              maxWidth:      '760px',
             }}
           >
             G2E trucks collect organic municipal waste from Bordo Poniente.
-          </p>
+          </h3>
         </div>
+
+        {/* ── Entry/exit wipe ──────────────────────────────────────────── */}
+        <div
+          ref={wipeRef}
+          aria-hidden="true"
+          style={{
+            position:       'absolute',
+            inset:          0,
+            zIndex:         30,
+            background:     '#0A0C0A',
+            opacity:        1,
+            pointerEvents:  'none',
+            willChange:     'opacity',
+          }}
+        />
 
         {/* ── Progress bar ─────────────────────────────────────────────── */}
         <div aria-hidden="true" style={{

@@ -112,7 +112,7 @@ export default function HeroSection() {
               color: 'rgba(245,243,238,0.70)',
             }}
           >
-            G2E — Green to Energy
+            G2E · Bordo Poniente
           </span>
           <div style={{ height: '1px', width: '28px', background: 'rgba(245,243,238,0.16)' }} />
           <span
