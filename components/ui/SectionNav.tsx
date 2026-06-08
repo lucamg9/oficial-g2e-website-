@@ -1,15 +1,30 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
+gsap.registerPlugin(ScrollTrigger)
+
+// id = DOM section id. hero uses 'intro' (the IntroSequence section) but
+// navigates to its END (the hero reveal at p=1.0), not its start.
 const SECTIONS = [
-  { id: 'hero-anchor', label: 'Hero',         scrollTop: 0 },
-  { id: 'about',       label: 'Who We Are',   scrollTop: null },
-  { id: 'timeline',    label: 'Our Story',    scrollTop: null },
-  { id: 'how-it-works',label: 'How It Works', scrollTop: null },
-  { id: 'phase2',      label: 'Phase II',     scrollTop: null },
-  { id: 'contact',     label: 'Contact',      scrollTop: null },
+  { id: 'intro',        label: 'Hero',         end: true  },
+  { id: 'about',        label: 'Who We Are',   end: false },
+  { id: 'timeline',     label: 'Our Story',    end: false },
+  { id: 'how-it-works', label: 'How It Works', end: false },
+  { id: 'phase2',       label: 'Phase II',     end: false },
+  { id: 'contact',      label: 'Contact',      end: false },
 ]
+
+// Returns the scroll position for a section using its GSAP ScrollTrigger
+// when available, falling back to offsetTop.
+function getScrollPos(el: HTMLElement, useEnd: boolean): number {
+  const triggers = ScrollTrigger.getAll()
+  const st = triggers.find(t => t.trigger === el)
+  if (st) return useEnd ? st.end - 2 : st.start
+  return el.offsetTop
+}
 
 export default function SectionNav() {
   const [open,   setOpen]   = useState(false)
@@ -19,23 +34,18 @@ export default function SectionNav() {
   /* ── Active section tracker ─────────────────────────────────────────── */
   useEffect(() => {
     const onScroll = () => {
-      const scrollY  = window.scrollY
-      const vh       = window.innerHeight
+      const scrollY = window.scrollY
+      const triggers = ScrollTrigger.getAll()
 
       let best = 0
       for (let i = SECTIONS.length - 1; i >= 0; i--) {
-        const id = SECTIONS[i].id
-        if (id === 'hero-anchor') {
-          if (scrollY < 200) { best = 0; break }
-          continue
-        }
-        const el = document.getElementById(id)
+        const el = document.getElementById(SECTIONS[i].id)
         if (!el) continue
-        if (el.getBoundingClientRect().top <= vh * 0.55) {
-          best = i
-          break
-        }
+        const st = triggers.find(t => t.trigger === el)
+        const start = st ? st.start : el.offsetTop
+        if (scrollY >= start - 10) { best = i; break }
       }
+      // Hero (idx 0) is active only until WhoWeAre starts
       setActive(best)
     }
 
@@ -59,18 +69,10 @@ export default function SectionNav() {
   /* ── Navigate ───────────────────────────────────────────────────────── */
   const goTo = useCallback((idx: number) => {
     setOpen(false)
-    const { id } = SECTIONS[idx]
-    if (id === 'hero-anchor') {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      return
-    }
+    const { id, end } = SECTIONS[idx]
     const el = document.getElementById(id)
     if (!el) return
-    // GSAP wraps pinned sections in a spacer div (data-gsap-pin-spacer).
-    // The spacer holds the correct document position; the section itself
-    // is position:fixed while pinned so its offsetTop would be wrong.
-    const spacer = el.closest('[data-gsap-pin-spacer]') as HTMLElement | null
-    window.scrollTo({ top: (spacer ?? el).offsetTop, behavior: 'smooth' })
+    window.scrollTo({ top: getScrollPos(el, end), behavior: 'smooth' })
   }, [])
 
   return (
