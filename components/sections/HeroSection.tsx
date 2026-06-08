@@ -15,16 +15,28 @@ export default function HeroSection() {
   useEffect(() => {
     const el = contentRef.current
     if (!el) return
+
     const children = Array.from(el.querySelectorAll<HTMLElement>('[data-reveal]'))
-    children.forEach((child, i) => {
-      child.style.opacity = '0'
-      child.style.transform = 'translateY(20px)'
-      setTimeout(() => {
-        child.style.transition = `opacity 800ms var(--ease-expo) ${i * 100}ms, transform 800ms var(--ease-expo) ${i * 100}ms`
-        child.style.opacity = '1'
-        child.style.transform = 'translateY(0)'
-      }, 200)
+    children.forEach(child => {
+      child.style.opacity   = '0'
+      child.style.transform = 'translateY(28px)'
     })
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting) return
+        observer.disconnect()
+        children.forEach((child, i) => {
+          child.style.transition = `opacity 900ms var(--ease-expo) ${i * 120}ms, transform 900ms var(--ease-expo) ${i * 120}ms`
+          child.style.opacity    = '1'
+          child.style.transform  = 'translateY(0)'
+        })
+      },
+      { threshold: 0.15 }
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
   }, [])
 
   return (

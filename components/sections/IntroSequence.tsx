@@ -11,7 +11,6 @@ const LERP        = 0.12   // smoothness factor for RAF lerp
 const VIDEO_SRC   = '/intro/intro-full.mp4'
 
 const lerpFn = (a: number, b: number, t: number) => a + (b - a) * t
-const ease   = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
 
 // Text acts — keyed to global scroll progress (0–1)
 // Each act shows for a window of progress; values tuned for 45s video
@@ -54,12 +53,6 @@ const ACTS = [
   },
 ]
 
-const HERO_STATS = [
-  { value: '3 t/hr',    label: 'Live throughput'   },
-  { value: '220°C',     label: 'Process temp'      },
-  { value: 'World #1',  label: 'Largest HTC plant' },
-  { value: 'Est. 2013', label: 'Bordo Poniente'    },
-]
 
 const FADE = 0.06  // fraction of progress used for fade in/out
 
@@ -69,7 +62,6 @@ export default function IntroSequence() {
   const actRefs        = useRef<(HTMLDivElement | null)[]>([])
   const headlineRefs   = useRef<(HTMLHeadingElement | null)[]>([])
   const subRefs        = useRef<(HTMLParagraphElement | null)[]>([])
-  const heroContentRef = useRef<HTMLDivElement>(null)
   const skipRef        = useRef<HTMLButtonElement>(null)
   const heroFiredRef   = useRef(false)
 
@@ -142,13 +134,6 @@ export default function IntroSequence() {
         subEl.style.filter    = `blur(${blur.toFixed(2)}px)`
       }
     })
-
-    // Hero content cross-dissolves with last act fading — p 0.84 → 0.92
-    const hcP = ease(Math.max(0, Math.min(1, (p - 0.84) / 0.08)))
-    if (heroContentRef.current) {
-      heroContentRef.current.style.opacity   = String(hcP)
-      heroContentRef.current.style.transform = `translateY(${(1 - hcP) * 30}px)`
-    }
 
     // Skip button fades out at 0.88 → 0.93
     if (skipRef.current) {
@@ -324,105 +309,6 @@ export default function IntroSequence() {
           </p>
         </div>
       ))}
-
-      {/* ── Hero content — sits on video, gradient scrim for legibility ── */}
-      <div
-        ref={heroContentRef}
-        style={{
-          position:       'absolute',
-          inset:          0,
-          zIndex:         5,
-          display:        'flex',
-          flexDirection:  'column',
-          justifyContent: 'flex-end',
-          padding:        'var(--container-pad)',
-          paddingBottom:  'clamp(40px, 6vh, 80px)',
-          opacity:        0,
-          pointerEvents:  'none',
-          willChange:     'transform, opacity',
-          background:     'linear-gradient(to top, rgba(10,9,8,0.82) 0%, rgba(10,9,8,0.40) 45%, transparent 100%)',
-        }}
-      >
-        <h1 style={{
-          fontFamily:    'var(--font-display)',
-          fontWeight:    800,
-          fontSize:      'clamp(3rem, 7vw, 7rem)',
-          lineHeight:    0.93,
-          letterSpacing: '-0.04em',
-          color:         '#FFFFFF',
-          maxWidth:      '780px',
-          marginBottom:  'clamp(20px, 3vh, 36px)',
-          textShadow:    '0 2px 40px rgba(0,0,0,0.35)',
-        }}>
-          Waste in.<br />
-          <span style={{ color: 'rgba(245,243,238,0.80)' }}>Hydrochar out.</span><br />
-          <span style={{ fontSize: '0.52em', fontWeight: 300, letterSpacing: '-0.02em', color: 'rgba(245,243,238,0.38)', display: 'inline-flex', alignItems: 'center', gap: '0.45em' }}>
-            <svg
-              width="1em" height="1em" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor"
-              strokeWidth="1.4" strokeLinecap="round"
-              aria-hidden="true"
-              style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }}
-            >
-              <circle cx="12" cy="12" r="9.5" />
-              {/* Hour hand — pointing to ~1 o'clock */}
-              <line x1="12" y1="12" x2="15.2" y2="7.5" strokeWidth="1.6" />
-              {/* Minute hand — pointing to ~12 */}
-              <line x1="12" y1="12" x2="12" y2="5.5" strokeWidth="1.2" />
-              {/* Center dot */}
-              <circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none" />
-            </svg>
-            In hours, not centuries.
-          </span>
-        </h1>
-
-        <p style={{
-          fontFamily:    'var(--font-sans)',
-          fontWeight:    300,
-          fontSize:      'clamp(0.95rem, 1.5vw, 1.15rem)',
-          lineHeight:    1.72,
-          color:         'rgba(245,243,238,0.78)',
-          maxWidth:      '460px',
-          marginBottom:  'clamp(24px, 4vh, 40px)',
-          textShadow:    '0 1px 12px rgba(0,0,0,0.25)',
-        }}>
-          We take Mexico City&apos;s organic waste and transform it into hydrochar —
-          a mineral-grade carbon material that replaces coal, regenerates soil,
-          and generates premium carbon credits.
-        </p>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: 'clamp(24px, 4vh, 40px)' }}>
-          <a href="#contact" className="glass-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', fontFamily: 'var(--font-sans)', fontSize: '14px', fontWeight: 500, color: '#FFFFFF', padding: '13px 22px', textDecoration: 'none', pointerEvents: 'auto' }}>
-            Join the mission
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
-          </a>
-          <a href="#about" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-sans)', fontSize: '13px', fontWeight: 400, color: 'rgba(245,243,238,0.65)', padding: '12px 18px', borderRadius: '999px', border: '1px solid rgba(245,243,238,0.18)', textDecoration: 'none', pointerEvents: 'auto', transition: 'border-color 200ms, color 200ms' }}>
-            Who we are
-          </a>
-        </div>
-
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: 'clamp(16px, 3vh, 28px)' }}>
-          {HERO_STATS.map(stat => (
-            <div key={stat.value} className="glass-card" style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '3px', minWidth: '90px' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'clamp(1rem, 1.6vw, 1.35rem)', lineHeight: 1, letterSpacing: '-0.02em', color: '#FFFFFF' }}>
-                {stat.value}
-              </span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.09em', textTransform: 'uppercase' as const, color: 'rgba(245,243,238,0.50)' }}>
-                {stat.label}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ paddingTop: 'clamp(12px, 2vh, 20px)', borderTop: '1px solid rgba(245,243,238,0.08)', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-          {['UNAM partner', 'Mexican Government', 'International partnerships', 'Phase II · 2027'].map((item, i) => (
-            <span key={i} style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: 'var(--ls-eyebrow)', textTransform: 'uppercase' as const, color: 'rgba(245,243,238,0.38)', display: 'flex', alignItems: 'center', gap: '20px' }}>
-              {i > 0 && <span style={{ opacity: 0.30 }}>·</span>}
-              {item}
-            </span>
-          ))}
-        </div>
-      </div>
 
       {/* ── Skip button ───────────────────────────────────────────────── */}
       <button
