@@ -4,10 +4,12 @@ import TimelineSection    from '@/components/sections/TimelineSection'
 import HowItWorksSection  from '@/components/sections/HowItWorksSection'
 import Phase2Section      from '@/components/sections/Phase2Section'
 import ContactSection     from '@/components/sections/ContactSection'
+import SectionNav         from '@/components/ui/SectionNav'
 
 export default function HomePage() {
   return (
     <>
+      <SectionNav />
       <IntroSequence />
       <WhoWeAreSection />
 
