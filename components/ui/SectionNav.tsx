@@ -66,8 +66,11 @@ export default function SectionNav() {
     }
     const el = document.getElementById(id)
     if (!el) return
-    // For pinned sections, scroll to the element's offsetTop
-    window.scrollTo({ top: el.offsetTop, behavior: 'smooth' })
+    // GSAP wraps pinned sections in a spacer div (data-gsap-pin-spacer).
+    // The spacer holds the correct document position; the section itself
+    // is position:fixed while pinned so its offsetTop would be wrong.
+    const spacer = el.closest('[data-gsap-pin-spacer]') as HTMLElement | null
+    window.scrollTo({ top: (spacer ?? el).offsetTop, behavior: 'smooth' })
   }, [])
 
   return (
