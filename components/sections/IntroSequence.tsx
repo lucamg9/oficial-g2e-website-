@@ -6,11 +6,12 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const SCROLL_DIST = 4000   // px of scroll to consume the full video
+const SCROLL_DIST = 4800   // px — extra room for cinematic hero reveal
 const LERP        = 0.12   // smoothness factor for RAF lerp
 const VIDEO_SRC   = '/intro/intro-full.mp4'
 
 const lerpFn = (a: number, b: number, t: number) => a + (b - a) * t
+const ease   = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
 
 // Text acts — keyed to global scroll progress (0–1)
 // Each act shows for a window of progress; values tuned for 45s video
@@ -63,6 +64,8 @@ export default function IntroSequence() {
   const headlineRefs   = useRef<(HTMLHeadingElement | null)[]>([])
   const subRefs        = useRef<(HTMLParagraphElement | null)[]>([])
   const skipRef        = useRef<HTMLButtonElement>(null)
+  const heroImgRef     = useRef<HTMLDivElement>(null)
+  const heroContentRef = useRef<HTMLDivElement>(null)
   const heroFiredRef   = useRef(false)
 
   // RAF scrub state
@@ -135,15 +138,26 @@ export default function IntroSequence() {
       }
     })
 
-    // Skip button fades out at 0.88 → 0.93
+    // Hero image — slow dissolve over video: p 0.82 → 0.94
+    const heroImgP = ease(Math.max(0, Math.min(1, (p - 0.82) / 0.12)))
+    if (heroImgRef.current) heroImgRef.current.style.opacity = String(heroImgP)
+
+    // Hero content — rises in as image settles: p 0.86 → 1.00
+    const hcP = ease(Math.max(0, Math.min(1, (p - 0.86) / 0.14)))
+    if (heroContentRef.current) {
+      heroContentRef.current.style.opacity   = String(hcP)
+      heroContentRef.current.style.transform = `translateY(${(1 - hcP) * 40}px)`
+    }
+
+    // Skip button fades out earlier — before hero reveal starts
     if (skipRef.current) {
-      const skipOp = Math.max(0, 1 - Math.max(0, (p - 0.88) / 0.05))
+      const skipOp = Math.max(0, 1 - Math.max(0, (p - 0.80) / 0.06))
       skipRef.current.style.opacity       = String(skipOp)
       skipRef.current.style.pointerEvents = skipOp < 0.05 ? 'none' : 'auto'
     }
 
     // Nav reveal fires once hero content is fully in
-    if (p >= 0.92 && !heroFiredRef.current) {
+    if (p >= 0.94 && !heroFiredRef.current) {
       heroFiredRef.current = true
       window.dispatchEvent(new CustomEvent('g2e:hero-reveal'))
     }
@@ -160,9 +174,16 @@ export default function IntroSequence() {
     startRaf()
 
     const resetToStart = () => {
-      targetTime.current  = 0
-      lerpedTime.current  = 0
+      targetTime.current   = 0
+      lerpedTime.current   = 0
       heroFiredRef.current = false
+      if (heroImgRef.current) {
+        heroImgRef.current.style.opacity = '0'
+      }
+      if (heroContentRef.current) {
+        heroContentRef.current.style.opacity   = '0'
+        heroContentRef.current.style.transform = 'translateY(40px)'
+      }
       applyProgress(0)
     }
 
@@ -309,6 +330,144 @@ export default function IntroSequence() {
           </p>
         </div>
       ))}
+
+      {/* ── Hero image — crossfades over video at end of acts ────────── */}
+      <div
+        ref={heroImgRef}
+        aria-hidden="true"
+        style={{ position: 'absolute', inset: 0, zIndex: 6, opacity: 0, willChange: 'opacity' }}
+      >
+        <picture>
+          <source srcSet="/assets/hero-image.webp" type="image/webp" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/assets/hero-image.jpg"
+            alt=""
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 35%', display: 'block' }}
+          />
+        </picture>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,12,10,0.40)' }} />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '65%', background: 'linear-gradient(to bottom, rgba(10,12,10,0) 0%, rgba(10,12,10,0.95) 100%)' }} />
+        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '50%', background: 'linear-gradient(to right, rgba(10,12,10,0.35) 0%, rgba(10,12,10,0) 100%)' }} />
+      </div>
+
+      {/* ── Hero content — the website begins ────────────────────────── */}
+      <div
+        ref={heroContentRef}
+        style={{
+          position:       'absolute',
+          inset:          0,
+          zIndex:         7,
+          display:        'flex',
+          flexDirection:  'column',
+          justifyContent: 'flex-end',
+          padding:        'var(--container-pad)',
+          paddingBottom:  'clamp(48px, 7vh, 88px)',
+          opacity:        0,
+          pointerEvents:  'none',
+          willChange:     'transform, opacity',
+        }}
+      >
+        {/* Eyebrow */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '22px' }}>
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: '10px',
+            letterSpacing: '0.18em', textTransform: 'uppercase' as const,
+            color: 'rgba(245,243,238,0.55)',
+          }}>
+            G2E · Green to Energy
+          </span>
+          <div style={{ height: '1px', width: '24px', background: 'rgba(245,243,238,0.18)' }} />
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: '10px',
+            letterSpacing: '0.14em', textTransform: 'uppercase' as const,
+            color: 'rgba(245,243,238,0.32)',
+          }}>
+            Bordo Poniente · CDMX · Est. 2013
+          </span>
+        </div>
+
+        {/* Headline */}
+        <h1 style={{
+          fontFamily:    'var(--font-display)',
+          fontWeight:    800,
+          fontSize:      'clamp(3.2rem, 7vw, 7rem)',
+          lineHeight:    0.95,
+          letterSpacing: '-0.035em',
+          color:         '#FFFFFF',
+          maxWidth:      '780px',
+          marginBottom:  'clamp(20px, 3vh, 32px)',
+          textShadow:    '0 2px 40px rgba(0,0,0,0.30)',
+        }}>
+          From landfill<br />
+          to fuel.<br />
+          <span style={{ color: 'rgba(245,243,238,0.70)' }}>In hours.</span>
+        </h1>
+
+        {/* Lede */}
+        <p style={{
+          fontFamily:   'var(--font-sans)',
+          fontWeight:   300,
+          fontSize:     'clamp(0.95rem, 1.4vw, 1.1rem)',
+          lineHeight:   1.72,
+          color:        'rgba(245,243,238,0.78)',
+          maxWidth:     '460px',
+          marginBottom: 'clamp(22px, 3.5vh, 36px)',
+          textShadow:   '0 1px 12px rgba(0,0,0,0.25)',
+        }}>
+          We collect organic waste from Mexico City and transform it into hydrochar —
+          a mineral-grade carbon material that replaces coal and regenerates soil.
+        </p>
+
+        {/* CTAs */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: 'clamp(24px, 4vh, 40px)', pointerEvents: 'auto' }}>
+          <a
+            href="#contact"
+            className="glass-btn"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', fontFamily: 'var(--font-sans)', fontSize: '14px', fontWeight: 500, color: '#FFFFFF', padding: '13px 22px', textDecoration: 'none' }}
+          >
+            Join the mission
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+          </a>
+          <a
+            href="#about"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-sans)', fontSize: '13px', fontWeight: 400, color: 'rgba(245,243,238,0.60)', padding: '12px 18px', borderRadius: '999px', border: '1px solid rgba(245,243,238,0.18)', textDecoration: 'none', transition: 'border-color 200ms, color 200ms' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(245,243,238,0.42)'; e.currentTarget.style.color = '#FFFFFF' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(245,243,238,0.18)'; e.currentTarget.style.color = 'rgba(245,243,238,0.60)' }}
+          >
+            Who we are
+          </a>
+        </div>
+
+        {/* Stats */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: 'clamp(16px, 2.5vh, 28px)' }}>
+          {[
+            { value: '3 t/hr',   label: 'Live throughput'   },
+            { value: '220°C',    label: 'Process temp'      },
+            { value: 'World #1', label: 'Largest HTC plant' },
+            { value: 'Est. 2013',label: 'Bordo Poniente'    },
+          ].map(stat => (
+            <div key={stat.value} className="glass-card" style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '3px', minWidth: '92px' }}>
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'clamp(1rem, 1.6vw, 1.3rem)', lineHeight: 1, letterSpacing: '-0.02em', color: '#FFFFFF' }}>
+                {stat.value}
+              </span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.09em', textTransform: 'uppercase' as const, color: 'rgba(245,243,238,0.50)' }}>
+                {stat.label}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Partnership line */}
+        <div style={{ paddingTop: '16px', borderTop: '1px solid rgba(245,243,238,0.08)', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+          {['UNAM partner', 'Mexican Government', 'International partnerships', 'Phase II · 2027'].map((item, i) => (
+            <span key={i} style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: 'var(--ls-eyebrow)', textTransform: 'uppercase' as const, color: 'rgba(245,243,238,0.36)', display: 'flex', alignItems: 'center', gap: '16px' }}>
+              {i > 0 && <span style={{ opacity: 0.30 }}>·</span>}
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
 
       {/* ── Skip button ───────────────────────────────────────────────── */}
       <button

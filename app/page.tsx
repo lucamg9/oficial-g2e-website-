@@ -1,5 +1,4 @@
 import IntroSequence      from '@/components/sections/IntroSequence'
-import HeroSection        from '@/components/sections/HeroSection'
 import WhoWeAreSection    from '@/components/sections/WhoWeAreSection'
 import TimelineSection    from '@/components/sections/TimelineSection'
 import HowItWorksSection  from '@/components/sections/HowItWorksSection'
@@ -10,7 +9,6 @@ export default function HomePage() {
   return (
     <>
       <IntroSequence />
-      <HeroSection />
       <WhoWeAreSection />
 
       {/* Dark → Cream: WhoWeAreSection → TimelineSection */}
