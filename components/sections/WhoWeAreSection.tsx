@@ -54,6 +54,7 @@ export default function WhoWeAreSection() {
   const lerpedTime  = useRef(0)
   const rafRef      = useRef<number>(0)
   const wipeRef     = useRef<HTMLDivElement>(null)
+  const exitWipeRef = useRef<HTMLDivElement>(null)
   const last         = CHAPTERS.length - 1
 
   /* ─── RAF lerp scrub ──────────────────────────────────────────────────── */
@@ -81,6 +82,7 @@ export default function WhoWeAreSection() {
     const resetToStart = () => {
       targetTime.current  = 0
       lerpedTime.current  = 0
+      if (exitWipeRef.current) exitWipeRef.current.style.opacity = '0'
       chapterRefs.current.forEach((el, i) => {
         if (!el) return
         el.style.opacity   = i === 0 ? '1' : '0'
@@ -104,11 +106,16 @@ export default function WhoWeAreSection() {
       onUpdate(self) {
         const p = self.progress
 
-        /* entry/exit wipe */
+        /* entry wipe — black, 1→0 over first 4% */
         if (wipeRef.current) {
           const eIn  = Math.min(p / 0.04, 1)
           const eOut = Math.max(0, (p - 0.96) / 0.04)
           wipeRef.current.style.opacity = String(Math.max(1 - eIn, eOut))
+        }
+
+        /* exit wipe — cream, 0→1 over last 8% — bleaches to TimelineSection */
+        if (exitWipeRef.current) {
+          exitWipeRef.current.style.opacity = String(Math.max(0, (p - 0.92) / 0.08))
         }
 
         /* video scrub */
@@ -396,7 +403,7 @@ export default function WhoWeAreSection() {
         </div>
       </div>
 
-      {/* ── Entry/exit wipe ──────────────────────────────────────────── */}
+      {/* ── Entry wipe — black ───────────────────────────────────────── */}
       <div
         ref={wipeRef}
         aria-hidden="true"
@@ -406,6 +413,21 @@ export default function WhoWeAreSection() {
           zIndex:        10,
           background:    '#090C08',
           opacity:       1,
+          pointerEvents: 'none',
+          willChange:    'opacity',
+        }}
+      />
+
+      {/* ── Exit wipe — cream, bleaches to TimelineSection ───────────── */}
+      <div
+        ref={exitWipeRef}
+        aria-hidden="true"
+        style={{
+          position:      'absolute',
+          inset:         0,
+          zIndex:        11,
+          background:    'var(--cream-100)',
+          opacity:       0,
           pointerEvents: 'none',
           willChange:    'opacity',
         }}

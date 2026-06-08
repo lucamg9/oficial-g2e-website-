@@ -46,6 +46,7 @@ export default function HowItWorksSection() {
   const captionRef   = useRef<HTMLParagraphElement>(null)
   const dotsRef      = useRef<(HTMLDivElement | null)[]>([])
   const wipeRef      = useRef<HTMLDivElement>(null)
+  const exitWipeRef  = useRef<HTMLDivElement>(null)
 
   // Scroll-scrub state
   const targetClipIdx = useRef(0)
@@ -208,6 +209,7 @@ export default function HowItWorksSection() {
       })
 
       if (progressRef.current) progressRef.current.style.transform = 'scaleX(0)'
+      if (exitWipeRef.current) exitWipeRef.current.style.opacity = '0'
     }
 
     const st = ScrollTrigger.create({
@@ -220,11 +222,14 @@ export default function HowItWorksSection() {
       onUpdate(self) {
         const p = self.progress
 
-        // Entry/exit wipe overlay
+        /* entry wipe — black, 1→0 over first 4% */
         if (wipeRef.current) {
-          const eIn  = Math.min(p / 0.04, 1)
-          const eOut = Math.max(0, (p - 0.96) / 0.04)
-          wipeRef.current.style.opacity = String(Math.max(1 - eIn, eOut))
+          wipeRef.current.style.opacity = String(Math.max(0, 1 - Math.min(p / 0.04, 1)))
+        }
+
+        /* exit wipe — cream, 0→1 over last 8% — bleaches to Phase2Section */
+        if (exitWipeRef.current) {
+          exitWipeRef.current.style.opacity = String(Math.max(0, (p - 0.92) / 0.08))
         }
 
         // Progress bar
@@ -438,18 +443,33 @@ export default function HowItWorksSection() {
           </h3>
         </div>
 
-        {/* ── Entry/exit wipe ──────────────────────────────────────────── */}
+        {/* ── Entry wipe — black ───────────────────────────────────────── */}
         <div
           ref={wipeRef}
           aria-hidden="true"
           style={{
-            position:       'absolute',
-            inset:          0,
-            zIndex:         30,
-            background:     '#0A0C0A',
-            opacity:        1,
-            pointerEvents:  'none',
-            willChange:     'opacity',
+            position:      'absolute',
+            inset:         0,
+            zIndex:        30,
+            background:    '#0A0C0A',
+            opacity:       1,
+            pointerEvents: 'none',
+            willChange:    'opacity',
+          }}
+        />
+
+        {/* ── Exit wipe — cream, bleaches to Phase2Section ─────────────── */}
+        <div
+          ref={exitWipeRef}
+          aria-hidden="true"
+          style={{
+            position:      'absolute',
+            inset:         0,
+            zIndex:        31,
+            background:    'var(--cream-100)',
+            opacity:       0,
+            pointerEvents: 'none',
+            willChange:    'opacity',
           }}
         />
 

@@ -148,19 +148,19 @@ export default function IntroSequence() {
 
     // G2E identity card: p 0.86–0.97
     const logoIn  = ease(Math.max(0, Math.min(1, (p - 0.86) / 0.06)))
-    const logoOut = 1 - ease(Math.max(0, Math.min(1, (p - 0.93) / 0.04)))
+    const logoOut = 1 - ease(Math.max(0, Math.min(1, (p - 0.89) / 0.04)))  // out earlier to clear before exit wipe
     const logoOp  = logoIn * logoOut
     if (logoRef.current) {
       logoRef.current.style.opacity   = String(logoOp)
       logoRef.current.style.transform = `translateY(${(1 - logoIn) * 22}px)`
     }
 
-    // Hero image dissolves in 0.92 → 0.99
-    const heroImgP = ease(Math.max(0, Math.min(1, (p - 0.92) / 0.07)))
+    // Hero image dissolves in 0.88 → 0.95 (fully revealed before exit wipe at 0.96)
+    const heroImgP = ease(Math.max(0, Math.min(1, (p - 0.88) / 0.07)))
     if (heroImgRef.current) heroImgRef.current.style.opacity = String(heroImgP)
 
-    // Hero content rises in 0.95 → 1.0
-    const hcP = ease(Math.max(0, Math.min(1, (p - 0.95) / 0.05)))
+    // Hero content rises in 0.91 → 0.97 (completes before exit wipe at 0.96)
+    const hcP = ease(Math.max(0, Math.min(1, (p - 0.91) / 0.06)))
     if (heroContentRef.current) {
       heroContentRef.current.style.opacity   = String(hcP)
       heroContentRef.current.style.transform = `translateY(${(1 - hcP) * 30}px)`
@@ -207,9 +207,11 @@ export default function IntroSequence() {
       onUpdate(self) {
         const p = self.progress
 
-        /* entry wipe — fades away in first 3% of scroll */
+        /* entry wipe 1→0 over first 3%; exit wipe 0→1 over last 4% */
         if (wipeRef.current) {
-          wipeRef.current.style.opacity = String(Math.max(0, 1 - p / 0.03))
+          const eIn  = Math.min(p / 0.03, 1)
+          const eOut = Math.max(0, (p - 0.96) / 0.04)
+          wipeRef.current.style.opacity = String(Math.max(1 - eIn, eOut))
         }
 
         targetTime.current = p * (video.duration || 45)
