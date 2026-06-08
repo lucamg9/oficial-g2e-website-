@@ -193,7 +193,7 @@ export default function IntroSequence() {
       end:     `+=${SCROLL_DIST}`,
       pin:     true,
       scrub:   true,
-      onLeave() { resetToStart() },
+      onLeaveBack() { resetToStart() },
       onUpdate(self) {
         const p = self.progress
 
@@ -474,7 +474,7 @@ export default function IntroSequence() {
         ref={skipRef}
         onClick={handleSkip}
         style={{
-          position:             'fixed',
+          position:             'absolute',
           top:                  '24px',
           right:                '24px',
           zIndex:               100,
