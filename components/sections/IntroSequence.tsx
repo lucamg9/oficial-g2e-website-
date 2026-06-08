@@ -10,8 +10,7 @@ const SCROLL_DIST = 4800   // px — extra room for cinematic hero reveal
 const LERP        = 0.12   // smoothness factor for RAF lerp
 const VIDEO_SRC   = '/intro/intro-full.mp4'
 
-const lerpFn = (a: number, b: number, t: number) => a + (b - a) * t
-const ease   = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+const ease = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
 
 // Text acts — keyed to global scroll progress (0–1)
 // Each act shows for a window of progress; values tuned for 45s video
@@ -90,8 +89,13 @@ export default function IntroSequence() {
     const tick = () => {
       const video = videoRef.current
       if (video && video.readyState >= 2) {
-        const next = lerpFn(lerpedTime.current, targetTime.current, LERP)
-        if (Math.abs(next - lerpedTime.current) > 0.0005) {
+        const delta    = targetTime.current - lerpedTime.current
+        const absDelta = Math.abs(delta)
+        if (absDelta > 0.001) {
+          // Adaptive rate: snap hard on large seeks (backward scrub) so the
+          // video doesn't lag seconds behind the scroll position.
+          const rate = absDelta > 1.5 ? 0.55 : absDelta > 0.4 ? 0.30 : LERP
+          const next = lerpedTime.current + delta * rate
           lerpedTime.current = next
           try { video.currentTime = next } catch { /* ignore */ }
         }
@@ -192,7 +196,7 @@ export default function IntroSequence() {
       start:   'top top',
       end:     `+=${SCROLL_DIST}`,
       pin:     true,
-      scrub:   true,
+      scrub:   0.5,
       onLeaveBack() { resetToStart() },
       onUpdate(self) {
         const p = self.progress
