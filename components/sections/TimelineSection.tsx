@@ -1,322 +1,470 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-gsap.registerPlugin(ScrollTrigger)
+/* ─── Milestone data ────────────────────────────────────────────────────── */
+type Status = 'past' | 'current' | 'future'
 
-const MILESTONES = [
-  { year: '2008', label: 'La Sierra Oaxaqueña',   body: 'The NGO Gente como Nosotros is founded with a simple idea: create jobs and improve life in isolated rural communities.',                                                              tag: 'Origins'       },
-  { year: '2011', label: 'Gasification & Biochar', body: 'We discovered two technologies that changed our direction. Real impact would only come from scaling them to an industrial level.',                                                     tag: 'Discovery'     },
-  { year: '2013', label: 'G2E is Born',            body: 'To bring gasification to industrial scale, we founded G2E — convinced we could help decarbonize Mexican industry through waste.',                                                      tag: 'Founding'      },
-  { year: '2014', label: 'Partnership with UNAM',  body: "We started working with UNAM's Institute of Engineering — the technical foundation for everything that followed.",                                                                     tag: 'Research'      },
-  { year: '2016', label: 'Demonstration Center',   body: "With SAGARPA funding, we opened the UNAM–SAGARPA–G2E Gasification Technologies Demonstration Center at UNAM's main campus.",                                                          tag: 'Infrastructure'},
-  { year: '2019', label: 'The Invitation',         body: "At the direct request of Dr. Claudia Sheinbaum, we partnered with UNAM to decarbonize Mexico City's organic waste. The HTC Plant is born.",                                          tag: 'Turning Point' },
-  { year: '2021', label: 'Construction Begins',    body: 'Phase I construction starts at Bordo Poniente — the former landfill where over 1,000,000 m³ of organic matter release methane every day.',                                           tag: 'Build'         },
-  { year: '2023', label: "World's Largest Plant",  body: 'Phase I is completed. Our 3 t/hr reactor becomes the largest HTC plant in the world processing municipal organic waste.',                                                             tag: 'Record'        },
-  { year: '2025', label: 'Operate & Improve',      body: 'Two years of staged operation campaigns teach us about feedstock conditioning, system robustness, and process control.',                                                              tag: 'Operations'    },
-  { year: '2026', label: 'Designing Replication',  body: 'Phase II is formalized: 10 additional modules, USD 150 million investment. The method to make every new plant faster and cheaper to build.',                                         tag: 'Scale'         },
+const MILESTONES: {
+  year:   string
+  label:  string
+  body:   string
+  tag:    string
+  status: Status
+}[] = [
+  {
+    year:   '2008',
+    label:  'La Sierra Oaxaqueña',
+    body:   'The NGO Gente como Nosotros is founded with a simple idea: create jobs and improve life in isolated rural communities.',
+    tag:    'Origins',
+    status: 'past',
+  },
+  {
+    year:   '2011',
+    label:  'Gasification & Biochar',
+    body:   'We discovered two technologies that changed our direction. Real impact would only come from scaling them to an industrial level.',
+    tag:    'Discovery',
+    status: 'past',
+  },
+  {
+    year:   '2013',
+    label:  'G2E is Born',
+    body:   'To bring gasification to industrial scale, we founded G2E — convinced we could help decarbonize Mexican industry through waste.',
+    tag:    'Founding',
+    status: 'past',
+  },
+  {
+    year:   '2014',
+    label:  'Partnership with UNAM',
+    body:   "We started working with UNAM's Institute of Engineering — the technical foundation for everything that followed.",
+    tag:    'Research',
+    status: 'past',
+  },
+  {
+    year:   '2016',
+    label:  'Demonstration Center',
+    body:   "With SAGARPA funding, we opened the UNAM–SAGARPA–G2E Gasification Technologies Demonstration Center at UNAM's main campus.",
+    tag:    'Infrastructure',
+    status: 'past',
+  },
+  {
+    year:   '2019',
+    label:  'The Invitation',
+    body:   "At the direct request of Dr. Claudia Sheinbaum, we partnered with UNAM to decarbonize Mexico City's organic waste. The HTC Plant is born.",
+    tag:    'Turning Point',
+    status: 'past',
+  },
+  {
+    year:   '2021',
+    label:  'Construction Begins',
+    body:   'Phase I construction starts at Bordo Poniente — the former landfill where over 1,000,000 m³ of organic matter release methane every day.',
+    tag:    'Build',
+    status: 'past',
+  },
+  {
+    year:   '2023',
+    label:  "World's Largest Plant",
+    body:   'Phase I is completed. Our 3 t/hr reactor becomes the largest HTC plant in the world processing municipal organic waste.',
+    tag:    'Record',
+    status: 'past',
+  },
+  {
+    year:   '2026',
+    label:  'Operate & Scale',
+    body:   'Two years of staged operation campaigns refine feedstock conditioning and process control. Phase II is formalized: 10 additional modules, USD 150 million investment.',
+    tag:    'Now',
+    status: 'current',
+  },
+  {
+    year:   '2027',
+    label:  'Replication at Scale',
+    body:   'Phase II launches. The method to make every new plant faster and cheaper to build becomes the foundation for global expansion.',
+    tag:    'Phase II',
+    status: 'future',
+  },
 ]
 
-const N          = MILESTONES.length
-const CARD_W     = 360
-const CARD_GAP   = 24
-const RAIL_EXTRA = 80
+/* ─── Dot colours by status ─────────────────────────────────────────────── */
+const DOT_COLOR: Record<Status, string> = {
+  past:    'var(--sand-300)',
+  current: 'var(--clay-500)',
+  future:  'var(--oat-200)',
+}
+const DOT_BORDER: Record<Status, string> = {
+  past:    'var(--ink-500)',
+  current: 'var(--clay-500)',
+  future:  'var(--sand-300)',
+}
 
-export default function TimelineSection() {
-  const wrapRef  = useRef<HTMLDivElement>(null)
-  const railRef  = useRef<HTMLDivElement>(null)
-  const lineRef  = useRef<HTMLDivElement>(null)
-  const dotRefs  = useRef<(HTMLDivElement | null)[]>([])
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([])
+/* ─── Single milestone row ──────────────────────────────────────────────── */
+function MilestoneRow({
+  milestone,
+  index,
+  isLast,
+}: {
+  milestone: typeof MILESTONES[number]
+  index:     number
+  isLast:    boolean
+}) {
+  const rowRef  = useRef<HTMLDivElement>(null)
+  const yearRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const wrap = wrapRef.current
-    const rail = railRef.current
-    const line = lineRef.current
-    if (!wrap || !rail || !line) return
+    const row  = rowRef.current
+    const year = yearRef.current
+    if (!row || !year) return
 
-    const railWidth  = N * (CARD_W + CARD_GAP) - CARD_GAP + RAIL_EXTRA
-    /* start rail so first card is centred: offset = (vw - cardW) / 2 */
-    const getStart   = () => Math.max(48, (window.innerWidth - CARD_W) / 2)
-    const scrollDist = () => railWidth + getStart() - window.innerWidth + 48
+    // Initial hidden state
+    row.style.opacity  = '0'
+    row.style.transform = 'translateY(28px)'
+    year.style.opacity  = '0'
+    year.style.transform = 'translateY(16px)'
 
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger:  wrap,
-        start:    'top top',
-        end:      () => `+=${scrollDist()}`,
-        pin:      true,
-        scrub:    0.5,
-        onUpdate: (self) => {
-          const p = self.progress
-          const sd = scrollDist()
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting) return
+        const delay = index * 0 // stagger is per-milestone so we don't stack delays
 
-          /* horizontal scroll */
-          gsap.set(rail, { x: -(p * sd - getStart()) })
+        setTimeout(() => {
+          row.style.transition  = 'opacity 600ms cubic-bezier(0.4,0,0.2,1), transform 600ms cubic-bezier(0.4,0,0.2,1)'
+          row.style.opacity     = '1'
+          row.style.transform   = 'translateY(0)'
+        }, delay)
 
-          /* progress line fill */
-          gsap.set(line, { scaleX: p })
+        setTimeout(() => {
+          year.style.transition  = 'opacity 500ms cubic-bezier(0.4,0,0.2,1), transform 500ms cubic-bezier(0.4,0,0.2,1)'
+          year.style.opacity     = '1'
+          year.style.transform   = 'translateY(0)'
+        }, delay + 80)
 
-          /* dot states */
-          const activeIdx = Math.min(Math.floor(p * N), N - 1)
-          dotRefs.current.forEach((dot, i) => {
-            if (!dot) return
-            const on = i <= activeIdx
-            dot.style.background  = on ? 'var(--forest-800)' : 'var(--sand-300)'
-            dot.style.transform   = `translate(-50%,-50%) scale(${on ? 1.4 : 1})`
-            dot.style.boxShadow   = on ? '0 0 0 3px rgba(15,61,46,0.15)' : 'none'
-          })
+        obs.disconnect()
+      },
+      { threshold: 0.18, rootMargin: '0px 0px -40px 0px' },
+    )
 
-          /* card reveal — scale + fade + translate, staggered feel */
-          cardRefs.current.forEach((card, i) => {
-            if (!card) return
-            const cp      = p * N - i          /* 0→1 as this card enters view */
-            const visible = Math.max(0, Math.min(1, cp * 2.2))
-            const ty      = (1 - Math.min(1, cp * 1.6)) * 32
-            const sc      = 0.88 + 0.12 * Math.min(1, cp * 2.2)
-            card.style.opacity   = String(visible)
-            card.style.transform = `translateY(${ty}px) scale(${sc})`
-          })
-        },
-      })
-    }, wrap)
+    obs.observe(row)
+    return () => obs.disconnect()
+  }, [index])
 
-    return () => ctx.revert()
+  const isCurrent = milestone.status === 'current'
+  const isFuture  = milestone.status === 'future'
+
+  return (
+    <div
+      style={{
+        display:  'grid',
+        // desktop: [year col] [spine col] [content col]
+        // mobile:  [spine col] [content col] via media query override below
+        gridTemplateColumns: 'var(--tl-year-w, 160px) 1px 1fr',
+        gap:      '0 var(--tl-gap, 40px)',
+        position: 'relative',
+      }}
+      className="tl-row"
+    >
+      {/* ── Year ──────────────────────────────────────────────────────── */}
+      <div
+        ref={yearRef}
+        style={{
+          paddingTop:    '2px',
+          paddingBottom: isLast ? 0 : '80px',
+          textAlign:     'right',
+          flexShrink:    0,
+        }}
+        className="tl-year-col"
+      >
+        <span
+          style={{
+            fontFamily:    'var(--font-display)',
+            fontWeight:    800,
+            fontSize:      'clamp(2.4rem, 5vw, 4.5rem)',
+            lineHeight:    1,
+            letterSpacing: '-0.04em',
+            color:         isCurrent
+              ? 'var(--clay-500)'
+              : isFuture
+                ? 'var(--sand-300)'
+                : 'var(--ink-900)',
+            display: 'block',
+          }}
+        >
+          {milestone.year}
+        </span>
+      </div>
+
+      {/* ── Spine ─────────────────────────────────────────────────────── */}
+      <div
+        style={{
+          position: 'relative',
+          flexShrink: 0,
+        }}
+      >
+        {/* Vertical line */}
+        {!isLast && (
+          <div
+            style={{
+              position:   'absolute',
+              top:        '14px',
+              bottom:     '-14px',
+              left:       '50%',
+              transform:  'translateX(-50%)',
+              width:      '1px',
+              background: isFuture
+                ? 'repeating-linear-gradient(to bottom, var(--sand-300) 0, var(--sand-300) 6px, transparent 6px, transparent 12px)'
+                : 'var(--sand-300)',
+            }}
+          />
+        )}
+
+        {/* Node dot */}
+        <div
+          style={{
+            position:     'absolute',
+            top:          '6px',
+            left:         '50%',
+            transform:    'translateX(-50%)',
+            width:        isCurrent ? '14px' : '10px',
+            height:       isCurrent ? '14px' : '10px',
+            borderRadius: '50%',
+            background:   DOT_COLOR[milestone.status],
+            border:       `2px solid ${DOT_BORDER[milestone.status]}`,
+            boxShadow:    isCurrent ? '0 0 0 4px var(--clay-100)' : 'none',
+            transition:   'transform 400ms cubic-bezier(0.34,1.56,0.64,1)',
+            zIndex:       1,
+          }}
+        />
+      </div>
+
+      {/* ── Content ───────────────────────────────────────────────────── */}
+      <div
+        ref={rowRef}
+        style={{
+          paddingBottom: isLast ? '0' : '80px',
+          paddingTop:    '0',
+        }}
+      >
+        {/* Tag pill */}
+        <div
+          style={{
+            display:      'inline-flex',
+            alignItems:   'center',
+            gap:          '6px',
+            padding:      '4px 10px',
+            background:   isCurrent ? 'var(--clay-100)' : 'var(--oat-150)',
+            border:       `1px solid ${isCurrent ? 'var(--clay-200)' : 'var(--sand-300)'}`,
+            borderRadius: '999px',
+            marginBottom: '14px',
+          }}
+        >
+          <span
+            style={{
+              width:        '5px',
+              height:       '5px',
+              borderRadius: '50%',
+              background:   isCurrent ? 'var(--clay-500)' : 'var(--ink-500)',
+              flexShrink:   0,
+            }}
+          />
+          <span
+            style={{
+              fontFamily:    'var(--font-mono)',
+              fontSize:      '10px',
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              color:         isCurrent ? 'var(--clay-700)' : 'var(--ink-600)',
+            }}
+          >
+            {milestone.tag}
+          </span>
+        </div>
+
+        {/* Milestone headline */}
+        <h3
+          style={{
+            fontFamily:    'var(--font-display)',
+            fontWeight:    700,
+            fontSize:      'clamp(1.1rem, 2vw, 1.35rem)',
+            lineHeight:    1.2,
+            letterSpacing: '-0.02em',
+            color:         isFuture ? 'var(--ink-500)' : 'var(--ink-900)',
+            marginBottom:  '10px',
+          }}
+        >
+          {milestone.label}
+        </h3>
+
+        {/* Body */}
+        <p
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontWeight: 400,
+            fontSize:   'clamp(0.875rem, 1.2vw, 0.95rem)',
+            lineHeight: 1.72,
+            color:      isFuture ? 'var(--ink-500)' : 'var(--ink-600)',
+            maxWidth:   '500px',
+            margin:     0,
+          }}
+        >
+          {milestone.body}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+/* ─── Section ───────────────────────────────────────────────────────────── */
+export default function TimelineSection() {
+  const headerRef   = useRef<HTMLDivElement>(null)
+  const eyebrowRef  = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const header  = headerRef.current
+    const eyebrow = eyebrowRef.current
+    if (!header || !eyebrow) return
+
+    eyebrow.style.opacity   = '0'
+    eyebrow.style.transform = 'translateY(16px)'
+    header.style.opacity    = '0'
+    header.style.transform  = 'translateY(24px)'
+
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting) return
+        setTimeout(() => {
+          eyebrow.style.transition = 'opacity 500ms ease, transform 500ms ease'
+          eyebrow.style.opacity    = '1'
+          eyebrow.style.transform  = 'translateY(0)'
+        }, 0)
+        setTimeout(() => {
+          header.style.transition = 'opacity 600ms ease, transform 600ms ease'
+          header.style.opacity    = '1'
+          header.style.transform  = 'translateY(0)'
+        }, 100)
+        obs.disconnect()
+      },
+      { threshold: 0.3 },
+    )
+    obs.observe(eyebrow)
+    return () => obs.disconnect()
   }, [])
 
   return (
-    <section
-      ref={wrapRef}
-      id="timeline"
-      aria-label="G2E company timeline"
-      style={{
-        position:       'relative',
-        width:          '100%',
-        height:         '100vh',
-        overflow:       'hidden',
-        background:     'var(--cream-100)',
-        display:        'flex',
-        flexDirection:  'column',
-        justifyContent: 'center',
-      }}
-    >
+    <>
+      {/* Responsive CSS injected once */}
+      <style>{`
+        /* ── Timeline responsive grid ─────────────────────────── */
 
-      {/* Warm ambient tint */}
-      <div aria-hidden="true" style={{
-        position:      'absolute',
-        inset:         0,
-        background:    'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(15,61,46,0.035) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
+        /* Desktop: three-column [year | spine | content] */
+        .tl-row {
+          --tl-year-w: 140px;
+          --tl-gap: 36px;
+          grid-template-columns: var(--tl-year-w) 1px 1fr;
+        }
 
-      {/* ── Section header ───────────────────────────────────────────── */}
-      <div className="g2e-container" style={{ position: 'relative', zIndex: 2, marginBottom: '44px', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: '6px',
-            padding: '4px 12px', background: 'var(--oat-150)',
-            border: '1px solid var(--sand-300)', borderRadius: '999px',
-          }}>
-            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--clay-500)', flexShrink: 0 }} />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.14em', textTransform: 'uppercase' as const, color: 'var(--ink-600)' }}>
-              Our story
-            </span>
-          </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.10em', color: 'var(--ink-500)' }}>
-            2008 — 2026
-          </span>
-        </div>
+        /* Tablet */
+        @media (max-width: 900px) {
+          .tl-row {
+            --tl-year-w: 100px;
+            --tl-gap: 24px;
+          }
+        }
 
-        <h2 style={{
-          fontFamily:    'var(--font-display)',
-          fontWeight:    800,
-          fontSize:      'clamp(2rem, 4vw, 3.25rem)',
-          lineHeight:    0.97,
-          letterSpacing: '-0.03em',
-          color:         'var(--ink-900)',
-          maxWidth:      '540px',
-          margin:        0,
-        }}>
-          From a rural NGO<br />
-          <span style={{ color: 'var(--ink-500)' }}>to the world&apos;s largest<br />HTC plant.</span>
-        </h2>
-      </div>
+        /* Mobile: two-column [spine | content], year moves above content */
+        @media (max-width: 640px) {
+          .tl-row {
+            grid-template-columns: 20px 1fr;
+            --tl-gap: 20px;
+            gap: 0 var(--tl-gap);
+          }
+          .tl-year-col {
+            display: none !important;
+          }
+        }
+      `}</style>
 
-      {/* ── Progress line ────────────────────────────────────────────── */}
-      <div className="g2e-container" style={{ position: 'relative', zIndex: 2, marginBottom: '32px', flexShrink: 0 }}>
-        {/* Track */}
-        <div style={{
-          position:     'relative',
-          height:       '2px',
-          background:   'var(--sand-300)',
-          borderRadius: '999px',
-          overflow:     'visible',
-        }}>
-          {/* Fill */}
-          <div
-            ref={lineRef}
-            style={{
-              position:        'absolute',
-              inset:           0,
-              background:      'var(--forest-800)',
-              borderRadius:    '999px',
-              transformOrigin: 'left center',
-              transform:       'scaleX(0)',
-              willChange:      'transform',
-            }}
-          />
-
-          {/* Milestone dots */}
-          {MILESTONES.map((m, i) => (
-            <div
-              key={i}
-              ref={el => { dotRefs.current[i] = el }}
-              title={`${m.year} — ${m.label}`}
-              style={{
-                position:     'absolute',
-                top:          '50%',
-                left:         `${(i / (N - 1)) * 100}%`,
-                transform:    'translate(-50%,-50%)',
-                width:        '9px',
-                height:       '9px',
-                borderRadius: '50%',
-                background:   'var(--sand-300)',
-                transition:   'background 300ms, transform 300ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 300ms',
-                willChange:   'background, transform',
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Year labels */}
-        <div style={{ position: 'relative', height: '18px', marginTop: '9px' }}>
-          {MILESTONES.map((m, i) => (
-            <span
-              key={i}
-              style={{
-                position:      'absolute',
-                left:          `${(i / (N - 1)) * 100}%`,
-                transform:     'translateX(-50%)',
-                fontFamily:    'var(--font-mono)',
-                fontSize:      '9px',
-                letterSpacing: '0.06em',
-                color:         'var(--ink-500)',
-                whiteSpace:    'nowrap' as const,
-              }}
-            >
-              {m.year}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Card rail — first card centred on mount ───────────────────── */}
-      <div style={{ position: 'relative', zIndex: 2, flexShrink: 0, overflow: 'visible' }}>
+      <section
+        id="timeline"
+        aria-label="G2E company timeline"
+        style={{
+          background: 'var(--cream-100)',
+          padding:    'clamp(80px, 10vw, 140px) 0',
+        }}
+      >
         <div
-          ref={railRef}
-          style={{
-            display:    'flex',
-            gap:        `${CARD_GAP}px`,
-            alignItems: 'stretch',
-            willChange: 'transform',
-            /* initial x set in JS so first card is centred */
-          }}
+          className="g2e-container"
+          style={{ maxWidth: '920px' }}
         >
-          {MILESTONES.map((m, i) => (
-            <div
-              key={i}
-              ref={el => { cardRefs.current[i] = el }}
-              style={{
-                flexShrink:    0,
-                width:         `${CARD_W}px`,
-                background:    '#FFFFFF',
-                border:        '1px solid var(--sand-300)',
-                borderRadius:  '24px',
-                padding:       '32px 32px 36px',
-                display:       'flex',
-                flexDirection: 'column',
-                gap:           '12px',
-                opacity:       0,
-                transform:     'translateY(32px) scale(0.88)',
-                willChange:    'opacity, transform',
-                boxShadow:     '0 4px 12px rgba(22,25,15,0.04), 0 12px 32px -8px rgba(22,25,15,0.10)',
-              }}
-            >
-              {/* Tag */}
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: '5px',
-                padding: '4px 10px', background: 'var(--oat-150)',
-                border: '1px solid var(--sand-300)', borderRadius: '999px',
-                alignSelf: 'flex-start',
-              }}>
-                <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--clay-500)', flexShrink: 0 }} />
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.13em', textTransform: 'uppercase' as const, color: 'var(--ink-600)' }}>
-                  {m.tag}
+
+          {/* ── Section header ──────────────────────────────────────── */}
+          <div style={{ marginBottom: 'clamp(56px, 8vw, 96px)' }}>
+
+            <div ref={eyebrowRef} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+              <span
+                style={{
+                  display:    'inline-flex',
+                  alignItems: 'center',
+                  gap:        '6px',
+                  padding:    '4px 12px',
+                  background: 'var(--oat-150)',
+                  border:     '1px solid var(--sand-300)',
+                  borderRadius: '999px',
+                }}
+              >
+                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--clay-500)', flexShrink: 0 }} />
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.14em', textTransform: 'uppercase' as const, color: 'var(--ink-600)' }}>
+                  Our Story
                 </span>
-              </div>
+              </span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.10em', color: 'var(--ink-500)' }}>
+                2008 — 2027
+              </span>
+            </div>
 
-              {/* Year */}
-              <div style={{
-                fontFamily:    'var(--font-display)',
-                fontWeight:    800,
-                fontSize:      'clamp(2.4rem, 3.8vw, 3rem)',
-                lineHeight:    1,
-                letterSpacing: '-0.045em',
-                color:         'var(--ink-900)',
-              }}>
-                {m.year}
-              </div>
-
-              {/* Label */}
-              <div style={{
-                fontFamily:    'var(--font-display)',
-                fontWeight:    700,
-                fontSize:      'clamp(0.95rem, 1.3vw, 1.08rem)',
-                lineHeight:    1.2,
-                letterSpacing: '-0.02em',
-                color:         'var(--ink-700)',
-              }}>
-                {m.label}
-              </div>
-
-              <div style={{ height: '1px', background: 'var(--sand-300)', margin: '2px 0' }} />
-
-              <p style={{
-                fontFamily: 'var(--font-sans)',
-                fontWeight: 400,
-                fontSize:   'clamp(0.82rem, 1vw, 0.9rem)',
-                lineHeight: 1.68,
-                color:      'var(--ink-600)',
-                margin:     0,
-              }}>
-                {m.body}
+            <div ref={headerRef}>
+              <h2
+                style={{
+                  fontFamily:    'var(--font-display)',
+                  fontWeight:    800,
+                  fontSize:      'clamp(2.2rem, 5vw, 3.8rem)',
+                  lineHeight:    0.97,
+                  letterSpacing: '-0.035em',
+                  color:         'var(--ink-900)',
+                  marginBottom:  '20px',
+                }}
+              >
+                From a rural NGO<br />
+                <span style={{ color: 'var(--ink-500)' }}>to the world&apos;s largest<br />HTC plant.</span>
+              </h2>
+              <p
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontWeight: 300,
+                  fontSize:   'clamp(0.95rem, 1.4vw, 1.05rem)',
+                  lineHeight: 1.72,
+                  color:      'var(--ink-600)',
+                  maxWidth:   '520px',
+                  margin:     0,
+                }}
+              >
+                Nineteen years of patient engineering, institutional partnerships,
+                and a conviction that waste can become fuel.
               </p>
             </div>
-          ))}
+          </div>
+
+          {/* ── Timeline body ──────────────────────────────────────────── */}
+          <div>
+            {MILESTONES.map((m, i) => (
+              <MilestoneRow
+                key={m.year}
+                milestone={m}
+                index={i}
+                isLast={i === MILESTONES.length - 1}
+              />
+            ))}
+          </div>
+
         </div>
-      </div>
-
-      {/* Scroll hint */}
-      <div style={{
-        position:      'absolute',
-        bottom:        '28px',
-        right:         'var(--container-pad)',
-        zIndex:        3,
-        display:       'flex',
-        alignItems:    'center',
-        gap:           '8px',
-        pointerEvents: 'none',
-      }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.14em', textTransform: 'uppercase' as const, color: 'var(--ink-500)' }}>
-          Scroll to explore
-        </span>
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ink-500)" strokeWidth="1.5" strokeLinecap="round">
-          <path d="M5 12h14M12 5l7 7-7 7"/>
-        </svg>
-      </div>
-
-    </section>
+      </section>
+    </>
   )
 }
