@@ -69,8 +69,6 @@ export default function IntroSequence() {
   const actRefs        = useRef<(HTMLDivElement | null)[]>([])
   const headlineRefs   = useRef<(HTMLHeadingElement | null)[]>([])
   const subRefs        = useRef<(HTMLParagraphElement | null)[]>([])
-  const logoRef        = useRef<HTMLDivElement>(null)
-  const heroImgRef     = useRef<HTMLDivElement>(null)
   const heroContentRef = useRef<HTMLDivElement>(null)
   const skipRef        = useRef<HTMLButtonElement>(null)
   const heroFiredRef   = useRef(false)
@@ -145,21 +143,8 @@ export default function IntroSequence() {
       }
     })
 
-    // G2E identity card: p 0.86–0.97
-    const logoIn  = ease(Math.max(0, Math.min(1, (p - 0.86) / 0.06)))
-    const logoOut = 1 - ease(Math.max(0, Math.min(1, (p - 0.89) / 0.04)))  // out earlier to clear before exit wipe
-    const logoOp  = logoIn * logoOut
-    if (logoRef.current) {
-      logoRef.current.style.opacity   = String(logoOp)
-      logoRef.current.style.transform = `translateY(${(1 - logoIn) * 22}px)`
-    }
-
-    // Hero image dissolves in 0.88 → 0.95 (fully revealed before exit wipe at 0.96)
-    const heroImgP = ease(Math.max(0, Math.min(1, (p - 0.88) / 0.07)))
-    if (heroImgRef.current) heroImgRef.current.style.opacity = String(heroImgP)
-
-    // Hero content rises in 0.91 → 0.97 (completes before exit wipe at 0.96)
-    const hcP = ease(Math.max(0, Math.min(1, (p - 0.91) / 0.06)))
+    // Hero content cross-dissolves with last act fading — p 0.84 → 0.92
+    const hcP = ease(Math.max(0, Math.min(1, (p - 0.84) / 0.08)))
     if (heroContentRef.current) {
       heroContentRef.current.style.opacity   = String(hcP)
       heroContentRef.current.style.transform = `translateY(${(1 - hcP) * 30}px)`
@@ -172,8 +157,8 @@ export default function IntroSequence() {
       skipRef.current.style.pointerEvents = skipOp < 0.05 ? 'none' : 'auto'
     }
 
-    // Nav reveal fires once at 0.93
-    if (p >= 0.93 && !heroFiredRef.current) {
+    // Nav reveal fires once hero content is fully in
+    if (p >= 0.92 && !heroFiredRef.current) {
       heroFiredRef.current = true
       window.dispatchEvent(new CustomEvent('g2e:hero-reveal'))
     }
@@ -340,64 +325,13 @@ export default function IntroSequence() {
         </div>
       ))}
 
-      {/* ── G2E identity moment ───────────────────────────────────────── */}
-      <div
-        ref={logoRef}
-        style={{
-          position:       'absolute',
-          inset:          0,
-          zIndex:         5,
-          display:        'flex',
-          flexDirection:  'column',
-          alignItems:     'center',
-          justifyContent: 'center',
-          opacity:        0,
-          pointerEvents:  'none',
-          gap:            '16px',
-        }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/assets/g2e-logo-light.svg"
-          alt="G2E"
-          height={52}
-          style={{ display: 'block', filter: 'drop-shadow(0 0 40px rgba(245,243,238,0.12))' }}
-        />
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.22em', textTransform: 'uppercase' as const, color: 'rgba(245,243,238,0.40)' }}>
-          Bordo Poniente · CDMX
-        </p>
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'clamp(0.8rem, 1.1vw, 0.9rem)', color: 'rgba(245,243,238,0.28)', letterSpacing: '0.06em' }}>
-          ↓ Scroll to continue
-        </p>
-      </div>
-
-      {/* ── Hero image — dissolves over video ─────────────────────────── */}
-      <div
-        ref={heroImgRef}
-        aria-hidden="true"
-        style={{ position: 'absolute', inset: 0, zIndex: 6, opacity: 0 }}
-      >
-        <picture>
-          <source srcSet="/assets/hero-image.webp" type="image/webp" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/assets/hero-image.jpg"
-            alt=""
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 35%', display: 'block' }}
-          />
-        </picture>
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,12,10,0.42)' }} />
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '62%', background: 'linear-gradient(to bottom, rgba(10,12,10,0) 0%, rgba(10,12,10,0.94) 100%)' }} />
-        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '45%', background: 'linear-gradient(to right, rgba(10,12,10,0.38) 0%, rgba(10,12,10,0) 100%)' }} />
-      </div>
-
-      {/* ── Hero content ──────────────────────────────────────────────── */}
+      {/* ── Hero content — sits on video, gradient scrim for legibility ── */}
       <div
         ref={heroContentRef}
         style={{
           position:       'absolute',
           inset:          0,
-          zIndex:         7,
+          zIndex:         5,
           display:        'flex',
           flexDirection:  'column',
           justifyContent: 'flex-end',
@@ -406,6 +340,7 @@ export default function IntroSequence() {
           opacity:        0,
           pointerEvents:  'none',
           willChange:     'transform, opacity',
+          background:     'linear-gradient(to top, rgba(10,9,8,0.82) 0%, rgba(10,9,8,0.40) 45%, transparent 100%)',
         }}
       >
         <h1 style={{
