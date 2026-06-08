@@ -10,8 +10,35 @@ export default function HomePage() {
     <>
       <IntroSequence />
       <WhoWeAreSection />
+
+      {/* Dark → Cream: WhoWeAreSection → TimelineSection */}
+      <div aria-hidden="true" style={{
+        height:     '160px',
+        background: 'linear-gradient(to bottom, #090C08 0%, #F6F2E8 100%)',
+        marginTop:  '-1px',
+        marginBottom: '-1px',
+      }} />
+
       <TimelineSection />
+
+      {/* Cream → Dark: TimelineSection → HowItWorksSection */}
+      <div aria-hidden="true" style={{
+        height:     '160px',
+        background: 'linear-gradient(to bottom, #F6F2E8 0%, #0A0C0A 100%)',
+        marginTop:  '-1px',
+        marginBottom: '-1px',
+      }} />
+
       <HowItWorksSection />
+
+      {/* Dark → Cream: HowItWorksSection → Phase2Section */}
+      <div aria-hidden="true" style={{
+        height:     '160px',
+        background: 'linear-gradient(to bottom, #0A0C0A 0%, #F6F2E8 100%)',
+        marginTop:  '-1px',
+        marginBottom: '-1px',
+      }} />
+
       <Phase2Section />
       <ContactSection />
     </>

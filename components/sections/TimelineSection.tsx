@@ -25,12 +25,11 @@ const CARD_GAP   = 24
 const RAIL_EXTRA = 80
 
 export default function TimelineSection() {
-  const wrapRef     = useRef<HTMLDivElement>(null)
-  const railRef     = useRef<HTMLDivElement>(null)
-  const lineRef     = useRef<HTMLDivElement>(null)
-  const dotRefs     = useRef<(HTMLDivElement | null)[]>([])
-  const cardRefs    = useRef<(HTMLDivElement | null)[]>([])
-  const exitWipeRef = useRef<HTMLDivElement>(null)
+  const wrapRef  = useRef<HTMLDivElement>(null)
+  const railRef  = useRef<HTMLDivElement>(null)
+  const lineRef  = useRef<HTMLDivElement>(null)
+  const dotRefs  = useRef<(HTMLDivElement | null)[]>([])
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([])
 
   useEffect(() => {
     const wrap = wrapRef.current
@@ -50,9 +49,6 @@ export default function TimelineSection() {
         end:      () => `+=${scrollDist()}`,
         pin:      true,
         scrub:    0.5,
-        onLeave() {
-          if (exitWipeRef.current) exitWipeRef.current.style.opacity = '0'
-        },
         onUpdate: (self) => {
           const p = self.progress
           const sd = scrollDist()
@@ -72,11 +68,6 @@ export default function TimelineSection() {
             dot.style.transform   = `translate(-50%,-50%) scale(${on ? 1.4 : 1})`
             dot.style.boxShadow   = on ? '0 0 0 3px rgba(15,61,46,0.15)' : 'none'
           })
-
-          /* exit wipe — dark, 0→1 over last 8% — fades to HowItWorksSection */
-          if (exitWipeRef.current) {
-            exitWipeRef.current.style.opacity = String(Math.max(0, (p - 0.92) / 0.08))
-          }
 
           /* card reveal — scale + fade + translate, staggered feel */
           cardRefs.current.forEach((card, i) => {
@@ -325,21 +316,6 @@ export default function TimelineSection() {
           <path d="M5 12h14M12 5l7 7-7 7"/>
         </svg>
       </div>
-
-      {/* ── Exit wipe — dark, fades to HowItWorksSection ─────────────── */}
-      <div
-        ref={exitWipeRef}
-        aria-hidden="true"
-        style={{
-          position:      'absolute',
-          inset:         0,
-          zIndex:        10,
-          background:    '#0A0C0A',
-          opacity:       0,
-          pointerEvents: 'none',
-          willChange:    'opacity',
-        }}
-      />
 
     </section>
   )

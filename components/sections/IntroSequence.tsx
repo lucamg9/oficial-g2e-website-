@@ -73,7 +73,6 @@ export default function IntroSequence() {
   const heroImgRef     = useRef<HTMLDivElement>(null)
   const heroContentRef = useRef<HTMLDivElement>(null)
   const skipRef        = useRef<HTMLButtonElement>(null)
-  const wipeRef        = useRef<HTMLDivElement>(null)
   const heroFiredRef   = useRef(false)
 
   // RAF scrub state
@@ -207,13 +206,6 @@ export default function IntroSequence() {
       onUpdate(self) {
         const p = self.progress
 
-        /* entry wipe 1→0 over first 3%; exit wipe 0→1 over last 4% */
-        if (wipeRef.current) {
-          const eIn  = Math.min(p / 0.03, 1)
-          const eOut = Math.max(0, (p - 0.96) / 0.04)
-          wipeRef.current.style.opacity = String(Math.max(1 - eIn, eOut))
-        }
-
         targetTime.current = p * (video.duration || 45)
         applyProgress(p)
       },
@@ -274,21 +266,6 @@ export default function IntroSequence() {
           background:    'radial-gradient(ellipse at center, transparent 38%, rgba(0,0,0,0.40) 100%)',
           pointerEvents: 'none',
           zIndex:        3,
-        }}
-      />
-
-      {/* ── Entry wipe ───────────────────────────────────────────────── */}
-      <div
-        ref={wipeRef}
-        aria-hidden="true"
-        style={{
-          position:      'absolute',
-          inset:         0,
-          zIndex:        2,
-          background:    '#0A0908',
-          opacity:       1,
-          pointerEvents: 'none',
-          willChange:    'opacity',
         }}
       />
 
