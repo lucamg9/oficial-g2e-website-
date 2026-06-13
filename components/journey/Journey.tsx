@@ -2,23 +2,19 @@
 
 import { useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
-import { journey } from './journeyState'
+import { journey, SCENES } from './journeyState'
 import JourneyOverlay from './JourneyOverlay'
 
 /* Canvas is client-only WebGL — never SSR it. */
 const JourneyCanvas = dynamic(() => import('./JourneyCanvas'), { ssr: false })
 
 /* ──────────────────────────────────────────────────────────────
-   Journey — the scroll spine. A tall container defines the length
-   of the experience; one pinned layer holds the persistent canvas
-   and the text overlay. Scroll position → journey.target (0→1);
-   the scene smooths it into journey.progress each frame.
-
-   SCENES is the number of viewport-heights the journey spans.
-   Grows as scenes are added (currently hero + identity ≈ 2.5).
+   Journey — the scroll spine. A tall container (SCENES viewport-
+   heights, defined in journeyState) sets the length of the
+   experience; one pinned layer holds the persistent canvas and the
+   text overlay. Scroll position → journey.target (0→1); the scene
+   smooths it into journey.progress each frame.
    ────────────────────────────────────────────────────────────── */
-
-const SCENES = 2.5 // viewport-heights of scroll for the current scenes
 
 export default function Journey() {
   const containerRef = useRef<HTMLDivElement>(null)

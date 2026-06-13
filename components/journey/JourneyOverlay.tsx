@@ -21,6 +21,7 @@ function windowOpacity(k: number, edge = 0.18): number {
 export default function JourneyOverlay() {
   const heroRef     = useRef<HTMLDivElement>(null)
   const identityRef = useRef<HTMLDivElement>(null)
+  const whoRef      = useRef<HTMLDivElement>(null)
   const rafRef      = useRef<number>(0)
 
   useEffect(() => {
@@ -43,6 +44,15 @@ export default function JourneyOverlay() {
         const o = windowOpacity(k, 0.22)
         id.style.opacity = String(o)
         id.style.transform = `translateY(${(1 - o) * 18}px)`
+      }
+
+      // Beat 3 — who we are: resolves as the chunk drops away.
+      const who = whoRef.current
+      if (who) {
+        const k = beat(p, BEATS.whoweare[0], BEATS.whoweare[1])
+        const o = windowOpacity(k, 0.20)
+        who.style.opacity = String(o)
+        who.style.transform = `translateY(${(1 - o) * 20}px)`
       }
 
       rafRef.current = requestAnimationFrame(apply)
@@ -104,6 +114,35 @@ export default function JourneyOverlay() {
           color: 'var(--fg-secondary)', maxWidth: '34ch', marginTop: '20px',
         }}>
           A mineral-grade carbon material — born from organic waste.
+        </p>
+      </div>
+
+      {/* ── Beat 3 — Who we are ───────────────────────────────── */}
+      <div
+        ref={whoRef}
+        style={{
+          position: 'absolute', inset: 0, opacity: 0,
+          display: 'flex', flexDirection: 'column', justifyContent: 'center',
+          maxWidth: '760px',
+          padding: 'clamp(32px, 6vw, 96px)',
+          willChange: 'opacity, transform',
+        }}
+      >
+        <span className="g2e-eyebrow" style={{ marginBottom: '20px' }}>Who we are</span>
+        <h2 style={{
+          fontFamily: 'var(--font-display)', fontWeight: 600,
+          fontSize: 'clamp(1.9rem, 3.6vw, 3rem)', lineHeight: 1.1,
+          letterSpacing: '-0.015em', color: 'var(--forest)', margin: 0,
+        }}>
+          A Mexican company turning organic waste into useful resources.
+        </h2>
+        <p style={{
+          fontFamily: 'var(--font-sans)', fontWeight: 400,
+          fontSize: 'clamp(1rem, 1.4vw, 1.18rem)', lineHeight: 1.7,
+          color: 'var(--fg-secondary)', maxWidth: '52ch', marginTop: '24px',
+        }}>
+          We work with UNAM and the Mexico City government to develop technology
+          that transforms waste into fertilizers, clean fuel, and dignified jobs.
         </p>
       </div>
     </div>
