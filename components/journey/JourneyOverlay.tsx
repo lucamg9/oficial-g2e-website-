@@ -84,9 +84,10 @@ export default function JourneyOverlay() {
         ref={identityRef}
         style={{
           position: 'absolute', inset: 0, opacity: 0,
-          display: 'flex', flexDirection: 'column', justifyContent: 'center',
+          display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
           alignItems: 'center', textAlign: 'center',
           padding: 'clamp(24px, 5vw, 80px)',
+          paddingBottom: 'clamp(56px, 11vh, 130px)',
           willChange: 'opacity, transform',
         }}
       >
