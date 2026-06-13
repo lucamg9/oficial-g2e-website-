@@ -41,6 +41,14 @@ next-env.d.ts
 /design-system-zip/
 /design-skills.md
 
+# Reference material — large media, not part of the deployed site
+/Intro Animation/
+/Landing Page Story Structure/
+/Image Asset/
+/Reference Images - Color palette, typography, etc../
+/Data and Content - G2E Website copia.md
+/How It Works -> Section Animation/
+
 # macOS
 .DS_Store
 **/.DS_Store

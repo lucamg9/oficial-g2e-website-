@@ -149,7 +149,7 @@ export default function WhoWeAreSection() {
         width:      '100%',
         height:     '100vh',
         overflow:   'hidden',
-        background: '#090C08',
+        background: '#2E372A',
       }}
     >
 
@@ -176,7 +176,7 @@ export default function WhoWeAreSection() {
       <div aria-hidden="true" style={{
         position:      'absolute',
         inset:         0,
-        background:    'linear-gradient(to right, rgba(9,12,8,0.62) 0%, rgba(9,12,8,0.22) 48%, rgba(9,12,8,0.02) 100%)',
+        background:    'linear-gradient(to right, rgba(46,55,42,0.62) 0%, rgba(46,55,42,0.22) 48%, rgba(46,55,42,0.02) 100%)',
         zIndex:        1,
         pointerEvents: 'none',
       }} />
@@ -185,7 +185,7 @@ export default function WhoWeAreSection() {
         position:      'absolute',
         top:           0, left: 0, right: 0,
         height:        '14%',
-        background:    'linear-gradient(to top, transparent 0%, rgba(9,12,8,0.60) 100%)',
+        background:    'linear-gradient(to top, transparent 0%, rgba(46,55,42,0.60) 100%)',
         zIndex:        1,
         pointerEvents: 'none',
       }} />
@@ -194,7 +194,7 @@ export default function WhoWeAreSection() {
         position:      'absolute',
         bottom:        0, left: 0, right: 0,
         height:        '16%',
-        background:    'linear-gradient(to bottom, transparent 0%, rgba(9,12,8,0.75) 100%)',
+        background:    'linear-gradient(to bottom, transparent 0%, rgba(46,55,42,0.75) 100%)',
         zIndex:        1,
         pointerEvents: 'none',
       }} />
@@ -252,7 +252,7 @@ export default function WhoWeAreSection() {
                   }}>
                     {ch.eyebrow}
                   </span>
-                  <div style={{ height: '1px', width: '28px', background: 'rgba(197,106,56,0.35)' }} />
+                  <div style={{ height: '1px', width: '28px', background: 'rgba(122,143,90,0.35)' }} />
                   <span style={{
                     fontFamily:    'var(--font-mono)',
                     fontSize:      '10px',
@@ -271,7 +271,7 @@ export default function WhoWeAreSection() {
                   fontSize:      'clamp(2.2rem, 3.8vw, 3.8rem)',
                   lineHeight:    0.96,
                   letterSpacing: '-0.03em',
-                  color:         '#FFFFFF',
+                  color:         '#FAFAF7',
                   marginBottom:  '26px',
                   whiteSpace:    'pre-line',
                 }}>
@@ -309,11 +309,11 @@ export default function WhoWeAreSection() {
                         fontSize:       '14px',
                         fontWeight:     600,
                         background:     'var(--clay-500)',
-                        color:          '#FCFBF6',
+                        color:          '#FAFAF7',
                         padding:        '12px 22px',
                         borderRadius:   'var(--radius-pill)',
                         textDecoration: 'none',
-                        boxShadow:      '0 6px 24px -8px rgba(148,75,40,0.55)',
+                        boxShadow:      '0 6px 24px -8px rgba(73,85,61,0.55)',
                         transition:     'background 180ms',
                       }}
                       onMouseEnter={e => (e.currentTarget.style.background = 'var(--clay-600)')}
@@ -339,7 +339,7 @@ export default function WhoWeAreSection() {
                       }}
                       onMouseEnter={e => {
                         e.currentTarget.style.borderColor = 'rgba(245,243,238,0.45)'
-                        e.currentTarget.style.color = '#FFFFFF'
+                        e.currentTarget.style.color = '#FAFAF7'
                       }}
                       onMouseLeave={e => {
                         e.currentTarget.style.borderColor = 'rgba(245,243,238,0.18)'

@@ -1,347 +1,194 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useEffect } from 'react'
+import { motion } from 'framer-motion'
 
-gsap.registerPlugin(ScrollTrigger)
+/* ──────────────────────────────────────────────────────────────
+   HeroSection — clean static hero (replaces the scroll-scrubbed
+   intro). Stone Ivory canvas, Space Grotesk headline, framed real
+   photo. One calm entrance; no scroll scrubbing here.
+   Copy is the client-confirmed landing headline.
+   ────────────────────────────────────────────────────────────── */
 
 const STATS = [
-  { value: '3 t/hr',    label: 'Live throughput'      },
-  { value: '220°C',     label: 'Process temperature'  },
-  { value: 'World #1',  label: 'Largest HTC plant'    },
-  { value: 'Est. 2013', label: 'Bordo Poniente, CDMX' },
+  { value: '3 t/hr',    label: 'Live throughput'     },
+  { value: '220°C',     label: 'Process temperature' },
+  { value: "World's #1",label: 'Largest HTC plant'   },
+  { value: 'Est. 2013', label: 'Bordo Poniente, CDMX'},
 ]
 
+const TRUST = ['UNAM partner', 'Mexico City Government', 'Phase II · 2027']
+
+const ease = [0.22, 1, 0.36, 1] as const
+
 export default function HeroSection() {
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
-
+  /* Reveal the nav immediately — there is no longer an intro gate. */
   useEffect(() => {
-    const section = sectionRef.current
-    const content = contentRef.current
-    if (!section || !content) return
-
-    const children = Array.from(content.querySelectorAll<HTMLElement>('[data-reveal]'))
-
-    // Set initial hidden state for all content elements
-    children.forEach(child => {
-      gsap.set(child, { opacity: 0, y: 36 })
-    })
-
-    const ctx = gsap.context(() => {
-
-      // ── Section entrance ─────────────────────────────────────────────
-      // Rises from below with a scale + y scrub as it enters the viewport.
-      // Combined with zIndex: 10 on the section, this overlays the pinned
-      // IntroSequence video during the last portion of its scroll.
-      gsap.fromTo(section,
-        { y: 60, scale: 0.97 },
-        {
-          y: 0, scale: 1,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top bottom',   // section top hits viewport bottom
-            end:   'top 20%',      // section top is 20% from viewport top
-            scrub: 0.8,
-          },
-        }
-      )
-
-      // ── Content cascade ───────────────────────────────────────────────
-      // Fires once when section is comfortably in view.
-      ScrollTrigger.create({
-        trigger: section,
-        start:   'top 65%',
-        once:    true,
-        onEnter() {
-          gsap.to(children, {
-            opacity:  1,
-            y:        0,
-            duration: 0.9,
-            ease:     'power3.out',
-            stagger:  0.13,
-          })
-        },
-      })
-
-    }, section)
-
-    return () => ctx.revert()
+    window.dispatchEvent(new CustomEvent('g2e:hero-reveal'))
   }, [])
 
   return (
     <section
-      ref={sectionRef}
-      id="hero"
-      aria-label="G2E — From landfill to fuel"
+      id="intro"
+      aria-label="G2E — circular economy from organic waste"
       style={{
-        position:     'relative',
-        minHeight:    '100vh',
-        background:   'var(--bg-dark)',
-        display:      'flex',
-        flexDirection:'column',
-        justifyContent:'flex-end',
-        overflow:     'hidden',
-        zIndex:       10,                  // renders above GSAP-pinned IntroSequence
-        borderRadius: '20px 20px 0 0',    // card rising from below
-        willChange:   'transform',
+        position:      'relative',
+        minHeight:     '100vh',
+        display:       'flex',
+        alignItems:    'center',
+        background:    'var(--stone-ivory)',
+        paddingTop:    'calc(var(--nav-h) + 48px)',
+        paddingBottom: 'clamp(64px, 10vh, 120px)',
+        overflow:      'hidden',
       }}
     >
-      {/* ── Hero image ───────────────────────────────────────────────── */}
-      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-        <picture>
-          <source srcSet="/assets/hero-image.webp" type="image/webp" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/assets/hero-image.jpg"
-            alt=""
+      <div className="g2e-container g2e-hero-grid">
+        {/* ── Left: copy ─────────────────────────────────────── */}
+        <div>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease }}
+            style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px' }}
+          >
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--moss)', display: 'block' }} />
+            <span className="g2e-eyebrow">G2E · Green to Energy</span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease, delay: 0.05 }}
             style={{
-              width:          '100%',
-              height:         '100%',
-              objectFit:      'cover',
-              objectPosition: 'center 35%',
-              display:        'block',
-            }}
-          />
-        </picture>
-        {/* Dark tint */}
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,12,10,0.45)' }} />
-        {/* Bottom vignette — text legibility */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%',
-          background: 'linear-gradient(to bottom, rgba(10,12,10,0) 0%, rgba(10,12,10,0.94) 100%)',
-        }} />
-        {/* Left vignette */}
-        <div style={{
-          position: 'absolute', top: 0, bottom: 0, left: 0, width: '50%',
-          background: 'linear-gradient(to right, rgba(20,19,15,0.40) 0%, rgba(20,19,15,0) 100%)',
-        }} />
-      </div>
-
-      {/* ── Main content ─────────────────────────────────────────────── */}
-      <div
-        ref={contentRef}
-        className="g2e-container"
-        style={{
-          position:      'relative',
-          zIndex:        1,
-          paddingTop:    'calc(var(--nav-h) + var(--space-12))',
-          paddingBottom: 'var(--space-12)',
-          display:       'flex',
-          flexDirection: 'column',
-        }}
-      >
-        {/* Eyebrow */}
-        <div
-          data-reveal
-          style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: 'var(--space-5)' }}
-        >
-          <span style={{
-            fontFamily:    'var(--font-mono)',
-            fontSize:      'var(--text-2xs)',
-            letterSpacing: 'var(--ls-eyebrow)',
-            textTransform: 'uppercase',
-            color:         'rgba(245,243,238,0.70)',
-          }}>
-            G2E · Green to Energy
-          </span>
-          <div style={{ height: '1px', width: '28px', background: 'rgba(245,243,238,0.16)' }} />
-          <span style={{
-            fontFamily:    'var(--font-mono)',
-            fontSize:      'var(--text-2xs)',
-            letterSpacing: 'var(--ls-eyebrow)',
-            textTransform: 'uppercase',
-            color:         'rgba(245,243,238,0.40)',
-          }}>
-            Bordo Poniente · CDMX · Est. 2013
-          </span>
-        </div>
-
-        {/* Headline */}
-        <h1
-          data-reveal
-          style={{
-            fontFamily:    'var(--font-display)',
-            fontWeight:    800,
-            fontSize:      'clamp(3.2rem, 7vw, 7rem)',
-            lineHeight:    0.95,
-            letterSpacing: '-0.035em',
-            color:         '#FFFFFF',
-            maxWidth:      '760px',
-            marginBottom:  'var(--space-6)',
-          }}
-        >
-          From landfill<br />
-          to fuel.<br />
-          <span style={{ color: 'rgba(245,243,238,0.72)' }}>In hours.</span>
-        </h1>
-
-        {/* Lede */}
-        <p
-          data-reveal
-          style={{
-            fontFamily:   'var(--font-sans)',
-            fontWeight:   300,
-            fontSize:     'clamp(1rem, 1.5vw, 1.15rem)',
-            lineHeight:   1.72,
-            color:        'rgba(245,243,238,0.82)',
-            maxWidth:     '480px',
-            marginBottom: 'var(--space-8)',
-          }}
-        >
-          We collect organic waste from Mexico City and transform it into hydrochar —
-          a mineral-grade carbon material that replaces coal and regenerates soil.
-        </p>
-
-        {/* CTAs */}
-        <div
-          data-reveal
-          style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: 'var(--space-10)' }}
-        >
-          <a
-            href="#contact"
-            className="glass-btn"
-            style={{
-              display:        'inline-flex',
-              alignItems:     'center',
-              gap:            '10px',
-              fontFamily:     'var(--font-sans)',
-              fontSize:       '15px',
-              fontWeight:     500,
-              color:          '#FFFFFF',
-              padding:        '14px 24px',
-              textDecoration: 'none',
+              fontFamily:    'var(--font-display)',
+              fontWeight:    700,
+              fontSize:      'clamp(2.5rem, 5vw, 4.25rem)',
+              lineHeight:    1.05,
+              letterSpacing: '-0.02em',
+              color:         'var(--forest)',
+              maxWidth:      '14ch',
+              margin:        0,
             }}
           >
-            Join the mission
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
-            </svg>
-          </a>
+            Circular economy powered by one of the world&rsquo;s largest waste streams.
+          </motion.h1>
 
-          <a
-            href="#about"
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease, delay: 0.12 }}
             style={{
-              display:        'inline-flex',
-              alignItems:     'center',
-              gap:            '8px',
-              fontFamily:     'var(--font-sans)',
-              fontSize:       '14px',
-              fontWeight:     400,
-              color:          'rgba(245,243,238,0.62)',
-              padding:        '13px 20px',
-              borderRadius:   '999px',
-              border:         '1px solid rgba(245,243,238,0.18)',
-              textDecoration: 'none',
-              transition:     'border-color 200ms, color 200ms',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'rgba(245,243,238,0.42)'
-              e.currentTarget.style.color = '#FFFFFF'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'rgba(245,243,238,0.18)'
-              e.currentTarget.style.color = 'rgba(245,243,238,0.62)'
+              fontFamily:   'var(--font-sans)',
+              fontWeight:   400,
+              fontSize:     'clamp(1rem, 1.3vw, 1.125rem)',
+              lineHeight:   1.7,
+              color:        'var(--fg-secondary)',
+              maxWidth:     '46ch',
+              margin:       '28px 0 0',
             }}
           >
-            Who we are
-          </a>
-        </div>
+            We collect organic waste from Mexico City and transform it into hydrochar —
+            a mineral-grade carbon material that replaces mineral coal and regenerates soil.
+          </motion.p>
 
-        {/* Stat strip */}
-        <div
-          data-reveal
-          style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}
-        >
-          {STATS.map((stat) => (
-            <div
-              key={stat.value}
-              className="glass-card"
-              style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '110px' }}
+          {/* CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease, delay: 0.18 }}
+            style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginTop: '36px' }}
+          >
+            <a
+              href="#contact"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '10px',
+                fontFamily: 'var(--font-display)', fontSize: '15px', fontWeight: 600,
+                background: 'var(--forest)', color: 'var(--fog-white)',
+                padding: '14px 26px', borderRadius: 'var(--radius-sm)',
+                textDecoration: 'none', transition: 'background 200ms var(--ease-expo)',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--deep-moss)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'var(--forest)')}
             >
-              <span style={{
-                fontFamily:    'var(--font-display)',
-                fontWeight:    700,
-                fontSize:      'clamp(1.2rem, 2vw, 1.6rem)',
-                lineHeight:    1,
-                letterSpacing: '-0.025em',
-                color:         '#FFFFFF',
-              }}>
-                {stat.value}
+              Get in touch
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--moss)" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+            <a
+              href="#how-it-works"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                fontFamily: 'var(--font-display)', fontSize: '15px', fontWeight: 600,
+                color: 'var(--forest)', padding: '14px 22px',
+                borderRadius: 'var(--radius-sm)', border: '1px solid var(--limestone)',
+                textDecoration: 'none', transition: 'border-color 200ms, background 200ms',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--moss)'; e.currentTarget.style.background = 'var(--fog-white)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--limestone)'; e.currentTarget.style.background = 'transparent' }}
+            >
+              Discover the process
+            </a>
+          </motion.div>
+
+          {/* Trust line */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, ease, delay: 0.28 }}
+            style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginTop: '40px', paddingTop: '24px', borderTop: '1px solid var(--line)' }}
+          >
+            {TRUST.map((item, i) => (
+              <span key={item} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                {i > 0 && <span aria-hidden style={{ color: 'var(--ink-500)', opacity: 0.5 }}>·</span>}
+                <span className="g2e-eyebrow">{item}</span>
               </span>
-              <span style={{
-                fontFamily:    'var(--font-mono)',
-                fontSize:      '10px',
-                letterSpacing: '0.10em',
-                textTransform: 'uppercase',
-                color:         'rgba(245,243,238,0.60)',
-              }}>
-                {stat.label}
-              </span>
-            </div>
-          ))}
+            ))}
+          </motion.div>
         </div>
 
-        {/* Partnership line */}
-        <div
-          data-reveal
-          style={{
-            marginTop:    'var(--space-7)',
-            paddingTop:   'var(--space-5)',
-            borderTop:    '1px solid rgba(245,243,238,0.08)',
-            display:      'flex',
-            alignItems:   'center',
-            gap:          'var(--space-5)',
-            flexWrap:     'wrap',
-          }}
+        {/* ── Right: framed real photo + stats ───────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease, delay: 0.15 }}
+          style={{ position: 'relative' }}
         >
-          {['UNAM partner', 'Mexican Government', 'International partnerships', 'Phase II · 2027'].map((item, i) => (
-            <span key={i} style={{
-              fontFamily:    'var(--font-mono)',
-              fontSize:      'var(--text-2xs)',
-              letterSpacing: 'var(--ls-eyebrow)',
-              textTransform: 'uppercase',
-              color:         'rgba(245,243,238,0.42)',
-              display:       'flex',
-              alignItems:    'center',
-              gap:           'var(--space-5)',
-            }}>
-              {i > 0 && <span style={{ opacity: 0.3 }}>·</span>}
-              {item}
-            </span>
-          ))}
-        </div>
-      </div>
+          <div
+            style={{
+              position:     'relative',
+              aspectRatio:  '4 / 5',
+              borderRadius: 'var(--radius-2xl)',
+              overflow:     'hidden',
+              border:       '1px solid var(--limestone)',
+              boxShadow:    'var(--shadow-panel)',
+            }}
+          >
+            <picture>
+              <source srcSet="/assets/hero-image.webp" type="image/webp" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/assets/hero-image.jpg"
+                alt="G2E hydrothermal carbonization plant at Bordo Poniente, Mexico City"
+                loading="eager"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%', display: 'block' }}
+              />
+            </picture>
+            <div aria-hidden style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(46,55,42,0.55) 0%, rgba(46,55,42,0) 55%)' }} />
 
-      {/* ── Scroll indicator ─────────────────────────────────────────── */}
-      <div
-        aria-hidden="true"
-        style={{
-          position:      'absolute',
-          bottom:        '32px',
-          right:         'var(--container-pad)',
-          zIndex:        1,
-          display:       'flex',
-          flexDirection: 'column',
-          alignItems:    'center',
-          gap:           '8px',
-        }}
-      >
-        <span style={{
-          fontFamily:    'var(--font-mono)',
-          fontSize:      '10px',
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          color:         'rgba(245,243,238,0.20)',
-          writingMode:   'vertical-rl',
-        }}>
-          Scroll
-        </span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(245,243,238,0.20)" strokeWidth="1.5" strokeLinecap="round">
-          <path d="M12 5v14M5 12l7 7 7-7" />
-        </svg>
+            {/* Stat strip over the image */}
+            <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1px', background: 'rgba(250,250,247,0.12)' }}>
+              {STATS.map(stat => (
+                <div key={stat.label} style={{ padding: '16px 18px', background: 'rgba(46,55,42,0.30)', backdropFilter: 'blur(8px)' }}>
+                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.15rem', lineHeight: 1, letterSpacing: '-0.02em', color: 'var(--fog-white)' }}>
+                    {stat.value}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: '11px', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(250,250,247,0.72)', marginTop: '6px' }}>
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   )

@@ -236,7 +236,7 @@ export default function TimelineSection() {
               left:       'var(--spine-x, 20px)',
               width:      '2px',
               borderRadius: '999px',
-              background: 'linear-gradient(to bottom, transparent, rgba(15,61,46,0.14) 8%, rgba(15,61,46,0.14) 92%, transparent)',
+              background: 'linear-gradient(to bottom, transparent, rgba(73,85,61,0.14) 8%, rgba(73,85,61,0.14) 92%, transparent)',
               zIndex:     0,
             }}
           />
@@ -260,7 +260,7 @@ export default function TimelineSection() {
               width:  '100%',
               borderRadius: '999px',
               background: 'linear-gradient(to bottom, var(--forest-800), var(--forest-700) 45%, var(--clay-500) 90%, var(--clay-600))',
-              boxShadow:  '0 0 20px rgba(197,106,56,0.25)',
+              boxShadow:  '0 0 20px rgba(122,143,90,0.25)',
             }} />
 
             {/* Leading bloom dot */}
@@ -275,7 +275,7 @@ export default function TimelineSection() {
                 width:        '16px',
                 height:       '16px',
                 borderRadius: '50%',
-                background:   'radial-gradient(circle, var(--clay-500), rgba(197,106,56,0.5) 60%, transparent)',
+                background:   'radial-gradient(circle, var(--clay-500), rgba(122,143,90,0.5) 60%, transparent)',
                 boxShadow:    '0 0 12px var(--clay-500)',
               }}
             />
@@ -400,7 +400,7 @@ function MilestoneRow({
                 lineHeight:       1,
                 letterSpacing:    '-0.045em',
                 color:            'transparent',
-                WebkitTextStroke: `1.5px rgba(15,61,46,${0.12 + index * 0.05})`,
+                WebkitTextStroke: `1.5px rgba(73,85,61,${0.12 + index * 0.05})`,
                 userSelect:       'none',
               }}
             >
@@ -498,8 +498,8 @@ function NodeDot({
             inset:        0,
             borderRadius: '50%',
             background:   isCurrent
-              ? 'radial-gradient(circle, rgba(197,106,56,0.55), transparent 70%)'
-              : 'radial-gradient(circle, rgba(15,61,46,0.4), transparent 70%)',
+              ? 'radial-gradient(circle, rgba(122,143,90,0.55), transparent 70%)'
+              : 'radial-gradient(circle, rgba(73,85,61,0.4), transparent 70%)',
           }}
         />
 
@@ -517,9 +517,9 @@ function NodeDot({
                 : 'linear-gradient(135deg, var(--forest-800), var(--forest-700))',
             boxShadow:    active
               ? isCurrent
-                ? '0 0 0 5px rgba(197,106,56,0.18), 0 8px 24px -8px rgba(197,106,56,0.5)'
-                : '0 0 0 5px rgba(15,61,46,0.12), 0 8px 24px -8px rgba(15,61,46,0.4)'
-              : '0 4px 12px -4px rgba(15,61,46,0.3)',
+                ? '0 0 0 5px rgba(122,143,90,0.18), 0 8px 24px -8px rgba(122,143,90,0.5)'
+                : '0 0 0 5px rgba(73,85,61,0.12), 0 8px 24px -8px rgba(73,85,61,0.4)'
+              : '0 4px 12px -4px rgba(73,85,61,0.3)',
             border:       isFuture ? '2px solid var(--sand-300)' : 'none',
             outline:      '3px solid var(--cream-100)',
             outlineOffset: '1px',
@@ -562,8 +562,8 @@ function MilestoneCard({
   const cardBg = isFinal
     ? 'var(--forest-800)'
     : isCurrent
-      ? '#FFFFFF'
-      : '#FFFFFF'
+      ? '#FAFAF7'
+      : '#FAFAF7'
 
   const borderColor = isFinal
     ? 'rgba(245,243,238,0.10)'
@@ -583,7 +583,7 @@ function MilestoneCard({
         background:   cardBg,
         border:       `1px solid ${borderColor}`,
         boxShadow:    isFinal
-          ? '0 8px 32px -8px rgba(15,61,46,0.35), 0 32px 64px -24px rgba(15,61,46,0.25)'
+          ? '0 8px 32px -8px rgba(73,85,61,0.35), 0 32px 64px -24px rgba(73,85,61,0.25)'
           : '0 2px 8px rgba(22,25,15,0.04), 0 12px 32px -8px rgba(22,25,15,0.10)',
         textAlign:    alignRight ? 'right' : 'left',
       }}
@@ -625,7 +625,7 @@ function MilestoneCard({
             : isCurrent
               ? 'var(--clay-100)'
               : 'var(--oat-150)',
-          color:      isFinal ? '#FFFFFF' : isCurrent ? 'var(--clay-700)' : 'var(--forest-800)',
+          color:      isFinal ? '#FAFAF7' : isCurrent ? 'var(--clay-700)' : 'var(--forest-800)',
           border:     `1px solid ${isFinal ? 'rgba(245,243,238,0.18)' : isCurrent ? 'var(--clay-200)' : 'var(--sand-300)'}`,
         }}>
           <Icon size={18} strokeWidth={1.75} />
@@ -661,7 +661,7 @@ function MilestoneCard({
         fontSize:      'clamp(1.3rem, 2.2vw, 1.8rem)',
         lineHeight:    1.1,
         letterSpacing: '-0.025em',
-        color:         isFinal ? '#FFFFFF' : isFuture ? 'var(--ink-500)' : 'var(--ink-900)',
+        color:         isFinal ? '#FAFAF7' : isFuture ? 'var(--ink-500)' : 'var(--ink-900)',
         marginBottom:  '12px',
       }}>
         {milestone.title}
@@ -697,7 +697,7 @@ function MilestoneCard({
               fontSize:      'clamp(1.6rem, 2.5vw, 2.2rem)',
               lineHeight:    1,
               letterSpacing: '-0.04em',
-              color:         isFinal ? '#FFFFFF' : 'var(--forest-800)',
+              color:         isFinal ? '#FAFAF7' : 'var(--forest-800)',
             }}>
               {milestone.stat.value}
             </div>
@@ -728,8 +728,8 @@ function MilestoneCard({
           borderRadius:  '50%',
           filter:        'blur(48px)',
           background:    isFinal
-            ? 'radial-gradient(closest-side, rgba(197,106,56,0.7), transparent)'
-            : `radial-gradient(closest-side, rgba(15,61,46,${0.12 + intensity.glow * 0.2}), transparent)`,
+            ? 'radial-gradient(closest-side, rgba(122,143,90,0.7), transparent)'
+            : `radial-gradient(closest-side, rgba(73,85,61,${0.12 + intensity.glow * 0.2}), transparent)`,
           opacity:       0.55,
         }}
       />
@@ -739,7 +739,7 @@ function MilestoneCard({
 
 /* ─── CornerTicks ───────────────────────────────────────────────────────── */
 function CornerTicks({ dark }: { dark: boolean }) {
-  const c = dark ? 'rgba(245,243,238,0.22)' : 'rgba(15,61,46,0.22)'
+  const c = dark ? 'rgba(245,243,238,0.22)' : 'rgba(73,85,61,0.22)'
   const s: React.CSSProperties = { position: 'absolute', width: '10px', height: '10px' }
   return (
     <>

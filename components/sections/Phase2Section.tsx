@@ -301,7 +301,7 @@ export default function Phase2Section() {
           <div aria-hidden="true" style={{
             position:      'absolute',
             inset:         0,
-            background:    'radial-gradient(ellipse 70% 80% at 0% 50%, rgba(15,61,46,0.60) 0%, transparent 70%)',
+            background:    'radial-gradient(ellipse 70% 80% at 0% 50%, rgba(73,85,61,0.60) 0%, transparent 70%)',
             pointerEvents: 'none',
           }} />
 
@@ -314,7 +314,7 @@ export default function Phase2Section() {
                 fontSize:      'clamp(3rem, 7vw, 7rem)',
                 lineHeight:    0.94,
                 letterSpacing: '-0.04em',
-                color:         '#FFFFFF',
+                color:         '#FAFAF7',
                 margin:        '0 0 clamp(28px, 4vw, 48px)',
               }}
             >
@@ -353,7 +353,7 @@ export default function Phase2Section() {
               key={stat.value}
               ref={el => { statCardRefs.current[i] = el }}
               style={{
-                background:    '#FFFFFF',
+                background:    '#FAFAF7',
                 border:        '1px solid var(--sand-300)',
                 borderRadius:  '20px',
                 padding:       'clamp(24px, 3vw, 36px)',
@@ -557,11 +557,11 @@ export default function Phase2Section() {
                 fontSize:       '15px',
                 fontWeight:     600,
                 background:     'var(--clay-500)',
-                color:          '#FCFBF6',
+                color:          '#FAFAF7',
                 padding:        '14px 26px',
                 borderRadius:   '999px',
                 textDecoration: 'none',
-                boxShadow:      '0 6px 20px -8px rgba(148,75,40,0.50)',
+                boxShadow:      '0 6px 20px -8px rgba(73,85,61,0.50)',
                 transition:     'background 180ms',
               }}
               onMouseEnter={e => (e.currentTarget.style.background = 'var(--clay-600)')}
@@ -589,7 +589,7 @@ export default function Phase2Section() {
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.background = 'var(--forest-800)'
-                e.currentTarget.style.color = '#FCFBF6'
+                e.currentTarget.style.color = '#FAFAF7'
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.background = 'transparent'

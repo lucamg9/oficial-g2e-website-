@@ -1,4 +1,4 @@
-import IntroSequence      from '@/components/sections/IntroSequence'
+import HeroSection       from '@/components/sections/HeroSection'
 import WhoWeAreSection    from '@/components/sections/WhoWeAreSection'
 import TimelineSection    from '@/components/sections/TimelineSection'
 import HowItWorksSection  from '@/components/sections/HowItWorksSection'
@@ -10,25 +10,25 @@ export default function HomePage() {
   return (
     <>
       <SectionNav />
-      <IntroSequence />
+      <HeroSection />
       <WhoWeAreSection />
 
-      {/* Dark → Cream: WhoWeAreSection → TimelineSection */}
+      {/* Dark → Stone Ivory: WhoWeAreSection → TimelineSection */}
       <div aria-hidden="true" style={{
-        height:     '160px',
-        background: 'linear-gradient(to bottom, #090C08 0%, #F6F2E8 100%)',
-        marginTop:  '-1px',
+        height:       '160px',
+        background:   'linear-gradient(to bottom, #2E372A 0%, #F4F2ED 100%)',
+        marginTop:    '-1px',
         marginBottom: '-1px',
       }} />
 
       <TimelineSection />
       <Phase2Section />
 
-      {/* Cream → Dark: Phase2Section → HowItWorksSection */}
+      {/* Stone Ivory → Dark: Phase2Section → HowItWorksSection */}
       <div aria-hidden="true" style={{
-        height:     '160px',
-        background: 'linear-gradient(to bottom, #F6F2E8 0%, #0A0C0A 100%)',
-        marginTop:  '-1px',
+        height:       '160px',
+        background:   'linear-gradient(to bottom, #F4F2ED 0%, #2E372A 100%)',
+        marginTop:    '-1px',
         marginBottom: '-1px',
       }} />
 

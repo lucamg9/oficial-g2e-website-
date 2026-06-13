@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter, DM_Mono } from 'next/font/google'
+import { Inter, Space_Grotesk } from 'next/font/google'
 import { LenisProvider } from '@/lib/lenis-provider'
 import Nav from '@/components/layout/Nav'
 import Footer from '@/components/layout/Footer'
@@ -14,12 +14,11 @@ const inter = Inter({
   weight: ['300', '400', '500', '600'],
 })
 
-const dmMono = DM_Mono({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  variable: '--font-dm-mono',
+  variable: '--font-space-grotesk',
   display: 'swap',
-  weight: ['400', '500'],
-  style: ['normal'],
+  weight: ['400', '500', '600', '700'],
 })
 
 export const metadata: Metadata = {
@@ -59,7 +58,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${dmMono.variable}`}
+      className={`${inter.variable} ${spaceGrotesk.variable}`}
     >
       <body>
         <LenisProvider>

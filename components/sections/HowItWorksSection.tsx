@@ -201,7 +201,7 @@ export default function HowItWorksSection() {
 
       dotsRef.current.forEach((dot, i) => {
         if (!dot) return
-        dot.style.background = i === 0 ? '#4a8c5c' : 'rgba(245,243,238,0.20)'
+        dot.style.background = i === 0 ? '#7A8F5A' : 'rgba(245,243,238,0.20)'
         dot.style.transform  = i === 0 ? 'scaleY(2.8)' : 'scaleY(1)'
         dot.style.opacity    = i === 0 ? '1' : '0.38'
       })
@@ -249,7 +249,7 @@ export default function HowItWorksSection() {
           if (!dot) return
           const active    = i <= beatIdx
           const isCurrent = i === beatIdx
-          dot.style.background    = active ? '#4a8c5c' : 'rgba(245,243,238,0.20)'
+          dot.style.background    = active ? '#7A8F5A' : 'rgba(245,243,238,0.20)'
           dot.style.transform     = isCurrent ? 'scaleY(2.8)' : 'scaleY(1)'
           dot.style.opacity       = active ? '1' : '0.38'
         })
@@ -278,7 +278,7 @@ export default function HowItWorksSection() {
           top:        0,
           height:     '100vh',
           overflow:   'hidden',
-          background: '#0A0C0A',
+          background: '#2E372A',
         }}
       >
         {/* Video layers — stacked, scrubbed via currentTime, crossfaded via opacity */}
@@ -306,11 +306,11 @@ export default function HowItWorksSection() {
         {/* Cinematic vignettes */}
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, zIndex: 10, pointerEvents: 'none',
-          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.32) 100%)',
+          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(46,55,42,0.32) 100%)',
         }} />
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, zIndex: 10, pointerEvents: 'none',
-          background: 'linear-gradient(to bottom, rgba(10,12,10,0.20) 0%, rgba(10,12,10,0.55) 100%)',
+          background: 'linear-gradient(to bottom, rgba(46,55,42,0.20) 0%, rgba(46,55,42,0.55) 100%)',
         }} />
 
         {/* ── Top-left section identifier ──────────────────────────────── */}
@@ -353,7 +353,7 @@ export default function HowItWorksSection() {
                 width:           '3px',
                 height:          '14px',
                 borderRadius:    '99px',
-                background:      i === 0 ? '#4a8c5c' : 'rgba(245,243,238,0.20)',
+                background:      i === 0 ? '#7A8F5A' : 'rgba(245,243,238,0.20)',
                 transform:       i === 0 ? 'scaleY(2.8)' : 'scaleY(1)',
                 transition:      'background 380ms ease, transform 380ms cubic-bezier(0.34,1.56,0.64,1), opacity 380ms ease',
                 transformOrigin: 'center',
@@ -375,7 +375,7 @@ export default function HowItWorksSection() {
           zIndex:        20,
           padding:       'clamp(40px, 6vw, 80px) clamp(24px, 5vw, 80px) clamp(44px, 5vw, 68px)',
           paddingRight:  'clamp(80px, 14vw, 200px)',  /* clear the dot column */
-          background:    'linear-gradient(to top, rgba(10,12,10,0.96) 0%, rgba(10,12,10,0.70) 45%, transparent 100%)',
+          background:    'linear-gradient(to top, rgba(46,55,42,0.96) 0%, rgba(46,55,42,0.70) 45%, transparent 100%)',
           pointerEvents: 'none',
         }}>
 
@@ -439,7 +439,7 @@ export default function HowItWorksSection() {
             ref={progressRef}
             style={{
               height: '100%',
-              background: 'linear-gradient(to right, var(--forest-mid, #4a8c5c), #7ecf9a)',
+              background: 'linear-gradient(to right, var(--forest-mid, #7A8F5A), #AEB79D)',
               transformOrigin: 'left center',
               transform: 'scaleX(0)',
             }}

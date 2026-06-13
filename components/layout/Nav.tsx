@@ -31,12 +31,11 @@ export default function Nav() {
 
     gsap.set(header, { opacity: 0, y: -16 })
 
-    if (sessionStorage.getItem('g2e-intro-seen') || window.scrollY > window.innerHeight * 1.5) {
-      revealNav()
-    }
-
+    // No intro gate anymore — reveal on mount. Keep the listener as a fallback
+    // for the hero's dispatch and any deep-link entry.
     const onReveal = () => revealNav()
     window.addEventListener('g2e:hero-reveal', onReveal)
+    revealNav()
     return () => window.removeEventListener('g2e:hero-reveal', onReveal)
   }, [])
 
@@ -67,7 +66,7 @@ export default function Nav() {
           display:              'flex',
           alignItems:           'center',
           gap:                  '4px',
-          background:           `color-mix(in srgb, #FCFBF6 86%, transparent)`,
+          background:           `color-mix(in srgb, #FAFAF7 86%, transparent)`,
           backdropFilter:       'blur(14px)',
           WebkitBackdropFilter: 'blur(14px)',
           border:               '1px solid var(--sand-300)',
@@ -138,13 +137,13 @@ export default function Nav() {
             fontSize:       '14px',
             fontWeight:     600,
             background:     'var(--clay-500)',
-            color:          '#FCFBF6',
+            color:          '#FAFAF7',
             padding:        '10px 20px',
             borderRadius:   'var(--radius-pill)',
             textDecoration: 'none',
             flexShrink:     0,
             marginLeft:     '4px',
-            boxShadow:      '0 6px 20px -8px rgba(148,75,40,0.55)',
+            boxShadow:      '0 6px 20px -8px rgba(73,85,61,0.55)',
             transition:     'background 180ms var(--ease-expo)',
           }}
           onMouseEnter={e => (e.currentTarget.style.background = 'var(--clay-600)')}

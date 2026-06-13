@@ -1,70 +1,43 @@
 @import "tailwindcss";
 
 /* ============================================================
-   Tailwind v4 @theme — maps G2E design tokens to utilities
+   G2E DESIGN SYSTEM — SINGLE SOURCE OF TRUTH
+   The 7-color CLAUDE.md palette. Nothing else.
+   No clay/terracotta. No blues/oranges. No system-font display.
+   Fonts: Space Grotesk (display) + Inter (body).
+   Legacy token names are kept ONLY as aliases that resolve into
+   these 7 colors, so existing sections stay consistent.
    ============================================================ */
+
 @theme {
-  /* ---- Warm cream / oat (Daniel system) ---- */
-  --color-cream-50:  #FCFBF6;
-  --color-cream-100: #F6F2E8;
-  --color-oat-150:   #EFEADB;
-  --color-oat-200:   #E6DFCC;
-  --color-sand-300:  #D7CDB4;
+  /* ---- The 7 canonical colors ---- */
+  --color-moss:        #7A8F5A;  /* signature accent */
+  --color-sage-mist:   #AEB79D;  /* soft secondary surfaces */
+  --color-stone-ivory: #F4F2ED;  /* main canvas */
+  --color-limestone:   #D7D1C7;  /* borders, secondary UI */
+  --color-forest:      #2E372A;  /* text, headings, dark sections */
+  --color-deep-moss:   #49553D;  /* CTA bg, footer, nav states */
+  --color-fog-white:   #FAFAF7;  /* surfaces, text on dark */
 
-  /* ---- Legacy bone aliases (backward compat) ---- */
-  --color-bg:          #F6F2E8;
-  --color-bg-deep:     #EFEADB;
-  --color-bg-dark:     #0D0E0B;
-  --color-bg-dark-mid: #14130F;
+  /* ---- Tailwind utility aliases (so utility classes resolve too) ---- */
+  --color-bg:          #F4F2ED;
+  --color-bg-deep:     #EAE7DD;
+  --color-bg-dark:     #2E372A;
+  --color-bg-dark-mid: #232B20;
+  --color-forest-900:  #232B20;
+  --color-forest-800:  #2E372A;
+  --color-forest-700:  #3A4634;
+  --color-forest-600:  #49553D;
+  --color-moss-500:    #7A8F5A;
+  --color-sage:        #AEB79D;
+  --color-sand-300:    #D7CDB4;
+  --color-ink:         #2E372A;
+  --color-ink-inverse: #FAFAF7;
 
-  /* ---- Hydrochar (dark anchor) ---- */
-  --color-hc-900: #14130F;
-  --color-hc-700: #252318;
-  --color-hc-500: #3D3A2A;
-
-  /* ---- Forest greens (Daniel system) ---- */
-  --color-forest-900:  #0A2419;
-  --color-forest-800:  #0F3D2E;
-  --color-forest-700:  #16513D;
-  --color-forest-600:  #1F6B4A;
-  --color-forest-deep: #0F3D2E;
-  --color-forest-mid:  #16513D;
-  --color-forest-light:#1F6B4A;
-  --color-moss-500:    #4E7A5E;
-  --color-sage:        #A9BBA3;
-  --color-moss-pale:   #CAD6C2;
-
-  /* ---- Clay / terracotta (Daniel system — the warm accent) ---- */
-  --color-clay-700:  #944B28;
-  --color-clay-600:  #B05A30;
-  --color-clay-500:  #C56A38;
-  --color-ochre-400: #D89A52;
-  --color-clay-200:  #E9CCB1;
-  --color-clay-100:  #F3E3D3;
-
-  /* ---- Ink (Daniel system) ---- */
-  --color-ink:         #1A1712;
-  --color-ink-muted:   #564F41;
-  --color-ink-subtle:  #756C5A;
-  --color-ink-inverse: #F2EFE6;
-
-  /* ---- Legacy bone (backward compat) ---- */
-  --color-bone-50:       #FCFBF6;
-  --color-bone-100:      #F6F2E8;
-  --color-bone-200:      #EFEADB;
-  --color-bone-300:      #D7CDB4;
-  --color-hydrochar-900: #14130F;
-  --color-hydrochar-800: #1C1B15;
-  --color-hydrochar-700: #252318;
-  --color-hydrochar-600: #3D3A2A;
-  --color-moss-400:      #A9BBA3;
-  --color-moss-600:      #16513D;
-  --color-moss-700:      #0F3D2E;
-
-  /* ---- Fonts — system stack, zero download ---- */
-  --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --font-sans:    var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-  --font-mono:    var(--font-dm-mono), ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  /* ---- Fonts ---- */
+  --font-display: var(--font-space-grotesk), 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
 
   /* ---- Radius ---- */
   --radius-xs:   4px;
@@ -76,11 +49,11 @@
   --radius-3xl:  40px;
   --radius-pill: 999px;
 
-  /* ---- Shadows (warm-toned) ---- */
-  --shadow-card:  0 1px 2px rgba(22,25,15,0.05), 0 8px 24px -8px rgba(22,25,15,0.08);
-  --shadow-panel: 0 2px 8px rgba(22,25,15,0.06), 0 24px 48px -16px rgba(22,25,15,0.14);
-  --shadow-pop:   0 4px 12px rgba(22,25,15,0.08), 0 32px 64px -16px rgba(22,25,15,0.20);
-  --shadow-glass: 0 10px 40px -8px rgba(28,42,30,0.18);
+  /* ---- Shadows (warm-toned, derived from Forest Shadow) ---- */
+  --shadow-card:  0 1px 2px rgba(46,55,42,0.05), 0 8px 24px -8px rgba(46,55,42,0.08);
+  --shadow-panel: 0 2px 8px rgba(46,55,42,0.06), 0 24px 48px -16px rgba(46,55,42,0.14);
+  --shadow-pop:   0 4px 12px rgba(46,55,42,0.08), 0 32px 64px -16px rgba(46,55,42,0.20);
+  --shadow-glass: 0 10px 40px -8px rgba(46,55,42,0.18);
 
   /* ---- Easing ---- */
   --ease-expo:  cubic-bezier(0.22, 1, 0.36, 1);
@@ -88,119 +61,128 @@
 }
 
 /* ============================================================
-   G2E Design System — CSS Custom Properties (Daniel system)
+   CSS Custom Properties — all derived from the 7 colors
    ============================================================ */
 :root {
-  /* --- Warm cream / oat palette ---- */
-  --cream-50:   #FCFBF6;
-  --cream-100:  #F6F2E8;
-  --oat-150:    #EFEADB;
-  --oat-200:    #E6DFCC;
-  --sand-300:   #D7CDB4;
-  --taupe-400:  #B4A988;
-  --taupe-500:  #8A7F64;
+  /* ---- The 7 canonical colors ---- */
+  --moss:        #7A8F5A;
+  --sage-mist:   #AEB79D;
+  --stone-ivory: #F4F2ED;
+  --limestone:   #D7D1C7;
+  --forest:      #2E372A;
+  --deep-moss:   #49553D;
+  --fog-white:   #FAFAF7;
 
-  /* --- Biochar ink (warm near-black) ---- */
-  --ink-900:    #1A1712;
-  --ink-800:    #231F18;
-  --ink-700:    #3A352B;
-  --ink-600:    #564F41;
-  --ink-500:    #756C5A;
+  /* ---- Warm neutral ramp (ivory → limestone tints, on-brand) ---- */
+  --cream-50:   #FAFAF7;
+  --cream-100:  #F4F2ED;
+  --oat-150:    #EDEAE1;
+  --oat-200:    #E3DED2;
+  --sand-300:   #D7D1C7;
+  --taupe-400:  #C4BCAE;
+  --taupe-500:  #AEB79D;
 
-  /* --- Deep forest green (Daniel anchor) --- */
-  --forest-900: #0A2419;
-  --forest-800: #0F3D2E;
-  --forest-700: #16513D;
-  --forest-600: #1F6B4A;
-  --moss-500:   #4E7A5E;
-  --sage-300:   #A9BBA3;
-  --sage-200:   #CAD6C2;
+  /* ---- Ink / text (all Forest Shadow + alpha) ---- */
+  --ink-900:    #2E372A;
+  --ink-800:    #2E372A;
+  --ink-700:    #3A4634;
+  --ink-600:    rgba(46,55,42,0.72);
+  --ink-500:    rgba(46,55,42,0.55);
 
-  /* --- Clay / terracotta (warm CTA accent) --- */
-  --clay-700:   #944B28;
-  --clay-600:   #B05A30;
-  --clay-500:   #C56A38;
-  --ochre-400:  #D89A52;
-  --clay-200:   #E9CCB1;
-  --clay-100:   #F3E3D3;
+  /* ---- Greens ---- */
+  --forest-900: #232B20;
+  --forest-800: #2E372A;
+  --forest-700: #3A4634;
+  --forest-600: #49553D;
+  --moss-500:   #7A8F5A;
+  --sage-300:   #AEB79D;
+  --sage-200:   #C8CFBB;
 
-  /* --- Legacy aliases (backward compat) --- */
-  --bone-50:       #FCFBF6;
-  --bone-100:      #F6F2E8;
-  --bone-200:      #EFEADB;
-  --bone-300:      #D7CDB4;
-  --hydrochar-900: #14130F;
-  --hydrochar-800: #1C1B15;
-  --hydrochar-700: #252318;
-  --hydrochar-600: #3D3A2A;
-  --forest-deep:   #0F3D2E;
-  --forest-mid:    #16513D;
-  --forest-light:  #1F6B4A;
-  --sage:          #A9BBA3;
-  --moss-pale:     #CAD6C2;
+  /* ---- Accent = Moss Green (replaces all former clay/terracotta) ---- */
+  --clay-700:   #5E7044;
+  --clay-600:   #6B7E4F;
+  --clay-500:   #7A8F5A;
+  --ochre-400:  #AEB79D;
+  --clay-200:   #C8CFBB;
+  --clay-100:   #DCE2D2;
 
-  /* --- Semantic tokens --- */
-  --bg:            var(--cream-100);
-  --bg-elevated:   var(--cream-50);
+  /* ---- Legacy aliases (backward compat — all resolve to the 7) ---- */
+  --bone-50:       #FAFAF7;
+  --bone-100:      #F4F2ED;
+  --bone-200:      #EDEAE1;
+  --bone-300:      #D7D1C7;
+  --hydrochar-900: #2E372A;
+  --hydrochar-800: #313B2D;
+  --hydrochar-700: #3A4634;
+  --hydrochar-600: #49553D;
+  --forest-deep:   #2E372A;
+  --forest-mid:    #3A4634;
+  --forest-light:  #49553D;
+  --sage:          #AEB79D;
+  --moss-pale:     #C8CFBB;
+
+  /* ---- Semantic tokens ---- */
+  --bg:            var(--stone-ivory);
+  --bg-elevated:   var(--fog-white);
   --bg-deep:       var(--oat-150);
-  --bg-dark:       #0D0E0B;
-  --bg-dark-mid:   #14130F;
-  --surface:       #FFFFFF;
+  --bg-dark:       #2E372A;
+  --bg-dark-mid:   #232B20;
+  --surface:       var(--fog-white);
   --surface-2:     var(--oat-150);
   --surface-warm:  var(--oat-200);
-  --surface-anchor:var(--forest-800);
+  --surface-anchor:var(--forest);
 
-  --border:        var(--sand-300);
+  --border:        var(--limestone);
   --border-strong: var(--taupe-400);
-  --border-faint:  rgba(215,205,180,0.5);
+  --border-faint:  rgba(215,209,199,0.5);
 
-  --fg:            var(--ink-900);
+  --fg:            var(--forest);
   --fg-secondary:  var(--ink-600);
   --fg-muted:      var(--ink-500);
-  --fg-on-dark:    #F2EFE6;
-  --fg-on-dark-muted: #A6B0A0;
+  --fg-on-dark:    var(--fog-white);
+  --fg-on-dark-muted: rgba(250,250,247,0.62);
 
-  --brand:         var(--forest-800);
+  --brand:         var(--forest);
   --brand-strong:  var(--forest-900);
-  --accent:        var(--clay-500);
-  --on-accent:     #FCFBF6;
-  --on-brand:      #F2EFE6;
+  --accent:        var(--moss);
+  --on-accent:     var(--fog-white);
+  --on-brand:      var(--fog-white);
 
-  /* --- Semantic ink (legacy names kept) --- */
-  --ink:               var(--ink-900);
+  /* ---- Semantic ink (legacy names kept) ---- */
+  --ink:               var(--forest);
   --ink-muted:         var(--ink-600);
   --ink-subtle:        var(--ink-500);
-  --ink-inverse:       #F2EFE6;
-  --ink-muted-inverse: rgba(242,239,230,0.55);
-  --ink-faint-inverse: rgba(242,239,230,0.30);
+  --ink-inverse:       var(--fog-white);
+  --ink-muted-inverse: rgba(250,250,247,0.58);
+  --ink-faint-inverse: rgba(250,250,247,0.32);
 
-  /* --- Lines --- */
-  --line:         rgba(26,23,18,0.08);
-  --line-strong:  rgba(26,23,18,0.16);
-  --line-inv:     rgba(242,239,230,0.08);
-  --line-inv-str: rgba(242,239,230,0.18);
+  /* ---- Lines ---- */
+  --line:         rgba(46,55,42,0.08);
+  --line-strong:  rgba(46,55,42,0.16);
+  --line-inv:     rgba(250,250,247,0.10);
+  --line-inv-str: rgba(250,250,247,0.20);
 
-  /* --- Glassmorphism system --- */
+  /* ---- Glassmorphism ---- */
   --glass-bg:       rgba(255,255,255,0.10);
   --glass-bg-hover: rgba(255,255,255,0.18);
-  --glass-blur:     blur(20px) saturate(160%);
+  --glass-blur:     blur(20px) saturate(150%);
   --glass-border:   rgba(255,255,255,0.22);
   --glass-border-t: rgba(255,255,255,0.42);
-  --glass-shadow:   0 10px 40px -8px rgba(28,42,30,0.18), inset 0 1px 0 rgba(255,255,255,0.22);
-  --glass-panel-bg: rgba(246,242,232,0.82);
+  --glass-shadow:   0 10px 40px -8px rgba(46,55,42,0.18), inset 0 1px 0 rgba(255,255,255,0.22);
+  --glass-panel-bg: rgba(244,242,237,0.82);
   --glass-panel-blur: blur(24px) saturate(140%);
 
-  /* --- Typography — system stack (zero download) --- */
-  --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --font-sans:    var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-  --font-mono:    var(--font-dm-mono), ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  /* ---- Typography — Space Grotesk + Inter ---- */
+  --font-display: var(--font-space-grotesk), 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
 
   --fw-light:    300;
   --fw-regular:  400;
   --fw-medium:   500;
   --fw-semibold: 600;
   --fw-bold:     700;
-  --fw-extrabold:800;
+  --fw-extrabold:700;
 
   /* Type scale */
   --text-3xs: 0.6875rem;
@@ -216,36 +198,36 @@
   --text-5xl: clamp(3.5rem, 6vw + 1rem, 5.5rem);
   --text-6xl: clamp(4.5rem, 9vw + 1rem, 8rem);
 
-  /* Line heights */
-  --lh-tight: 0.96;
+  /* Line heights (CLAUDE.md) */
+  --lh-tight: 1.05;
   --lh-snug:  1.10;
   --lh-base:  1.45;
-  --lh-loose: 1.65;
+  --lh-loose: 1.70;
 
-  /* Letter spacing */
-  --ls-display: -0.030em;
+  /* Letter spacing (CLAUDE.md) */
+  --ls-display: -0.020em;
   --ls-tight:   -0.015em;
   --ls-normal:   0em;
   --ls-eyebrow:  0.14em;
   --ls-mono:     0.03em;
 
-  /* --- Spacing scale --- */
+  /* ---- Spacing scale ---- */
   --space-1:   4px;  --space-2:   8px;  --space-3:  12px;
   --space-4:  16px;  --space-5:  24px;  --space-6:  32px;
   --space-7:  48px;  --space-8:  64px;  --space-9:  80px;
   --space-10: 96px;  --space-12: 128px; --space-16: 192px;
 
-  /* --- Radius --- */
+  /* ---- Radius ---- */
   --radius-xs:   4px;  --radius-sm:   8px;  --radius-md:  12px;
   --radius-lg:  16px;  --radius-xl:  20px;  --radius-2xl: 28px;
   --radius-3xl: 40px;  --radius-pill: 999px;
 
-  /* --- Shadows --- */
-  --shadow-card:  0 1px 2px rgba(20,19,15,0.04), 0 8px 24px -8px rgba(20,19,15,0.08);
-  --shadow-panel: 0 2px 4px rgba(20,19,15,0.06), 0 24px 48px -16px rgba(20,19,15,0.18);
-  --shadow-pop:   0 4px 12px rgba(20,19,15,0.10), 0 32px 64px -16px rgba(20,19,15,0.22);
+  /* ---- Shadows ---- */
+  --shadow-card:  0 1px 2px rgba(46,55,42,0.04), 0 8px 24px -8px rgba(46,55,42,0.08);
+  --shadow-panel: 0 2px 4px rgba(46,55,42,0.06), 0 24px 48px -16px rgba(46,55,42,0.18);
+  --shadow-pop:   0 4px 12px rgba(46,55,42,0.10), 0 32px 64px -16px rgba(46,55,42,0.22);
 
-  /* --- Motion --- */
+  /* ---- Motion ---- */
   --ease-expo:   cubic-bezier(0.22, 1, 0.36, 1);
   --ease-quart:  cubic-bezier(0.25, 1, 0.5, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
@@ -253,9 +235,9 @@
   --dur-base:    320ms;
   --dur-slow:    600ms;
 
-  /* --- Layout --- */
-  --container-max: 1440px;
-  --container-pad: clamp(24px, 4vw, 64px);
+  /* ---- Layout ---- */
+  --container-max: 1200px;
+  --container-pad: clamp(24px, 4vw, 80px);
   --nav-h: 72px;
 }
 
@@ -264,13 +246,11 @@
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; }
 
-html {
-  scroll-behavior: auto; /* Lenis handles smooth scroll */
-}
+html { scroll-behavior: auto; /* Lenis handles smooth scroll */ }
 
 html, body {
   background: var(--bg);
-  color: var(--ink);
+  color: var(--fg);
   font-family: var(--font-sans);
   font-size: var(--text-md);
   line-height: var(--lh-base);
@@ -281,23 +261,18 @@ html, body {
   overflow-x: hidden;
 }
 
-::selection { background: var(--hydrochar-900); color: var(--bone-100); }
+::selection { background: var(--forest); color: var(--fog-white); }
 
 /* ============================================================
-   Typography utility classes
-   Display = system grotesque 700/800. No serif. No italic as primary.
+   Typography utility classes — Space Grotesk display, Inter body
    ============================================================ */
-
-/* Hero / full-bleed display */
 .g2e-display {
   font-family: var(--font-display);
-  font-weight: var(--fw-extrabold);
+  font-weight: var(--fw-bold);
   font-size: var(--text-6xl);
   line-height: var(--lh-tight);
   letter-spacing: var(--ls-display);
 }
-
-/* Section headline */
 .g2e-h1 {
   font-family: var(--font-display);
   font-weight: var(--fw-bold);
@@ -305,17 +280,13 @@ html, body {
   line-height: var(--lh-tight);
   letter-spacing: var(--ls-display);
 }
-
-/* Sub-section headline */
 .g2e-h2 {
   font-family: var(--font-display);
-  font-weight: var(--fw-bold);
+  font-weight: var(--fw-semibold);
   font-size: var(--text-4xl);
   line-height: var(--lh-snug);
   letter-spacing: var(--ls-display);
 }
-
-/* Card / panel headline */
 .g2e-h3 {
   font-family: var(--font-display);
   font-weight: var(--fw-semibold);
@@ -323,16 +294,12 @@ html, body {
   line-height: var(--lh-snug);
   letter-spacing: var(--ls-tight);
 }
-
-/* Intro / lede paragraph */
 .g2e-lede {
   font-family: var(--font-sans);
   font-weight: var(--fw-light);
   font-size: var(--text-lg);
   line-height: var(--lh-loose);
 }
-
-/* Body copy */
 .g2e-body {
   font-family: var(--font-sans);
   font-weight: var(--fw-regular);
@@ -340,8 +307,6 @@ html, body {
   line-height: var(--lh-loose);
   text-wrap: pretty;
 }
-
-/* Small supporting text */
 .g2e-caption {
   font-family: var(--font-sans);
   font-weight: var(--fw-regular);
@@ -349,11 +314,10 @@ html, body {
   line-height: var(--lh-base);
   color: var(--ink-muted);
 }
-
-/* Section label / eyebrow — always mono uppercase */
+/* Section label / eyebrow — Inter uppercase, tracked */
 .g2e-eyebrow {
-  font-family: var(--font-mono);
-  font-weight: var(--fw-regular);
+  font-family: var(--font-sans);
+  font-weight: var(--fw-medium);
   font-size: var(--text-2xs);
   line-height: 1;
   letter-spacing: var(--ls-eyebrow);
@@ -379,9 +343,8 @@ html, body {
 .glass-btn:hover {
   background: var(--glass-bg-hover);
   border-color: rgba(255,255,255,0.34);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.35);
+  box-shadow: 0 12px 40px rgba(46,55,42,0.18), inset 0 1px 0 rgba(255,255,255,0.35);
 }
-
 .glass-card {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
@@ -395,14 +358,13 @@ html, body {
   background: var(--glass-bg-hover);
   transform: translateY(-2px);
 }
-
 .glass-panel {
   background: var(--glass-panel-bg);
   backdrop-filter: var(--glass-panel-blur);
   -webkit-backdrop-filter: var(--glass-panel-blur);
   border: 1px solid rgba(255,255,255,0.30);
   border-radius: var(--radius-2xl);
-  box-shadow: 0 16px 48px rgba(0,0,0,0.06);
+  box-shadow: 0 16px 48px rgba(46,55,42,0.06);
 }
 
 /* ============================================================
@@ -413,6 +375,17 @@ html, body {
   max-width: var(--container-max);
   margin-inline: auto;
   padding-inline: var(--container-pad);
+}
+
+/* Hero split layout — collapses to single column on tablet/mobile */
+.g2e-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(32px, 5vw, 80px);
+  align-items: center;
+}
+@media (max-width: 900px) {
+  .g2e-hero-grid { grid-template-columns: 1fr; gap: 48px; }
 }
 
 /* ============================================================

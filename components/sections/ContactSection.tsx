@@ -132,7 +132,7 @@ export default function ContactSection() {
               style={{
                 position:   'absolute',
                 inset:      0,
-                background: 'linear-gradient(to bottom, rgba(10,12,10,0.30) 0%, rgba(10,12,10,0.82) 55%)',
+                background: 'linear-gradient(to bottom, rgba(46,55,42,0.30) 0%, rgba(46,55,42,0.82) 55%)',
               }}
             />
 

@@ -1,0 +1,12 @@
+# Raw source asset folders — not needed for deployment
+Intro Animation/
+How It Works -> Section Animation/
+Landing Page Story Structure/
+Reference Images - Color palette, typography, etc../
+G2E - Team Images/
+Hero Image/
+daniel-design-system/
+
+# Dev files
+node_modules/
+.git/

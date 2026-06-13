@@ -103,7 +103,7 @@ export default function SectionNav() {
         }}
       >
         <div style={{
-          background:   'rgba(12,14,12,0.92)',
+          background:   'rgba(46,55,42,0.92)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
           border:       '1px solid rgba(245,243,238,0.10)',
@@ -113,7 +113,7 @@ export default function SectionNav() {
           flexDirection:'column',
           gap:          '2px',
           minWidth:     '164px',
-          boxShadow:    '0 8px 32px rgba(0,0,0,0.40)',
+          boxShadow:    '0 8px 32px rgba(46,55,42,0.40)',
         }}>
           {SECTIONS.map((s, i) => {
             const isActive = active === i
@@ -147,7 +147,7 @@ export default function SectionNav() {
                   height:     '5px',
                   borderRadius: '50%',
                   flexShrink: 0,
-                  background:   isActive ? 'var(--clay-500, #C5682E)' : 'rgba(245,243,238,0.22)',
+                  background:   isActive ? 'var(--clay-500, #7A8F5A)' : 'rgba(245,243,238,0.22)',
                   transition:  'background 200ms',
                 }} />
                 <span style={{
@@ -155,7 +155,7 @@ export default function SectionNav() {
                   fontSize:      '11px',
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
-                  color:         isActive ? '#F5F3EE' : 'rgba(245,243,238,0.50)',
+                  color:         isActive ? '#FAFAF7' : 'rgba(245,243,238,0.50)',
                   transition:    'color 200ms',
                 }}>
                   {s.label}
@@ -177,20 +177,20 @@ export default function SectionNav() {
           padding:        '9px 14px 9px 12px',
           borderRadius:   '999px',
           border:         '1px solid rgba(245,243,238,0.14)',
-          background:     'rgba(12,14,12,0.88)',
+          background:     'rgba(46,55,42,0.88)',
           backdropFilter: 'blur(14px)',
           WebkitBackdropFilter: 'blur(14px)',
           cursor:         'pointer',
-          boxShadow:      '0 4px 20px rgba(0,0,0,0.32)',
+          boxShadow:      '0 4px 20px rgba(46,55,42,0.32)',
           transition:     'border-color 200ms, background 200ms',
         }}
         onMouseEnter={e => {
           e.currentTarget.style.borderColor = 'rgba(245,243,238,0.28)'
-          e.currentTarget.style.background  = 'rgba(20,22,20,0.92)'
+          e.currentTarget.style.background  = 'rgba(46,55,42,0.92)'
         }}
         onMouseLeave={e => {
           e.currentTarget.style.borderColor = 'rgba(245,243,238,0.14)'
-          e.currentTarget.style.background  = 'rgba(12,14,12,0.88)'
+          e.currentTarget.style.background  = 'rgba(46,55,42,0.88)'
         }}
       >
         {/* List icon */}
@@ -198,9 +198,9 @@ export default function SectionNav() {
           width="14" height="12" viewBox="0 0 14 12" fill="none"
           style={{ flexShrink: 0, opacity: open ? 0.9 : 0.65, transition: 'opacity 200ms' }}
         >
-          <rect x="0" y="0"   width="14" height="2" rx="1" fill="#F5F3EE" />
-          <rect x="0" y="5"   width="10" height="2" rx="1" fill="#F5F3EE" />
-          <rect x="0" y="10"  width="6"  height="2" rx="1" fill="#F5F3EE" />
+          <rect x="0" y="0"   width="14" height="2" rx="1" fill="#FAFAF7" />
+          <rect x="0" y="5"   width="10" height="2" rx="1" fill="#FAFAF7" />
+          <rect x="0" y="10"  width="6"  height="2" rx="1" fill="#FAFAF7" />
         </svg>
 
         <span style={{
