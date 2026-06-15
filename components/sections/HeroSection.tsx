@@ -1,342 +1,194 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
+import Image from 'next/image'
+import { motion } from 'framer-motion'
 
-const STATS = [
-  { value: "3 t/hr",    label: "Live throughput"          },
-  { value: "220°C",     label: "Process temperature"      },
-  { value: "World #1",  label: "Largest HTC plant"        },
-  { value: "Est. 2013", label: "Bordo Poniente, CDMX"     },
-]
+/* ──────────────────────────────────────────────────────────────
+   HeroSection — the "carbon" split layout.
+   Left:  minimal, dominant copy (real G2E landing message).
+   Right: the hydrochar itself, presented as a single framed
+          editorial photograph floating on the Stone Ivory canvas
+          with a deep, soft shadow so it reads as a real object
+          held above the page. A small spec chip overlaps the
+          frame for layered depth (inspiration only — real data:
+          220°C, zero CO₂ emissions, from the process brief).
+   Palette + fonts: the site's 7-color system, Space Grotesk +
+   Inter. Nothing outside the system.
+   ────────────────────────────────────────────────────────────── */
+
+const ease = [0.22, 1, 0.36, 1] as const
 
 export default function HeroSection() {
-  const contentRef = useRef<HTMLDivElement>(null)
-
   useEffect(() => {
-    const el = contentRef.current
-    if (!el) return
-    const children = Array.from(el.querySelectorAll<HTMLElement>('[data-reveal]'))
-    children.forEach((child, i) => {
-      child.style.opacity = '0'
-      child.style.transform = 'translateY(20px)'
-      setTimeout(() => {
-        child.style.transition = `opacity 800ms var(--ease-expo) ${i * 100}ms, transform 800ms var(--ease-expo) ${i * 100}ms`
-        child.style.opacity = '1'
-        child.style.transform = 'translateY(0)'
-      }, 200)
-    })
+    // No intro gate — reveal the nav as soon as the hero mounts.
+    window.dispatchEvent(new CustomEvent('g2e:hero-reveal'))
   }, [])
 
   return (
     <section
       id="intro"
-      aria-label="G2E — From landfill to fuel"
+      aria-label="G2E — circular economy from organic waste"
       style={{
-        position: 'relative',
-        minHeight: '100vh',
-        background: 'var(--bg-dark)',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-        overflow: 'hidden',
+        position:      'relative',
+        minHeight:     '100vh',
+        display:       'flex',
+        alignItems:    'center',
+        background:    'var(--stone-ivory)',
+        paddingTop:    'calc(var(--nav-h) + 48px)',
+        paddingBottom: 'clamp(64px, 10vh, 120px)',
+        overflow:      'hidden',
       }}
     >
-      {/* ── Hero image — Iztaccíhuatl & Popocatépetl with G2E mark ────── */}
-      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-        <picture>
-          <source srcSet="/assets/hero-image.webp" type="image/webp" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/assets/hero-image.jpg"
-            alt=""
-            style={{
-              width:          '100%',
-              height:         '100%',
-              objectFit:      'cover',
-              objectPosition: 'center 35%',
-            }}
-          />
-        </picture>
-        {/* Dark tint — keeps sky readable while mountains breathe */}
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,12,10,0.38)' }} />
-        {/* Bottom vignette for text legibility */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0, left: 0, right: 0,
-            height: '55%',
-            background: 'linear-gradient(to bottom, rgba(20,19,15,0) 0%, rgba(20,19,15,0.88) 100%)',
-          }}
-        />
-        {/* Left vignette — grounds the text column */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0, bottom: 0, left: 0,
-            width: '50%',
-            background: 'linear-gradient(to right, rgba(20,19,15,0.40) 0%, rgba(20,19,15,0) 100%)',
-          }}
-        />
-      </div>
+      <div className="g2e-container g2e-hero-grid">
+        {/* ── Left: minimal, dominant copy ───────────────────── */}
+        <div>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease }}
+            style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}
+          >
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--moss)', display: 'block' }} />
+            <span className="g2e-eyebrow">G2E · Green to Energy</span>
+          </motion.div>
 
-
-      {/* ── Main content ─────────────────────────────────────────────── */}
-      <div
-        className="g2e-container"
-        ref={contentRef}
-        style={{
-          position: 'relative',
-          zIndex: 1,
-          paddingTop: 'calc(var(--nav-h) + var(--space-12))',
-          paddingBottom: 'var(--space-10)',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        {/* Eyebrow */}
-        <div
-          data-reveal
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: 'var(--space-5)',
-          }}
-        >
-          <span
+          <motion.h1
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease, delay: 0.05 }}
             style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: 'var(--text-2xs)',
-              letterSpacing: 'var(--ls-eyebrow)',
-              textTransform: 'uppercase',
-              color: 'rgba(245,243,238,0.38)',
+              fontFamily:    'var(--font-display)',
+              fontWeight:    700,
+              fontSize:      'clamp(2.6rem, 5vw, 4.5rem)',
+              lineHeight:    1.04,
+              letterSpacing: '-0.025em',
+              color:         'var(--forest)',
+              maxWidth:      '15ch',
+              margin:        0,
             }}
           >
-            G2E — Green to Energy
-          </span>
-          <div style={{ height: '1px', width: '28px', background: 'rgba(245,243,238,0.16)' }} />
-          <span
+            Circular economy, powered by one of the world&rsquo;s largest{' '}
+            <span style={{ color: 'var(--moss)' }}>waste streams.</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease, delay: 0.14 }}
+            className="g2e-lede"
             style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: 'var(--text-2xs)',
-              letterSpacing: 'var(--ls-eyebrow)',
-              textTransform: 'uppercase',
-              color: 'rgba(245,243,238,0.28)',
+              color:      'var(--fg-secondary)',
+              maxWidth:   '46ch',
+              marginTop:  '28px',
             }}
           >
-            Bordo Poniente · CDMX · Est. 2013
-          </span>
-        </div>
+            We collect organic waste from Mexico City and transform it into
+            hydrochar — a mineral-grade carbon material that replaces mineral coal.
+          </motion.p>
 
-        {/* Headline — Syne 800, mission-first */}
-        <h1
-          data-reveal
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontWeight: 800,
-            fontSize: 'var(--text-6xl)',
-            lineHeight: 0.95,
-            letterSpacing: '-0.03em',
-            color: '#FFFFFF',
-            maxWidth: '720px',
-            marginBottom: 'var(--space-6)',
-          }}
-        >
-          From landfill<br />to fuel.<br />
-          <span style={{ color: 'rgba(245,243,238,0.55)' }}>In hours.</span>
-        </h1>
-
-        {/* Lede */}
-        <p
-          data-reveal
-          style={{
-            fontFamily: 'var(--font-sans)',
-            fontWeight: 300,
-            fontSize: 'var(--text-lg)',
-            lineHeight: 'var(--lh-loose)',
-            color: 'rgba(245,243,238,0.65)',
-            maxWidth: '480px',
-            marginBottom: 'var(--space-8)',
-          }}
-        >
-          We collect organic waste from Mexico City and transform it into hydrochar —
-          a mineral-grade carbon material that replaces coal and regenerates soil.
-        </p>
-
-        {/* CTAs */}
-        <div
-          data-reveal
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            flexWrap: 'wrap',
-            marginBottom: 'var(--space-12)',
-          }}
-        >
-          {/* Primary — glass CTA */}
-          <a
-            href="#contact"
-            className="glass-btn"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '10px',
-              fontFamily: 'var(--font-sans)',
-              fontSize: '15px',
-              fontWeight: 500,
-              color: '#FFFFFF',
-              padding: '14px 24px',
-              textDecoration: 'none',
-            }}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease, delay: 0.22 }}
+            style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginTop: '40px' }}
           >
-            Join the mission
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
-            </svg>
-          </a>
-
-          {/* Secondary — ghost outline */}
-          <a
-            href="#process"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              fontFamily: 'var(--font-sans)',
-              fontSize: '14px',
-              fontWeight: 400,
-              color: 'rgba(245,243,238,0.65)',
-              padding: '13px 20px',
-              borderRadius: '999px',
-              border: '1px solid rgba(245,243,238,0.18)',
-              textDecoration: 'none',
-              transition: 'border-color 200ms var(--ease-expo), color 200ms var(--ease-expo)',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'rgba(245,243,238,0.42)'
-              e.currentTarget.style.color = '#FFFFFF'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'rgba(245,243,238,0.18)'
-              e.currentTarget.style.color = 'rgba(245,243,238,0.65)'
-            }}
-          >
-            See how it works
-          </a>
-        </div>
-
-        {/* ── Glassmorphism stat strip ─────────────────────────────────── */}
-        <div
-          data-reveal
-          style={{
-            display: 'flex',
-            gap: '10px',
-            flexWrap: 'wrap',
-          }}
-        >
-          {STATS.map((stat) => (
-            <div
-              key={stat.value}
-              className="glass-card"
+            <a
+              href="#contact"
               style={{
-                padding: '16px 20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '4px',
-                minWidth: '110px',
+                display: 'inline-flex', alignItems: 'center', gap: '10px',
+                fontFamily: 'var(--font-display)', fontSize: '15px', fontWeight: 600,
+                background: 'var(--forest)', color: 'var(--fog-white)',
+                padding: '15px 28px', borderRadius: 'var(--radius-sm)',
+                textDecoration: 'none', transition: 'background 200ms var(--ease-expo)',
               }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--deep-moss)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'var(--forest)')}
             >
-              <span
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontWeight: 700,
-                  fontSize: 'clamp(1.25rem, 2vw, 1.75rem)',
-                  lineHeight: 1,
-                  letterSpacing: '-0.025em',
-                  color: '#FFFFFF',
-                }}
-              >
-                {stat.value}
-              </span>
-              <span
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '10px',
-                  letterSpacing: '0.10em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(245,243,238,0.48)',
-                }}
-              >
-                {stat.label}
-              </span>
-            </div>
-          ))}
+              Get in touch
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--moss)" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+            <a
+              href="#how-it-works"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                fontFamily: 'var(--font-display)', fontSize: '15px', fontWeight: 600,
+                color: 'var(--forest)', padding: '15px 22px',
+                borderRadius: 'var(--radius-sm)', border: '1px solid var(--limestone)',
+                textDecoration: 'none', transition: 'border-color 200ms, background 200ms',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--moss)'; e.currentTarget.style.background = 'var(--fog-white)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--limestone)'; e.currentTarget.style.background = 'transparent' }}
+            >
+              Discover the process
+            </a>
+          </motion.div>
         </div>
 
-        {/* Partnership credibility line */}
-        <div
-          data-reveal
-          style={{
-            marginTop: 'var(--space-7)',
-            paddingTop: 'var(--space-5)',
-            borderTop: '1px solid rgba(245,243,238,0.08)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-5)',
-            flexWrap: 'wrap',
-          }}
+        {/* ── Right: the hydrochar — framed photo, floating high ─ */}
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 1.0, ease, delay: 0.2 }}
+          style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}
         >
-          {['UNAM partner', 'Mexican Government', 'International partnerships', 'Phase II · 2027'].map((item, i) => (
-            <span
-              key={i}
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: 'var(--text-2xs)',
-                letterSpacing: 'var(--ls-eyebrow)',
-                textTransform: 'uppercase',
-                color: 'rgba(245,243,238,0.28)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-5)',
-              }}
-            >
-              {i > 0 && <span style={{ opacity: 0.3 }}>·</span>}
-              {item}
+          {/* The framed photo card. The deep, layered shadow lifts it
+              off the canvas so there is visible space behind it. */}
+          <div
+            style={{
+              position:     'relative',
+              width:        '100%',
+              maxWidth:     '420px',
+              aspectRatio:  '4 / 5',
+              borderRadius: '24px',
+              overflow:     'hidden',
+              background:   'var(--fog-white)',
+              border:       '1px solid var(--limestone)',
+              boxShadow:    '0 2px 6px rgba(46,55,42,0.06), 0 18px 36px -12px rgba(46,55,42,0.20), 0 48px 90px -28px rgba(46,55,42,0.42)',
+            }}
+          >
+            <Image
+              src="/assets/generated/hydrochar-hero.png"
+              alt="A chunk of hydrochar — the mineral-grade carbon material G2E produces from organic waste — resting on a stone surface beside sage-green ceramics."
+              fill
+              priority
+              sizes="(max-width: 900px) 80vw, 420px"
+              style={{ objectFit: 'cover' }}
+            />
+          </div>
+
+          {/* Floating spec chip — layered depth, real process data. */}
+          <div
+            style={{
+              position:      'absolute',
+              left:          'clamp(-8px, 2vw, 24px)',
+              bottom:        '28px',
+              display:       'flex',
+              flexDirection: 'column',
+              gap:           '2px',
+              padding:       '14px 18px',
+              borderRadius:  'var(--radius-lg)',
+              background:    'var(--glass-panel-bg)',
+              backdropFilter:'var(--glass-panel-blur)',
+              WebkitBackdropFilter: 'var(--glass-panel-blur)',
+              border:        '1px solid rgba(255,255,255,0.5)',
+              boxShadow:     '0 16px 40px -12px rgba(46,55,42,0.28)',
+            }}
+          >
+            <span style={{
+              fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '17px',
+              letterSpacing: '-0.01em', color: 'var(--forest)', lineHeight: 1.1,
+            }}>
+              Hydrochar
             </span>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Scroll indicator ─────────────────────────────────────────── */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          bottom: '32px',
-          right: 'var(--container-pad)',
-          zIndex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '8px',
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '10px',
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            color: 'rgba(245,243,238,0.22)',
-            writingMode: 'vertical-rl',
-          }}
-        >
-          Scroll
-        </span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(245,243,238,0.22)" strokeWidth="1.5" strokeLinecap="round">
-          <path d="M12 5v14M5 12l7 7 7-7" />
-        </svg>
+            <span style={{
+              fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: '11px',
+              letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--moss)',
+            }}>
+              220°C · Zero CO₂ emissions
+            </span>
+          </div>
+        </motion.div>
       </div>
     </section>
   )
