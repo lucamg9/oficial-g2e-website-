@@ -60,16 +60,16 @@ export default function HeroSection() {
             style={{
               fontFamily:    'var(--font-display)',
               fontWeight:    700,
-              fontSize:      'clamp(2.6rem, 5vw, 4.5rem)',
-              lineHeight:    1.04,
-              letterSpacing: '-0.025em',
+              fontSize:      'clamp(3.2rem, 6.5vw, 5.5rem)',
+              lineHeight:    1.0,
+              letterSpacing: '-0.03em',
               color:         'var(--forest)',
-              maxWidth:      '15ch',
+              maxWidth:      '12ch',
               margin:        0,
             }}
           >
-            Circular economy, powered by one of the world&rsquo;s largest{' '}
-            <span style={{ color: 'var(--moss)' }}>waste streams.</span>
+            Waste becomes{' '}
+            <span style={{ color: 'var(--moss)' }}>carbon.</span>
           </motion.h1>
 
           <motion.p
@@ -132,29 +132,52 @@ export default function HeroSection() {
           transition={{ duration: 1.0, ease, delay: 0.2 }}
           style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}
         >
-          {/* The framed photo card. The deep, layered shadow lifts it
-              off the canvas so there is visible space behind it. */}
+          {/* Soft surface card. The deep, layered shadow lifts it off the
+              canvas so there is visible space behind it. The real
+              biocharcoal sits inside as a clean cut-out, grounded by its
+              own contact shadow. */}
           <div
             style={{
               position:     'relative',
               width:        '100%',
-              maxWidth:     '420px',
+              maxWidth:     '440px',
               aspectRatio:  '4 / 5',
               borderRadius: '24px',
               overflow:     'hidden',
-              background:   'var(--fog-white)',
+              background:   'radial-gradient(120% 90% at 50% 28%, var(--fog-white) 0%, var(--cream-100) 55%, var(--oat-150) 100%)',
               border:       '1px solid var(--limestone)',
               boxShadow:    '0 2px 6px rgba(46,55,42,0.06), 0 18px 36px -12px rgba(46,55,42,0.20), 0 48px 90px -28px rgba(46,55,42,0.42)',
             }}
           >
-            <Image
-              src="/assets/generated/hydrochar-hero.png"
-              alt="A chunk of hydrochar — the mineral-grade carbon material G2E produces from organic waste — resting on a stone surface beside sage-green ceramics."
-              fill
-              priority
-              sizes="(max-width: 900px) 80vw, 420px"
-              style={{ objectFit: 'cover' }}
-            />
+            <div
+              style={{
+                position: 'absolute',
+                inset:    0,
+                display:  'flex',
+                alignItems:     'center',
+                justifyContent: 'center',
+                paddingTop:    'clamp(28px, 6%, 48px)',
+                paddingInline: 'clamp(20px, 5%, 36px)',
+                paddingBottom: 'clamp(72px, 18%, 104px)',
+              }}
+            >
+              <Image
+                src="/assets/generated/biochar-clean.png"
+                alt="A piece of biocharcoal — the carbon-rich material G2E produces from Mexico City's organic waste."
+                width={440}
+                height={440}
+                priority
+                sizes="(max-width: 900px) 70vw, 360px"
+                style={{
+                  width:     '100%',
+                  height:    '100%',
+                  objectFit: 'contain',
+                  // Grounded contact shadow so the cut-out reads as a real
+                  // object resting on the surface, not a pasted sticker.
+                  filter: 'drop-shadow(0 26px 26px rgba(46,55,42,0.30))',
+                }}
+              />
+            </div>
           </div>
 
           {/* Floating spec chip — layered depth, real process data. */}
