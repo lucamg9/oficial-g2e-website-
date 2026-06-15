@@ -2,42 +2,26 @@
 
 import { useEffect } from 'react'
 import dynamic from 'next/dynamic'
-import Image from 'next/image'
 import { motion } from 'framer-motion'
 import CursorReveal from '@/components/ui/CursorReveal'
 
 /* ──────────────────────────────────────────────────────────────
    HeroSection — the "carbon" split layout.
    Left:  minimal, dominant copy (real G2E landing message).
-   Right: the real biochar — rendered live as a 3D model on a very
-          slow rotation (HydrocharCanvas / biochar.glb), floating on
-          a soft card surface. A spec chip overlaps the card for
-          layered depth (real data: 220°C, zero CO₂ emissions).
+   Right: the real biochar — a live 3D model on a very slow rotation.
+          It is rendered by HydrocharJourney on a fixed layer so it
+          can travel into the next section on scroll; the hero only
+          reserves an invisible anchor (#hydrochar-anchor) for it.
    Easter egg: a cornfield image peeks through a small gooey bubble
-          that follows the cursor (CursorReveal) — the soil/crop
-          payoff of what the carbon ultimately feeds.
+          that follows the cursor (CursorReveal).
    Palette + fonts: the site's 7-color system, Space Grotesk +
    Inter. Nothing outside the system.
    ────────────────────────────────────────────────────────────── */
 
-// Lazy, client-only — keeps the ~11MB GLB + R3F bundle out of first
-// paint. The PNG below renders instantly as the fallback.
-const HydrocharCanvas = dynamic(() => import('@/components/3d/HydrocharCanvas'), {
+// The travelling biochar lives on its own fixed layer (lazy, client
+// only) so it can move across the hero→Who-We-Are boundary.
+const HydrocharJourney = dynamic(() => import('@/components/3d/HydrocharJourney'), {
   ssr: false,
-  loading: () => (
-    <Image
-      src="/assets/generated/biochar-clean.png"
-      alt="A piece of biocharcoal — the carbon-rich material G2E produces from organic waste."
-      width={440}
-      height={440}
-      priority
-      sizes="(max-width: 900px) 70vw, 360px"
-      style={{
-        width: '100%', height: '100%', objectFit: 'contain',
-        filter: 'drop-shadow(0 26px 26px rgba(46,55,42,0.30))',
-      }}
-    />
-  ),
 })
 
 const ease = [0.22, 1, 0.36, 1] as const
@@ -67,6 +51,11 @@ export default function HeroSection() {
           Sits behind all content so it reveals in the negative space
           and softly behind the text/card. */}
       <CursorReveal src="/assets/generated/cornfield.webp" radius={150} trail={5} />
+
+      {/* The biochar lives here, on a fixed layer, so it can travel into
+          the next section on scroll. Direct child of the section (no
+          transformed ancestor) so position:fixed maps to the viewport. */}
+      <HydrocharJourney />
 
       <div
         className="g2e-container g2e-hero-grid"
@@ -175,10 +164,13 @@ export default function HeroSection() {
             gap:           '0px',
           }}
         >
-          {/* The hydrochar floats directly on the page — no frame. Its
-              live 3D contact shadow grounds it, as if resting on an unseen
-              pale floor. */}
+          {/* Invisible anchor — reserves the biochar's resting footprint.
+              HydrocharJourney renders the live, slowly-rotating 3D model on
+              a fixed layer aligned to this box, then scrubs it into the
+              next section on scroll. */}
           <div
+            id="hydrochar-anchor"
+            aria-hidden="true"
             style={{
               position:    'relative',
               zIndex:      1,
@@ -186,18 +178,15 @@ export default function HeroSection() {
               maxWidth:    '540px',
               aspectRatio: '1 / 1',
             }}
-          >
-            {/* Live, slowly-rotating 3D biochar (lazy). The PNG fallback
-                renders instantly via the dynamic() loading state above. */}
-            <HydrocharCanvas />
-          </div>
+          />
 
-          {/* Spec section — pulled up to overlap the canvas so the carbon's
-              contact shadow runs softly behind it, never abruptly cut. */}
+          {/* Spec section — pulled up to overlap the biochar so its contact
+              shadow runs softly behind it, never abruptly cut. Sits above
+              the fixed biochar layer (z-index) to preserve that overlap. */}
           <div
             style={{
               position:     'relative',
-              zIndex:       2,
+              zIndex:       3,
               marginTop:    '-44px',
               width:        '100%',
               maxWidth:     '500px',

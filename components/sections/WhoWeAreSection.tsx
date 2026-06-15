@@ -146,6 +146,10 @@ export default function WhoWeAreSection() {
       aria-label="Who we are"
       style={{
         position:   'relative',
+        // Above the hero's fixed biochar layer (z-index 2) so this opaque
+        // section rises over the descending piece — the "sun behind the
+        // mountains" — as it scrolls in.
+        zIndex:     5,
         width:      '100%',
         height:     '100vh',
         overflow:   'hidden',
