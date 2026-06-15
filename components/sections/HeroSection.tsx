@@ -1,21 +1,44 @@
 'use client'
 
 import { useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
+import CursorReveal from '@/components/ui/CursorReveal'
 
 /* ──────────────────────────────────────────────────────────────
    HeroSection — the "carbon" split layout.
    Left:  minimal, dominant copy (real G2E landing message).
-   Right: the hydrochar itself, presented as a single framed
-          editorial photograph floating on the Stone Ivory canvas
-          with a deep, soft shadow so it reads as a real object
-          held above the page. A small spec chip overlaps the
-          frame for layered depth (inspiration only — real data:
-          220°C, zero CO₂ emissions, from the process brief).
+   Right: the real biochar — rendered live as a 3D model on a very
+          slow rotation (HydrocharCanvas / biochar.glb), floating on
+          a soft card surface. A spec chip overlaps the card for
+          layered depth (real data: 220°C, zero CO₂ emissions).
+   Easter egg: a cornfield image peeks through a small gooey bubble
+          that follows the cursor (CursorReveal) — the soil/crop
+          payoff of what the carbon ultimately feeds.
    Palette + fonts: the site's 7-color system, Space Grotesk +
    Inter. Nothing outside the system.
    ────────────────────────────────────────────────────────────── */
+
+// Lazy, client-only — keeps the ~11MB GLB + R3F bundle out of first
+// paint. The PNG below renders instantly as the fallback.
+const HydrocharCanvas = dynamic(() => import('@/components/3d/HydrocharCanvas'), {
+  ssr: false,
+  loading: () => (
+    <Image
+      src="/assets/generated/biochar-clean.png"
+      alt="A piece of biocharcoal — the carbon-rich material G2E produces from organic waste."
+      width={440}
+      height={440}
+      priority
+      sizes="(max-width: 900px) 70vw, 360px"
+      style={{
+        width: '100%', height: '100%', objectFit: 'contain',
+        filter: 'drop-shadow(0 26px 26px rgba(46,55,42,0.30))',
+      }}
+    />
+  ),
+})
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -40,19 +63,17 @@ export default function HeroSection() {
         overflow:      'hidden',
       }}
     >
-      <div className="g2e-container g2e-hero-grid">
+      {/* Cornfield peeking through a gooey bubble around the cursor.
+          Sits behind all content so it reveals in the negative space
+          and softly behind the text/card. */}
+      <CursorReveal src="/assets/generated/cornfield.webp" radius={150} trail={5} />
+
+      <div
+        className="g2e-container g2e-hero-grid"
+        style={{ position: 'relative', zIndex: 1 }}
+      >
         {/* ── Left: minimal, dominant copy ───────────────────── */}
         <div>
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease }}
-            style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}
-          >
-            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--moss)', display: 'block' }} />
-            <span className="g2e-eyebrow">G2E · Green to Energy</span>
-          </motion.div>
-
           <motion.h1
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
@@ -100,10 +121,11 @@ export default function HeroSection() {
                 fontFamily: 'var(--font-display)', fontSize: '15px', fontWeight: 600,
                 background: 'var(--forest)', color: 'var(--fog-white)',
                 padding: '15px 28px', borderRadius: 'var(--radius-sm)',
-                textDecoration: 'none', transition: 'background 200ms var(--ease-expo)',
+                textDecoration: 'none', transition: 'background 200ms var(--ease-expo), box-shadow 200ms var(--ease-expo), transform 200ms var(--ease-expo)',
+                boxShadow: '0 10px 24px -10px rgba(46,55,42,0.45)',
               }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'var(--deep-moss)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'var(--forest)')}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--deep-moss)'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 16px 30px -12px rgba(46,55,42,0.5)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'var(--forest)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 24px -10px rgba(46,55,42,0.45)' }}
             >
               Get in touch
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--moss)" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
@@ -123,96 +145,142 @@ export default function HeroSection() {
               Discover the process
             </a>
           </motion.div>
+
+          {/* Credibility line — real, factual (from the project brief). */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease, delay: 0.3 }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap',
+              marginTop: '44px', paddingTop: '24px', borderTop: '1px solid var(--line)',
+            }}
+          >
+            <span className="g2e-eyebrow">World&rsquo;s largest hydrothermal carbonization plant</span>
+            <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'var(--limestone)' }} />
+            <span className="g2e-eyebrow" style={{ color: 'var(--fg-muted)' }}>Mexico City</span>
+          </motion.div>
         </div>
 
-        {/* ── Right: the hydrochar — framed photo, floating high ─ */}
+        {/* ── Right: the hydrochar — live 3D + spec section ────── */}
         <motion.div
           initial={{ opacity: 0, y: 24, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 1.0, ease, delay: 0.2 }}
-          style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}
+          style={{
+            position:      'relative',
+            display:       'flex',
+            flexDirection: 'column',
+            alignItems:    'center',
+            gap:           '0px',
+          }}
         >
-          {/* Soft surface card. The deep, layered shadow lifts it off the
-              canvas so there is visible space behind it. The real
-              biocharcoal sits inside as a clean cut-out, grounded by its
-              own contact shadow. */}
+          {/* The hydrochar floats directly on the page — no frame. Its
+              live 3D contact shadow grounds it, as if resting on an unseen
+              pale floor. */}
+          <div
+            style={{
+              position:    'relative',
+              zIndex:      1,
+              width:       '100%',
+              maxWidth:    '540px',
+              aspectRatio: '1 / 1',
+            }}
+          >
+            {/* Live, slowly-rotating 3D biochar (lazy). The PNG fallback
+                renders instantly via the dynamic() loading state above. */}
+            <HydrocharCanvas />
+          </div>
+
+          {/* Spec section — pulled up to overlap the canvas so the carbon's
+              contact shadow runs softly behind it, never abruptly cut. */}
           <div
             style={{
               position:     'relative',
+              zIndex:       2,
+              marginTop:    '-44px',
               width:        '100%',
-              maxWidth:     '440px',
-              aspectRatio:  '4 / 5',
-              borderRadius: '24px',
-              overflow:     'hidden',
-              background:   'radial-gradient(120% 90% at 50% 28%, var(--fog-white) 0%, var(--cream-100) 55%, var(--oat-150) 100%)',
+              maxWidth:     '500px',
+              display:      'flex',
+              alignItems:   'stretch',
+              gap:          '14px',
+              padding:      '18px 22px',
+              borderRadius: 'var(--radius-lg)',
+              background:   'var(--fog-white)',
               border:       '1px solid var(--limestone)',
-              boxShadow:    '0 2px 6px rgba(46,55,42,0.06), 0 18px 36px -12px rgba(46,55,42,0.20), 0 48px 90px -28px rgba(46,55,42,0.42)',
+              boxShadow:    'var(--shadow-card)',
             }}
           >
-            <div
-              style={{
-                position: 'absolute',
-                inset:    0,
-                display:  'flex',
-                alignItems:     'center',
-                justifyContent: 'center',
-                paddingTop:    'clamp(28px, 6%, 48px)',
-                paddingInline: 'clamp(20px, 5%, 36px)',
-                paddingBottom: 'clamp(72px, 18%, 104px)',
-              }}
-            >
-              <Image
-                src="/assets/generated/biochar-clean.png"
-                alt="A piece of biocharcoal — the carbon-rich material G2E produces from Mexico City's organic waste."
-                width={440}
-                height={440}
-                priority
-                sizes="(max-width: 900px) 70vw, 360px"
-                style={{
-                  width:     '100%',
-                  height:    '100%',
-                  objectFit: 'contain',
-                  // Grounded contact shadow so the cut-out reads as a real
-                  // object resting on the surface, not a pasted sticker.
-                  filter: 'drop-shadow(0 26px 26px rgba(46,55,42,0.30))',
-                }}
-              />
+            {/* Identity */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', paddingRight: '6px' }}>
+              <span style={{
+                fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '19px',
+                letterSpacing: '-0.01em', color: 'var(--forest)', lineHeight: 1.05,
+              }}>
+                Hydrochar
+              </span>
+              <span style={{
+                fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: '11px',
+                letterSpacing: '0.04em', color: 'var(--moss)', whiteSpace: 'nowrap',
+              }}>
+                Mineral-grade carbon
+              </span>
             </div>
-          </div>
 
-          {/* Floating spec chip — layered depth, real process data. */}
-          <div
-            style={{
-              position:      'absolute',
-              left:          'clamp(-8px, 2vw, 24px)',
-              bottom:        '28px',
-              display:       'flex',
-              flexDirection: 'column',
-              gap:           '2px',
-              padding:       '14px 18px',
-              borderRadius:  'var(--radius-lg)',
-              background:    'var(--glass-panel-bg)',
-              backdropFilter:'var(--glass-panel-blur)',
-              WebkitBackdropFilter: 'var(--glass-panel-blur)',
-              border:        '1px solid rgba(255,255,255,0.5)',
-              boxShadow:     '0 16px 40px -12px rgba(46,55,42,0.28)',
-            }}
-          >
-            <span style={{
-              fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '17px',
-              letterSpacing: '-0.01em', color: 'var(--forest)', lineHeight: 1.1,
-            }}>
-              Hydrochar
-            </span>
-            <span style={{
-              fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: '11px',
-              letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--moss)',
-            }}>
-              220°C · Zero CO₂ emissions
-            </span>
+            {/* Data points */}
+            {[
+              { value: '220°C', label: 'Process temp' },
+              { value: 'Zero',  label: 'CO₂ emissions' },
+              { value: 'Coal',  label: 'Replaces' },
+            ].map((d) => (
+              <div
+                key={d.label}
+                style={{
+                  flex: 1,
+                  display: 'flex', flexDirection: 'column', gap: '3px',
+                  paddingLeft: '14px',
+                  borderLeft: '1px solid var(--line)',
+                }}
+              >
+                <span style={{
+                  fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '16px',
+                  letterSpacing: '-0.01em', color: 'var(--forest)', lineHeight: 1.05,
+                }}>
+                  {d.value}
+                </span>
+                <span style={{
+                  fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: '10px',
+                  letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--fg-muted)',
+                  lineHeight: 1.2,
+                }}>
+                  {d.label}
+                </span>
+              </div>
+            ))}
           </div>
         </motion.div>
       </div>
+
+      {/* Subtle scroll cue — editorial, bottom-left. */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, ease, delay: 0.6 }}
+        aria-hidden="true"
+        style={{
+          position: 'absolute', bottom: '28px', left: 'var(--container-pad)', zIndex: 1,
+          display: 'flex', alignItems: 'center', gap: '12px',
+        }}
+      >
+        <span style={{
+          fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: '11px',
+          letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--fg-muted)',
+        }}>
+          Scroll to explore
+        </span>
+        <span style={{ width: '46px', height: '1px', background: 'var(--limestone)', display: 'block' }} />
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--moss)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m5 12 7 7 7-7"/></svg>
+      </motion.div>
     </section>
   )
 }
