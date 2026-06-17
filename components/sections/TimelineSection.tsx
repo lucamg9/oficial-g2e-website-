@@ -4,8 +4,6 @@ import { useRef, useState, useEffect, useMemo } from 'react'
 import {
   motion,
   useScroll,
-  useTransform,
-  useSpring,
   useInView,
 } from 'framer-motion'
 // framer-motion v12 re-exports under both 'framer-motion' and 'motion/react'
@@ -13,6 +11,7 @@ import {
   Leaf, Flame, Cog, GraduationCap, Building2,
   Globe2, Rocket, Wrench, TrendingUp,
 } from 'lucide-react'
+import RootHelix from '@/components/ui/RootHelix'
 
 /* ─── Types ─────────────────────────────────────────────────────────────── */
 type Status = 'past' | 'current' | 'future'
@@ -137,18 +136,21 @@ export default function TimelineSection() {
   const sectionRef   = useRef<HTMLDivElement>(null)
   const [, setActive] = useState(0)
 
+  // Growth begins as the section enters from behind Who-We-Are (rising
+  // tip) and completes as its bottom reaches the fold — just before Phase II.
   const { scrollYProgress } = useScroll({
     target:  sectionRef,
-    offset:  ['start start', 'end end'],
+    offset:  ['start end', 'end end'],
   })
 
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 80,
-    damping:   22,
-    mass:      0.4,
-  })
-
-  const lineHeight = useTransform(smoothProgress, [0, 1], ['0%', '100%'])
+  // Drive the root-helix growth directly from scroll (1:1, no spring) so it
+  // grows at the user's scroll speed and retraces exactly on scroll-back.
+  const helixProgress = useRef(0)
+  useEffect(() => {
+    helixProgress.current = scrollYProgress.get()
+    const unsub = scrollYProgress.on('change', (v) => { helixProgress.current = v })
+    return () => unsub()
+  }, [scrollYProgress])
 
   return (
     <section
@@ -161,8 +163,18 @@ export default function TimelineSection() {
         padding:    'clamp(80px, 10vw, 140px) 0',
       }}
     >
+      {/* ── Living root-helix backbone — grows on scroll, spins + sways.
+            Spans the section, behind all content; rises into view from
+            behind the Who-We-Are section as it scrolls away. ───────────── */}
+      <div
+        aria-hidden
+        style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}
+      >
+        <RootHelix progressRef={helixProgress} style={{ width: '100%', height: '100%' }} />
+      </div>
+
       {/* ── Section header ───────────────────────────────────────────── */}
-      <div className="g2e-container" style={{ marginBottom: 'clamp(56px, 8vw, 96px)' }}>
+      <div className="g2e-container" style={{ position: 'relative', zIndex: 1, marginBottom: 'clamp(56px, 8vw, 96px)' }}>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -219,67 +231,12 @@ export default function TimelineSection() {
         </motion.div>
       </div>
 
-      {/* ── Spine + milestone rows ────────────────────────────────────── */}
+      {/* ── Milestone rows (over the living helix backbone) ───────────── */}
       <div
         className="g2e-container"
-        style={{ position: 'relative' }}
+        style={{ position: 'relative', zIndex: 1 }}
       >
         <div style={{ position: 'relative' }}>
-
-          {/* Static spine track */}
-          <div
-            aria-hidden
-            style={{
-              position:   'absolute',
-              top:        0,
-              bottom:     0,
-              left:       'var(--spine-x, 20px)',
-              width:      '2px',
-              borderRadius: '999px',
-              background: 'linear-gradient(to bottom, transparent, rgba(73,85,61,0.14) 8%, rgba(73,85,61,0.14) 92%, transparent)',
-              zIndex:     0,
-            }}
-          />
-
-          {/* Growing spine — scroll driven */}
-          <motion.div
-            aria-hidden
-            style={{
-              height:       lineHeight,
-              position:     'absolute',
-              top:          0,
-              left:         'var(--spine-x, 20px)',
-              width:        '2px',
-              borderRadius: '999px',
-              transformOrigin: 'top',
-              zIndex:       1,
-            }}
-          >
-            <div style={{
-              height: '100%',
-              width:  '100%',
-              borderRadius: '999px',
-              background: 'linear-gradient(to bottom, var(--forest-800), var(--forest-700) 45%, var(--clay-500) 90%, var(--clay-600))',
-              boxShadow:  '0 0 20px rgba(122,143,90,0.25)',
-            }} />
-
-            {/* Leading bloom dot */}
-            <motion.div
-              animate={{ scale: [1, 1.35, 1], opacity: [0.7, 1, 0.7] }}
-              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-              style={{
-                position:     'absolute',
-                bottom:       '-8px',
-                left:         '50%',
-                transform:    'translateX(-50%)',
-                width:        '16px',
-                height:       '16px',
-                borderRadius: '50%',
-                background:   'radial-gradient(circle, var(--clay-500), rgba(122,143,90,0.5) 60%, transparent)',
-                boxShadow:    '0 0 12px var(--clay-500)',
-              }}
-            />
-          </motion.div>
 
           {/* Milestone list */}
           <ol style={{ position: 'relative', listStyle: 'none', margin: 0, padding: 0 }}>
