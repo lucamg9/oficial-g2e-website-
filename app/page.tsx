@@ -24,14 +24,8 @@ export default function HomePage() {
       <TimelineSection />
       <Phase2Section />
 
-      {/* Stone Ivory → Dark: Phase2Section → HowItWorksSection */}
-      <div aria-hidden="true" style={{
-        height:       '160px',
-        background:   'linear-gradient(to bottom, #F4F2ED 0%, #2E372A 100%)',
-        marginTop:    '-1px',
-        marginBottom: '-1px',
-      }} />
-
+      {/* Phase II ends in a dark forest band that flows straight into the
+          dark How-It-Works section — no gradient divider needed. */}
       <HowItWorksSection />
       <ContactSection />
     </>
