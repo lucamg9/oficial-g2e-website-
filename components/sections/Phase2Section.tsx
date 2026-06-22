@@ -9,6 +9,7 @@
 import { useRef } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
+import { useT } from '@/lib/i18n'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -27,6 +28,7 @@ const KEY_POINTS = [
 
 export default function Phase2Section() {
   const sectionRef = useRef<HTMLElement>(null)
+  const t = useT()
 
   return (
     <section
@@ -79,7 +81,7 @@ export default function Phase2Section() {
             fontSize: 'clamp(2.2rem, 3.8vw, 3.4rem)', lineHeight: 1,
             letterSpacing: '-0.03em', color: 'var(--forest)', margin: 0, whiteSpace: 'nowrap',
           }}>
-            Phase II
+            {t('Phase II')}
           </h2>
         </motion.div>
 
@@ -130,7 +132,7 @@ export default function Phase2Section() {
                 fontSize: 'clamp(0.92rem, 1.1vw, 1.02rem)', lineHeight: 1.5,
                 color: 'var(--fg-secondary)',
               }}>
-                {k}
+                {t(k)}
               </span>
             </li>
           ))}
@@ -195,7 +197,7 @@ export default function Phase2Section() {
                   fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: '10.5px',
                   letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--moss)',
                 }}>
-                  {f.l}
+                  {t(f.l)}
                 </span>
               </div>
             ))}
@@ -204,7 +206,7 @@ export default function Phase2Section() {
             fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: '10.5px',
             letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(250,250,247,0.5)',
           }}>
-            Construction begins 2027 · Bordo Poniente, CDMX
+            {t('Construction begins 2027 · Bordo Poniente, CDMX')}
           </span>
         </div>
       </div>

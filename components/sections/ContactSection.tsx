@@ -3,12 +3,14 @@
 import { useRef } from 'react'
 import { useState } from 'react'
 import { useReveal } from '@/lib/use-reveal'
+import { useT } from '@/lib/i18n'
 
 const INTERESTS = ['Off-take', 'Investment', 'Government', 'Research', 'Press']
 
 export default function ContactSection() {
   const [selected, setSelected] = useState<string[]>([])
   const [sent, setSent]         = useState(false)
+  const t = useT()
 
   const headingRef  = useRef<HTMLParagraphElement>(null)
   const leftPanelRef  = useRef<HTMLDivElement>(null)
@@ -86,7 +88,7 @@ export default function ContactSection() {
             marginBottom: 'var(--space-10)',
           }}
         >
-          Get in touch
+          {t('Get in touch')}
         </p>
 
         {/* ── Split layout ──────────────────────────── */}
@@ -149,8 +151,8 @@ export default function ContactSection() {
                   marginBottom: 'var(--space-6)',
                 }}
               >
-                Let&apos;s build something<br />
-                <em>consequential.</em>
+                {t("Let's build something")}<br />
+                <em>{t('consequential.')}</em>
               </h2>
 
               {/* Divider */}
@@ -180,7 +182,7 @@ export default function ContactSection() {
                         flexShrink: 0,
                       }}
                     >
-                      {label}
+                      {t(label)}
                     </span>
                     <a
                       href={`mailto:${email}`}
@@ -250,7 +252,7 @@ export default function ContactSection() {
                     color: 'var(--moss-600)',
                   }}
                 >
-                  Message received
+                  {t('Message received')}
                 </p>
                 <p
                   style={{
@@ -262,8 +264,8 @@ export default function ContactSection() {
                     color: 'var(--ink)',
                   }}
                 >
-                  We&apos;ll be in touch<br />
-                  <em>shortly.</em>
+                  {t("We'll be in touch")}<br />
+                  <em>{t('shortly.')}</em>
                 </p>
                 <p
                   style={{
@@ -273,7 +275,7 @@ export default function ContactSection() {
                     lineHeight: 'var(--lh-loose)',
                   }}
                 >
-                  For urgent enquiries write directly to contacto@g2e.mx
+                  {t('For urgent enquiries write directly to contacto@g2e.mx')}
                 </p>
               </div>
             ) : (
@@ -299,13 +301,13 @@ export default function ContactSection() {
                           color: 'var(--ink-muted)',
                         }}
                       >
-                        {field.label}
+                        {t(field.label)}
                       </label>
                       <input
                         id={field.name}
                         name={field.name}
                         type={field.type}
-                        placeholder={field.placeholder}
+                        placeholder={t(field.placeholder)}
                         required={field.name === 'name'}
                         style={{
                           fontFamily: 'var(--font-sans)',
@@ -335,7 +337,7 @@ export default function ContactSection() {
                       color: 'var(--ink-muted)',
                     }}
                   >
-                    Email
+                    {t('Email')}
                   </label>
                   <input
                     id="email"
@@ -368,7 +370,7 @@ export default function ContactSection() {
                       color: 'var(--ink-muted)',
                     }}
                   >
-                    Area of interest
+                    {t('Area of interest')}
                   </p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     {INTERESTS.map((item) => {
@@ -393,7 +395,7 @@ export default function ContactSection() {
                             transition: 'all 180ms var(--ease-expo)',
                           }}
                         >
-                          {item}
+                          {t(item)}
                         </button>
                       )
                     })}
@@ -412,13 +414,13 @@ export default function ContactSection() {
                       color: 'var(--ink-muted)',
                     }}
                   >
-                    Message
+                    {t('Message')}
                   </label>
                   <textarea
                     id="message"
                     name="message"
                     rows={3}
-                    placeholder="Tell us about your project or interest."
+                    placeholder={t('Tell us about your project or interest.')}
                     style={{
                       fontFamily: 'var(--font-sans)',
                       fontSize: '15px',
@@ -454,7 +456,7 @@ export default function ContactSection() {
                     transition: 'background 200ms',
                   }}
                 >
-                  Send message
+                  {t('Send message')}
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
                   </svg>

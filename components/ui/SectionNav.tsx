@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useT } from '@/lib/i18n'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -30,6 +31,7 @@ export default function SectionNav() {
   const [open,   setOpen]   = useState(false)
   const [active, setActive] = useState(0)
   const menuRef             = useRef<HTMLDivElement>(null)
+  const t = useT()
 
   /* ── Active section tracker ─────────────────────────────────────────── */
   useEffect(() => {
@@ -158,7 +160,7 @@ export default function SectionNav() {
                   color:         isActive ? '#FAFAF7' : 'rgba(245,243,238,0.50)',
                   transition:    'color 200ms',
                 }}>
-                  {s.label}
+                  {t(s.label)}
                 </span>
               </button>
             )
@@ -211,7 +213,7 @@ export default function SectionNav() {
           color:         'rgba(245,243,238,0.65)',
           whiteSpace:    'nowrap',
         }}>
-          Sections
+          {t('Sections')}
         </span>
       </button>
     </div>

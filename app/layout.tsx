@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
 import { LenisProvider } from '@/lib/lenis-provider'
+import { LanguageProvider } from '@/lib/i18n'
 import Nav from '@/components/layout/Nav'
 import Footer from '@/components/layout/Footer'
 import ContactFab from '@/components/layout/ContactFab'
@@ -61,13 +62,15 @@ export default function RootLayout({
       className={`${inter.variable} ${spaceGrotesk.variable}`}
     >
       <body>
-        <LenisProvider>
-          <ScrollRevealInit />
-          <Nav />
-          <main>{children}</main>
-          <Footer />
-          <ContactFab />
-        </LenisProvider>
+        <LanguageProvider>
+          <LenisProvider>
+            <ScrollRevealInit />
+            <Nav />
+            <main>{children}</main>
+            <Footer />
+            <ContactFab />
+          </LenisProvider>
+        </LanguageProvider>
       </body>
     </html>
   )

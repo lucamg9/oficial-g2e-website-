@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useT } from '@/lib/i18n'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -54,6 +55,7 @@ export default function WhoWeAreSection() {
   const lerpedTime  = useRef(0)
   const rafRef      = useRef<number>(0)
   const last = CHAPTERS.length - 1
+  const t = useT()
 
   /* ─── RAF lerp scrub ──────────────────────────────────────────────────── */
   useEffect(() => {
@@ -254,7 +256,7 @@ export default function WhoWeAreSection() {
                     textTransform: 'uppercase' as const,
                     color:         'var(--clay-500)',
                   }}>
-                    {ch.eyebrow}
+                    {t(ch.eyebrow)}
                   </span>
                   <div style={{ height: '1px', width: '28px', background: 'rgba(122,143,90,0.35)' }} />
                   <span style={{
@@ -264,7 +266,7 @@ export default function WhoWeAreSection() {
                     textTransform: 'uppercase' as const,
                     color:         'rgba(245,243,238,0.28)',
                   }}>
-                    Who we are
+                    {t('Who we are')}
                   </span>
                 </div>
 
@@ -279,7 +281,7 @@ export default function WhoWeAreSection() {
                   marginBottom:  '26px',
                   whiteSpace:    'pre-line',
                 }}>
-                  {ch.headline}
+                  {t(ch.headline)}
                 </h2>
 
                 {/* Body */}
@@ -291,7 +293,7 @@ export default function WhoWeAreSection() {
                   color:      'rgba(245,243,238,0.74)',
                   maxWidth:   '420px',
                 }}>
-                  {ch.body}
+                  {t(ch.body)}
                 </p>
 
                 {/* CTAs — last chapter only */}
@@ -323,7 +325,7 @@ export default function WhoWeAreSection() {
                       onMouseEnter={e => (e.currentTarget.style.background = 'var(--clay-600)')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'var(--clay-500)')}
                     >
-                      Contact our team <span aria-hidden="true">→</span>
+                      {t('Contact our team')} <span aria-hidden="true">→</span>
                     </a>
                     <a
                       href="#timeline"
@@ -350,7 +352,7 @@ export default function WhoWeAreSection() {
                         e.currentTarget.style.color = 'rgba(245,243,238,0.58)'
                       }}
                     >
-                      Our story
+                      {t('Our story')}
                     </a>
                   </div>
                 )}
@@ -425,7 +427,7 @@ export default function WhoWeAreSection() {
                 textTransform: 'uppercase' as const,
                 color:         'rgba(245,243,238,0.28)',
               }}>
-                {name}
+                {t(name)}
               </span>
             </span>
           ))}

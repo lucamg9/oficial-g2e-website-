@@ -12,6 +12,7 @@ import {
   Globe2, Rocket, Wrench, TrendingUp,
 } from 'lucide-react'
 import RootHelix from '@/components/ui/RootHelix'
+import { useT } from '@/lib/i18n'
 
 /* ─── Types ─────────────────────────────────────────────────────────────── */
 type Status = 'past' | 'current' | 'future'
@@ -135,6 +136,7 @@ const MILESTONES: Milestone[] = [
 export default function TimelineSection() {
   const sectionRef   = useRef<HTMLDivElement>(null)
   const [, setActive] = useState(0)
+  const t = useT()
 
   // Growth begins as the section enters from behind Who-We-Are (rising
   // tip) and completes as its bottom reaches the fold — just before Phase II.
@@ -189,7 +191,7 @@ export default function TimelineSection() {
           }}>
             <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--clay-500)', flexShrink: 0 }} />
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.14em', textTransform: 'uppercase' as const, color: 'var(--ink-600)' }}>
-              Our Story
+              {t('Our Story')}
             </span>
           </span>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.10em', color: 'var(--ink-500)' }}>
@@ -212,8 +214,8 @@ export default function TimelineSection() {
             color:         'var(--ink-900)',
             marginBottom:  '20px',
           }}>
-            Seven stages of a<br />
-            <span style={{ color: 'var(--ink-500)' }}>single, living system.</span>
+            {t('Seven stages of a')}<br />
+            <span style={{ color: 'var(--ink-500)' }}>{t('single, living system.')}</span>
           </h2>
           <p style={{
             fontFamily: 'var(--font-sans)',
@@ -224,9 +226,7 @@ export default function TimelineSection() {
             maxWidth:   '540px',
             margin:     0,
           }}>
-            From the first seed planted in rural Mexico to a continental scale
-            decarbonization platform. Each milestone builds on the resilience
-            of the one before it.
+            {t('From the first seed planted in rural Mexico to a continental scale decarbonization platform. Each milestone builds on the resilience of the one before it.')}
           </p>
         </motion.div>
       </div>
@@ -280,6 +280,7 @@ function MilestoneRow({
 }) {
   const ref    = useRef<HTMLLIElement>(null)
   const inView = useInView(ref, { margin: '-40% 0px -40% 0px' })
+  const t = useT()
 
   useEffect(() => {
     if (inView) onActive()
@@ -371,7 +372,7 @@ function MilestoneRow({
               }}>
                 <Icon size={11} strokeWidth={2} />
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'var(--ink-600)' }}>
-                  {milestone.label}
+                  {t(milestone.label)}
                 </span>
               </span>
             </div>
@@ -515,6 +516,7 @@ function MilestoneCard({
   const isCurrent = milestone.status === 'current'
   const isFuture  = milestone.status === 'future'
   const { Icon }  = milestone
+  const t = useT()
 
   const cardBg = isFinal
     ? 'var(--forest-800)'
@@ -596,7 +598,7 @@ function MilestoneCard({
             textTransform: 'uppercase' as const,
             color:         isFinal ? 'rgba(245,243,238,0.55)' : 'var(--ink-500)',
           }}>
-            {milestone.year} · Stage {String(index + 1).padStart(2, '0')}
+            {milestone.year} · {t('Stage')} {String(index + 1).padStart(2, '0')}
           </span>
           <span style={{
             fontFamily:    'var(--font-mono)',
@@ -606,7 +608,7 @@ function MilestoneCard({
             color:         isFinal ? 'var(--clay-200)' : isCurrent ? 'var(--clay-500)' : 'var(--clay-600)',
             marginTop:     '3px',
           }}>
-            {milestone.tag}
+            {t(milestone.tag)}
           </span>
         </div>
       </div>
@@ -621,7 +623,7 @@ function MilestoneCard({
         color:         isFinal ? '#FAFAF7' : isFuture ? 'var(--ink-500)' : 'var(--ink-900)',
         marginBottom:  '12px',
       }}>
-        {milestone.title}
+        {t(milestone.title)}
       </h3>
 
       {/* Description */}
@@ -633,7 +635,7 @@ function MilestoneCard({
         color:      isFinal ? 'rgba(245,243,238,0.72)' : isFuture ? 'var(--ink-500)' : 'var(--ink-600)',
         margin:     0,
       }}>
-        {milestone.description}
+        {t(milestone.description)}
       </p>
 
       {/* Stat strip */}
@@ -656,7 +658,7 @@ function MilestoneCard({
               letterSpacing: '-0.04em',
               color:         isFinal ? '#FAFAF7' : 'var(--forest-800)',
             }}>
-              {milestone.stat.value}
+              {t(milestone.stat.value)}
             </div>
             <div style={{
               fontFamily:    'var(--font-mono)',
@@ -666,7 +668,7 @@ function MilestoneCard({
               color:         isFinal ? 'rgba(245,243,238,0.45)' : 'var(--ink-500)',
               marginTop:     '4px',
             }}>
-              {milestone.stat.unit}
+              {t(milestone.stat.unit)}
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useT } from '@/lib/i18n'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -48,6 +49,12 @@ export default function HowItWorksSection() {
   const rafRef      = useRef<number>(0)
   const activeBeat  = useRef(-1)
 
+  // Captions are written imperatively by GSAP, so translate through a ref
+  // that always holds the latest translator for the current language.
+  const t = useT()
+  const tRef = useRef(t)
+  tRef.current = t
+
   useEffect(() => {
     const section = sectionRef.current
     const video = videoRef.current
@@ -82,8 +89,8 @@ export default function HowItWorksSection() {
         opacity: 0, y: -8, duration: 0.22, ease: 'power2.in',
         onComplete() {
           phase.textContent   = beat.phase
-          label.textContent   = beat.label
-          caption.textContent = beat.caption
+          label.textContent   = tRef.current(beat.label)
+          caption.textContent = tRef.current(beat.caption)
           gsap.fromTo([phase, label, caption],
             { opacity: 0, y: 12 },
             { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out', stagger: 0.05 },
@@ -100,8 +107,8 @@ export default function HowItWorksSection() {
       const { current: caption } = captionRef
       const { current: label }   = labelRef
       const { current: phase }   = phaseRef
-      if (caption) { gsap.set(caption, { opacity: 1, y: 0 }); caption.textContent = BEATS[0].caption }
-      if (label)   { gsap.set(label,   { opacity: 1, y: 0 }); label.textContent   = BEATS[0].label   }
+      if (caption) { gsap.set(caption, { opacity: 1, y: 0 }); caption.textContent = tRef.current(BEATS[0].caption) }
+      if (label)   { gsap.set(label,   { opacity: 1, y: 0 }); label.textContent   = tRef.current(BEATS[0].label)   }
       if (phase)   { gsap.set(phase,   { opacity: 1, y: 0 }); phase.textContent   = BEATS[0].phase   }
       if (progressRef.current) progressRef.current.style.transform = 'scaleX(0)'
       dotsRef.current.forEach((dot, i) => {
@@ -148,6 +155,16 @@ export default function HowItWorksSection() {
       try { video.pause() } catch { /* ignore */ }
     }
   }, [])
+
+  // Re-translate the visible beat when the language changes (the caption is
+  // written imperatively, so React won't update it on its own).
+  useEffect(() => {
+    const idx = activeBeat.current >= 0 ? activeBeat.current : 0
+    const beat = BEATS[idx]
+    if (phaseRef.current)   phaseRef.current.textContent   = beat.phase
+    if (labelRef.current)   labelRef.current.textContent   = t(beat.label)
+    if (captionRef.current) captionRef.current.textContent = t(beat.caption)
+  }, [t])
 
   return (
     <section
@@ -198,9 +215,9 @@ export default function HowItWorksSection() {
           top: 'clamp(24px, 4vw, 48px)', left: 'clamp(24px, 5vw, 80px)',
           display: 'flex', alignItems: 'center', gap: '10px',
         }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(245,243,238,0.40)' }}>How it works</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(245,243,238,0.40)' }}>{t('How it works')}</span>
           <div style={{ width: '20px', height: '1px', background: 'rgba(245,243,238,0.18)' }} />
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(245,243,238,0.20)' }}>Hydrothermal carbonization</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(245,243,238,0.20)' }}>{t('Hydrothermal carbonization')}</span>
         </div>
 
         {/* ── Right-side beat dots ─────────────────────────────────────── */}

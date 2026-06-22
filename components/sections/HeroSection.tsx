@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
 import CursorReveal from '@/components/ui/CursorReveal'
+import { useT } from '@/lib/i18n'
 
 /* ──────────────────────────────────────────────────────────────
    HeroSection — the "carbon" split layout.
@@ -27,6 +28,8 @@ const HydrocharJourney = dynamic(() => import('@/components/3d/HydrocharJourney'
 const ease = [0.22, 1, 0.36, 1] as const
 
 export default function HeroSection() {
+  const t = useT()
+
   useEffect(() => {
     // No intro gate — reveal the nav as soon as the hero mounts.
     window.dispatchEvent(new CustomEvent('g2e:hero-reveal'))
@@ -78,8 +81,8 @@ export default function HeroSection() {
               margin:        0,
             }}
           >
-            Waste becomes{' '}
-            <span style={{ color: 'var(--moss)' }}>carbon.</span>
+            {t('Waste becomes')}{' '}
+            <span style={{ color: 'var(--moss)' }}>{t('carbon.')}</span>
           </motion.h1>
 
           <motion.p
@@ -93,8 +96,7 @@ export default function HeroSection() {
               marginTop:  '28px',
             }}
           >
-            We collect organic waste from Mexico City and transform it into
-            hydrochar, a mineral grade carbon material that replaces mineral coal.
+            {t('We collect organic waste from Mexico City and transform it into hydrochar, a mineral grade carbon material that replaces mineral coal.')}
           </motion.p>
 
           <motion.div
@@ -116,7 +118,7 @@ export default function HeroSection() {
               onMouseEnter={e => { e.currentTarget.style.background = 'var(--deep-moss)'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 16px 30px -12px rgba(46,55,42,0.5)' }}
               onMouseLeave={e => { e.currentTarget.style.background = 'var(--forest)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 24px -10px rgba(46,55,42,0.45)' }}
             >
-              Get in touch
+              {t('Get in touch')}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--moss)" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </a>
             <a
@@ -131,7 +133,7 @@ export default function HeroSection() {
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--moss)'; e.currentTarget.style.background = 'var(--fog-white)' }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--limestone)'; e.currentTarget.style.background = 'transparent' }}
             >
-              Discover the process
+              {t('Discover the process')}
             </a>
           </motion.div>
 
@@ -145,9 +147,9 @@ export default function HeroSection() {
               marginTop: '44px', paddingTop: '24px', borderTop: '1px solid var(--line)',
             }}
           >
-            <span className="g2e-eyebrow">World&rsquo;s largest hydrothermal carbonization plant</span>
+            <span className="g2e-eyebrow">{t("World's largest hydrothermal carbonization plant")}</span>
             <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'var(--limestone)' }} />
-            <span className="g2e-eyebrow" style={{ color: 'var(--fg-muted)' }}>Mexico City</span>
+            <span className="g2e-eyebrow" style={{ color: 'var(--fg-muted)' }}>{t('Mexico City')}</span>
           </motion.div>
         </div>
 
@@ -206,13 +208,13 @@ export default function HeroSection() {
                 fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '19px',
                 letterSpacing: '-0.01em', color: 'var(--forest)', lineHeight: 1.05,
               }}>
-                Hydrochar
+                {t('Hydrochar')}
               </span>
               <span style={{
                 fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: '11px',
                 letterSpacing: '0.04em', color: 'var(--moss)', whiteSpace: 'nowrap',
               }}>
-                Mineral grade carbon
+                {t('Mineral grade carbon')}
               </span>
             </div>
 
@@ -235,14 +237,14 @@ export default function HeroSection() {
                   fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '16px',
                   letterSpacing: '-0.01em', color: 'var(--forest)', lineHeight: 1.05,
                 }}>
-                  {d.value}
+                  {t(d.value)}
                 </span>
                 <span style={{
                   fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: '10px',
                   letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--fg-muted)',
                   lineHeight: 1.2,
                 }}>
-                  {d.label}
+                  {t(d.label)}
                 </span>
               </div>
             ))}
@@ -265,7 +267,7 @@ export default function HeroSection() {
           fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: '11px',
           letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--fg-muted)',
         }}>
-          Scroll to explore
+          {t('Scroll to explore')}
         </span>
         <span style={{ width: '46px', height: '1px', background: 'var(--limestone)', display: 'block' }} />
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--moss)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m5 12 7 7 7-7"/></svg>

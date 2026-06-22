@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { useLang, useT } from '@/lib/i18n'
 
 /* ──────────────────────────────────────────────────────────────
    Nav — the floating brand pill.
@@ -26,6 +27,8 @@ const NAV_LINKS = [
 export default function Nav() {
   const headerRef = useRef<HTMLElement>(null)
   const navRef    = useRef<HTMLElement>(null)
+  const { lang, setLang } = useLang()
+  const t = useT()
 
   /* ── "In development" toast ─────────────────────────────────────────────
      These sections aren't built yet, so clicking a link surfaces a calm
@@ -198,9 +201,54 @@ export default function Nav() {
               e.currentTarget.style.color = 'var(--ink-600)'
             }}
           >
-            {link.label}
+            {t(link.label)}
           </button>
         ))}
+
+        {/* Language toggle — EN ⇄ ES, remembers choice */}
+        <div
+          role="group"
+          aria-label="Language"
+          style={{
+            display:      'inline-flex',
+            alignItems:   'center',
+            gap:          '2px',
+            flexShrink:   0,
+            marginLeft:   '6px',
+            padding:      '3px',
+            borderRadius: '999px',
+            border:       '1px solid var(--sand-300)',
+            background:   'var(--oat-150)',
+          }}
+        >
+          {(['en', 'es'] as const).map(l => {
+            const active = lang === l
+            return (
+              <button
+                key={l}
+                type="button"
+                onClick={() => setLang(l)}
+                aria-pressed={active}
+                style={{
+                  fontFamily:    'var(--font-sans)',
+                  fontSize:      '12px',
+                  fontWeight:    600,
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                  padding:       '5px 9px',
+                  borderRadius:  '999px',
+                  border:        'none',
+                  cursor:        'pointer',
+                  background:    active ? 'var(--forest, #2E372A)' : 'transparent',
+                  color:         active ? '#FAFAF7' : 'var(--ink-600)',
+                  transition:    'background 200ms, color 200ms',
+                }}
+              >
+                {l}
+              </button>
+            )
+          })}
+        </div>
 
         {/* CTA — clay accent pill */}
         <Link
@@ -225,7 +273,7 @@ export default function Nav() {
           onMouseEnter={e => (e.currentTarget.style.background = 'var(--clay-600)')}
           onMouseLeave={e => (e.currentTarget.style.background = 'var(--clay-500)')}
         >
-          Get in touch
+          {t('Get in touch')}
           <span aria-hidden="true" style={{ display: 'inline-block', transition: 'transform 200ms var(--ease-expo)' }}>→</span>
         </Link>
       </nav>
@@ -274,8 +322,8 @@ export default function Nav() {
           color:         '#FAFAF7',
           letterSpacing: '-0.01em',
         }}>
-          <strong style={{ fontWeight: 600 }}>{notice.label}</strong>
-          {' '}is in development
+          <strong style={{ fontWeight: 600 }}>{t(notice.label)}</strong>
+          {' '}{t('is in development')}
         </span>
 
         <style>{`

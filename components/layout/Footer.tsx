@@ -3,6 +3,7 @@
 import { useRef, RefObject } from 'react'
 import Link from 'next/link'
 import { useReveal } from '@/lib/use-reveal'
+import { useT } from '@/lib/i18n'
 
 const COLS = [
   {
@@ -35,6 +36,7 @@ const COLS = [
 ]
 
 export default function Footer() {
+  const t = useT()
   const logoRowRef  = useRef<HTMLDivElement>(null)
   const missionRef  = useRef<HTMLHeadingElement>(null)
   const leftColRef  = useRef<HTMLDivElement>(null)
@@ -146,7 +148,7 @@ export default function Footer() {
                 color:         'rgba(245,243,238,0.22)',
               }}
             >
-              Transforming Waste · CDMX · Est. 2013
+              {t('Transforming Waste · CDMX · Est. 2013')}
             </span>
           </div>
 
@@ -163,7 +165,7 @@ export default function Footer() {
               maxWidth: '620px',
             }}
           >
-            From Mexico&apos;s waste<br />to the world&apos;s industry.
+            {t("From Mexico's waste")}<br />{t("to the world's industry.")}
           </h2>
         </div>
 
@@ -188,7 +190,7 @@ export default function Footer() {
                 maxWidth: '230px',
               }}
             >
-              Transforming municipal organic waste into hydrochar, decarbonizing industry at scale.
+              {t('Transforming municipal organic waste into hydrochar, decarbonizing industry at scale.')}
             </p>
 
             {/* Email links */}
@@ -232,7 +234,7 @@ export default function Footer() {
                 textDecoration: 'none',
               }}
             >
-              Join the mission
+              {t('Join the mission')}
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
               </svg>
@@ -252,7 +254,7 @@ export default function Footer() {
                     color: 'rgba(245,243,238,0.22)',
                   }}
                 >
-                  {col.label}
+                  {t(col.label)}
                 </p>
                 <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
                   {col.links.map((item) => (
@@ -269,7 +271,7 @@ export default function Footer() {
                         onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone-100)')}
                         onMouseLeave={e => (e.currentTarget.style.color = 'rgba(245,243,238,0.38)')}
                       >
-                        {item.label}
+                        {t(item.label)}
                       </Link>
                     </li>
                   ))}
@@ -303,7 +305,7 @@ export default function Footer() {
               color: 'rgba(245,243,238,0.16)',
             }}
           >
-            © {new Date().getFullYear()} G2E. All rights reserved.
+            © {new Date().getFullYear()} G2E. {t('All rights reserved.')}
           </p>
         </div>
 
