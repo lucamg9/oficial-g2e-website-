@@ -215,6 +215,12 @@ const ES: Record<string, string> = {
   'Construction begins 2027 · Bordo Poniente, CDMX': 'La construcción inicia en 2027 · Bordo Poniente, CDMX',
 
   /* Contact */
+  'We build environmental infrastructure at industrial scale. Investors, institutions, and partners who think in decades, we want to hear from you.':
+    'Construimos infraestructura ambiental a escala industrial. Inversionistas, instituciones y socios que piensan en décadas, queremos saber de ustedes.',
+  "Let's talk": 'Hablemos',
+  'Location': 'Ubicación',
+  'Get direction': 'Cómo llegar',
+  'The PCH-CDMX plant · Bordo Poniente': 'La planta PCH-CDMX · Bordo Poniente',
   "Let's build something": 'Construyamos algo',
   'consequential.': 'trascendente.',
   'General': 'General',

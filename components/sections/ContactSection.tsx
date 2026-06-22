@@ -1,400 +1,291 @@
 'use client'
 
-import { useRef } from 'react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import Image from 'next/image'
 import { useReveal } from '@/lib/use-reveal'
 import { useT } from '@/lib/i18n'
 
+/* ──────────────────────────────────────────────────────────────
+   ContactSection — "Get in touch".
+
+   Editorial, light (Stone Ivory) close to the page: an oversized
+   GET IN TOUCH headline beside the real PCH-CDMX facility photo,
+   then a labelled info column (emails + location, Orix-style ↳
+   rows) paired with a refined contact form. A short bridge fades the
+   dark How-It-Works section into this light one; the dark footer
+   then reads cleanly against it.
+   ────────────────────────────────────────────────────────────── */
+
 const INTERESTS = ['Off-take', 'Investment', 'Government', 'Research', 'Press']
+
+const MAPS_URL =
+  'https://www.google.com/maps/search/?api=1&query=Bordo+Poniente+Ciudad+de+Mexico'
+
+const ink      = 'var(--forest)'
+const inkMuted = 'rgba(46,55,42,0.70)'
+const inkFaint = 'rgba(46,55,42,0.46)'
+const line     = 'rgba(46,55,42,0.12)'
 
 export default function ContactSection() {
   const [selected, setSelected] = useState<string[]>([])
   const [sent, setSent]         = useState(false)
   const t = useT()
 
-  const headingRef  = useRef<HTMLParagraphElement>(null)
-  const leftPanelRef  = useRef<HTMLDivElement>(null)
-  const rightPanelRef = useRef<HTMLDivElement>(null)
+  const headRef  = useRef<HTMLDivElement>(null)
+  const imgRef   = useRef<HTMLDivElement>(null)
+  const infoRef  = useRef<HTMLDivElement>(null)
+  const formRef  = useRef<HTMLDivElement>(null)
 
   useReveal([
-    {
-      ref:      headingRef,
-      from:     { opacity: 0, y: 60 },
-      duration: 0.90,
-      ease:     'power4.out',
-    },
-    {
-      ref:      leftPanelRef,
-      from:     { opacity: 0, x: -110, y: 40 },
-      duration: 1.10,
-      ease:     'power4.out',
-      threshold:0.06,
-    },
-    {
-      ref:      rightPanelRef,
-      from:     { opacity: 0, x: 110, y: 40 },
-      duration: 1.10,
-      ease:     'power4.out',
-      delay:    0.16,
-      threshold:0.06,
-    },
+    { ref: headRef, from: { opacity: 0, y: 48 }, duration: 0.95, ease: 'power4.out' },
+    { ref: imgRef,  from: { opacity: 0, y: 40, scale: 0.98 }, duration: 1.05, ease: 'power4.out', delay: 0.1, threshold: 0.05 },
+    { ref: infoRef, from: { opacity: 0, y: 40 }, duration: 0.95, ease: 'power4.out', delay: 0.12, threshold: 0.05 },
+    { ref: formRef, from: { opacity: 0, y: 40 }, duration: 1.0,  ease: 'power4.out', delay: 0.18, threshold: 0.05 },
   ])
 
   const toggle = (item: string) =>
-    setSelected((prev) =>
-      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
-    )
+    setSelected(prev => (prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]))
+
+  /* Small labelled info row — the Orix-style "↳ LABEL" header + content. */
+  const InfoRow = ({
+    label, children, last = false,
+  }: { label: string; children: React.ReactNode; last?: boolean }) => (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'minmax(120px, 0.7fr) 1fr',
+        gap: 'clamp(16px, 3vw, 40px)',
+        alignItems: 'baseline',
+        padding: '26px 0',
+        borderTop: `1px solid ${line}`,
+        ...(last ? { borderBottom: `1px solid ${line}` } : {}),
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span aria-hidden="true" style={{ color: 'var(--moss)', fontSize: '15px', lineHeight: 1 }}>↳</span>
+        <span style={{
+          fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 600,
+          letterSpacing: '0.16em', textTransform: 'uppercase', color: ink,
+        }}>
+          {label}
+        </span>
+      </div>
+      <div>{children}</div>
+    </div>
+  )
+
+  const FieldLabel = ({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) => (
+    <label htmlFor={htmlFor} style={{
+      fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '0.14em',
+      textTransform: 'uppercase', color: inkFaint,
+    }}>
+      {children}
+    </label>
+  )
+
+  const inputStyle: React.CSSProperties = {
+    fontFamily: 'var(--font-sans)', fontSize: '15px', padding: '10px 0',
+    background: 'transparent', border: 'none',
+    borderBottom: '1px solid rgba(46,55,42,0.20)', color: ink, width: '100%', outline: 'none',
+  }
+  const focusOn  = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    (e.currentTarget.style.borderBottomColor = 'var(--moss)')
+  const focusOff = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    (e.currentTarget.style.borderBottomColor = 'rgba(46,55,42,0.20)')
 
   return (
     <section
       id="contact"
-      style={{ background: 'var(--bg)', paddingBottom: 'var(--space-16)' }}
+      aria-label="Get in touch"
+      style={{
+        position: 'relative',
+        background: 'var(--bg)',
+        paddingBottom: 'clamp(64px, 9vh, 120px)',
+        overflow: 'clip',
+      }}
     >
+      {/* Bridge — fades the dark How-It-Works section into this light one. */}
+      <div aria-hidden="true" style={{
+        height: 'clamp(90px, 12vh, 150px)',
+        background: 'linear-gradient(to bottom, #2E372A 0%, var(--bg) 100%)',
+      }} />
 
-      {/* ── Section bridge — dark → bone ─────────── */}
-      <div
-        aria-hidden="true"
-        style={{
-          height: '100px',
-          background: 'linear-gradient(to bottom, var(--hydrochar-900) 0%, var(--bg) 100%)',
-        }}
-      />
+      <div className="g2e-container" style={{ paddingTop: 'clamp(20px, 4vw, 56px)' }}>
 
-      <div className="g2e-container">
-
-        {/* ── Section label ─────────────────────────── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px' }}>
-          <span
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: 'var(--text-2xs)',
-              letterSpacing: 'var(--ls-eyebrow)',
-              color: 'var(--ink-muted)',
-              flexShrink: 0,
-            }}
-          >
+        {/* ── Eyebrow ─────────────────────────────────────────── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: 'clamp(24px, 4vw, 44px)' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '0.2em', color: 'var(--moss)' }}>
             [ 05 ]
           </span>
-          <div style={{ height: '1px', flex: 1, background: 'var(--line)' }} />
+          <div style={{ height: '1px', flex: 1, maxWidth: '120px', background: line }} />
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '0.2em',
+            textTransform: 'uppercase', color: inkFaint,
+          }}>
+            {t('Get in touch')}
+          </span>
         </div>
-        <p
-          ref={headingRef}
-          style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: 'var(--text-2xs)',
-            letterSpacing: 'var(--ls-eyebrow)',
-            textTransform: 'uppercase',
-            color: 'var(--ink-muted)',
-            marginBottom: 'var(--space-10)',
-          }}
-        >
-          {t('Get in touch')}
-        </p>
 
-        {/* ── Split layout ──────────────────────────── */}
-        <div
-          className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6"
-          style={{ alignItems: 'stretch' }}
-        >
+        {/* ── Headline + facility image ───────────────────────── */}
+        <div className="gt-hero">
+          <div ref={headRef}>
+            <h2 style={{
+              fontFamily: 'var(--font-display)', fontWeight: 700,
+              fontSize: 'clamp(3rem, 9.5vw, 9rem)', lineHeight: 0.92,
+              letterSpacing: '-0.035em', textTransform: 'uppercase',
+              color: ink, margin: 0,
+            }}>
+              {t('Get in touch')}
+            </h2>
+            <p style={{
+              fontFamily: 'var(--font-sans)', fontWeight: 400,
+              fontSize: 'clamp(1rem, 1.4vw, 1.18rem)', lineHeight: 1.65,
+              color: inkMuted, maxWidth: '46ch', marginTop: 'clamp(24px, 3vw, 36px)',
+            }}>
+              {t('We build environmental infrastructure at industrial scale. Investors, institutions, and partners who think in decades, we want to hear from you.')}
+            </p>
+          </div>
 
-          {/* Left — Hydrochar panel with GIF 3 ─────── */}
-          <div
-            ref={leftPanelRef}
-            style={{
-              position: 'relative',
-              background: 'var(--hydrochar-900)',
-              borderRadius: 'var(--radius-2xl)',
-              overflow: 'hidden',
-              minHeight: '480px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end',
-              padding: '32px',
-              boxShadow: 'var(--shadow-panel)',
-            }}
-          >
-            {/* Contact background photo */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/assets/contact-bg.jpg"
-              alt=""
-              aria-hidden="true"
-              style={{
-                position:       'absolute',
-                inset:          0,
-                width:          '100%',
-                height:         '100%',
-                objectFit:      'cover',
-                objectPosition: 'center top',
-              }}
-            />
-            {/* Overlay — preserves text legibility */}
-            <div
-              aria-hidden="true"
-              style={{
-                position:   'absolute',
-                inset:      0,
-                background: 'linear-gradient(to bottom, rgba(46,55,42,0.30) 0%, rgba(46,55,42,0.82) 55%)',
-              }}
-            />
-
-            {/* Content */}
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <h2
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'var(--text-4xl)',
-                  lineHeight: 'var(--lh-snug)',
-                  letterSpacing: 'var(--ls-display)',
-                  fontWeight: 400,
-                  color: 'var(--bone-100)',
-                  marginBottom: 'var(--space-6)',
-                }}
-              >
-                {t("Let's build something")}<br />
-                <em>{t('consequential.')}</em>
-              </h2>
-
-              {/* Divider */}
-              <div
-                style={{
-                  height: '1px',
-                  background: 'rgba(242,239,231,0.12)',
-                  marginBottom: 'var(--space-6)',
-                }}
+          <div ref={imgRef} className="gt-image">
+            <div style={{
+              position: 'relative', width: '100%', aspectRatio: '4 / 3',
+              borderRadius: 'var(--radius-sm)', overflow: 'hidden',
+              border: '1px solid var(--limestone)',
+              boxShadow: '0 2px 8px rgba(46,55,42,0.06), 0 28px 56px -28px rgba(46,55,42,0.30)',
+            }}>
+              <Image
+                src="/assets/phase2/facility.webp"
+                alt="The G2E PCH-CDMX hydrothermal carbonization plant at Bordo Poniente, Mexico City."
+                fill
+                sizes="(max-width: 1024px) 90vw, 420px"
+                style={{ objectFit: 'cover', objectPosition: 'center', filter: 'saturate(0.94)' }}
               />
+            </div>
+            <span style={{
+              display: 'block', marginTop: '12px',
+              fontFamily: 'var(--font-mono)', fontSize: '10.5px', letterSpacing: '0.14em',
+              textTransform: 'uppercase', color: inkFaint,
+            }}>
+              {t('The PCH-CDMX plant · Bordo Poniente')}
+            </span>
+          </div>
+        </div>
 
-              {/* Emails */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+        {/* ── Info column + form ──────────────────────────────── */}
+        <div className="gt-body">
+
+          {/* Left — labelled info rows */}
+          <div ref={infoRef}>
+            <InfoRow label={t("Let's talk")}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {[
-                  { label: 'General',  email: 'contacto@g2e.mx' },
-                  { label: 'Info',     email: 'info@g2e.mx'     },
+                  { label: t('General'), email: 'contacto@g2e.mx' },
+                  { label: t('Info'),    email: 'info@g2e.mx'     },
                 ].map(({ label, email }) => (
-                  <div key={email} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '10px',
-                        letterSpacing: 'var(--ls-eyebrow)',
-                        textTransform: 'uppercase',
-                        color: 'rgba(242,239,231,0.35)',
-                        width: '52px',
-                        flexShrink: 0,
-                      }}
-                    >
-                      {t(label)}
+                  <div key={email} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <span style={{
+                      fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.16em',
+                      textTransform: 'uppercase', color: inkFaint,
+                    }}>
+                      {label}
                     </span>
-                    <a
-                      href={`mailto:${email}`}
-                      style={{
-                        fontFamily: 'var(--font-sans)',
-                        fontSize: 'var(--text-sm)',
-                        fontWeight: 500,
-                        color: 'var(--bone-100)',
-                        textDecoration: 'none',
-                        letterSpacing: '-0.01em',
-                      }}
+                    <a href={`mailto:${email}`} style={{
+                      fontFamily: 'var(--font-display)', fontSize: 'clamp(1.05rem, 1.8vw, 1.4rem)',
+                      fontWeight: 500, letterSpacing: '-0.01em', color: ink, textDecoration: 'none',
+                      transition: 'color 200ms',
+                    }}
+                      onMouseEnter={e => (e.currentTarget.style.color = 'var(--moss)')}
+                      onMouseLeave={e => (e.currentTarget.style.color = ink)}
                     >
                       {email}
                     </a>
                   </div>
                 ))}
               </div>
+            </InfoRow>
 
-              {/* Location */}
-              <p
-                style={{
-                  marginTop: 'var(--space-6)',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '10px',
-                  letterSpacing: 'var(--ls-eyebrow)',
-                  textTransform: 'uppercase',
-                  color: 'rgba(242,239,231,0.28)',
-                }}
-              >
-                Bordo Poniente · Ciudad de México · México
-              </p>
-            </div>
+            <InfoRow label={t('Location')} last>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <p style={{
+                  fontFamily: 'var(--font-sans)', fontSize: '15px', lineHeight: 1.6,
+                  color: ink, margin: 0,
+                }}>
+                  Bordo Poniente,<br />Ciudad de México, México
+                </p>
+                <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '7px', width: 'fit-content',
+                  fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '0.12em',
+                  textTransform: 'uppercase', color: 'var(--moss)', textDecoration: 'none',
+                }}>
+                  {t('Get direction')}
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </InfoRow>
           </div>
 
-          {/* Right — Form on bone ────────────────── */}
-          <div
-            ref={rightPanelRef}
-            style={{
-              background: 'var(--bone-50)',
-              border: '1px solid var(--line)',
-              borderRadius: 'var(--radius-2xl)',
-              padding: '32px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 'var(--space-6)',
-            }}
-          >
+          {/* Right — refined form */}
+          <div ref={formRef}>
             {sent ? (
-              /* ── Success state ── */
-              <div
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-start',
-                  justifyContent: 'center',
-                  gap: 'var(--space-4)',
-                  padding: 'var(--space-6) 0',
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: 'var(--text-2xs)',
-                    letterSpacing: 'var(--ls-eyebrow)',
-                    textTransform: 'uppercase',
-                    color: 'var(--moss-600)',
-                  }}
-                >
+              <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                justifyContent: 'center', gap: '16px', minHeight: '320px',
+              }}>
+                <span style={{
+                  fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '0.16em',
+                  textTransform: 'uppercase', color: 'var(--moss)',
+                }}>
                   {t('Message received')}
+                </span>
+                <p style={{
+                  fontFamily: 'var(--font-display)', fontWeight: 600,
+                  fontSize: 'clamp(1.8rem, 3vw, 2.6rem)', lineHeight: 1.1,
+                  letterSpacing: '-0.02em', color: ink, margin: 0,
+                }}>
+                  {t("We'll be in touch")} <em style={{ color: 'var(--moss)', fontStyle: 'normal' }}>{t('shortly.')}</em>
                 </p>
-                <p
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 'var(--text-3xl)',
-                    lineHeight: 'var(--lh-snug)',
-                    letterSpacing: 'var(--ls-display)',
-                    fontWeight: 400,
-                    color: 'var(--ink)',
-                  }}
-                >
-                  {t("We'll be in touch")}<br />
-                  <em>{t('shortly.')}</em>
-                </p>
-                <p
-                  style={{
-                    fontFamily: 'var(--font-sans)',
-                    fontSize: 'var(--text-sm)',
-                    color: 'var(--ink-muted)',
-                    lineHeight: 'var(--lh-loose)',
-                  }}
-                >
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', lineHeight: 1.7, color: inkMuted }}>
                   {t('For urgent enquiries write directly to contacto@g2e.mx')}
                 </p>
               </div>
             ) : (
-              /* ── Form ── */
-              <form
-                onSubmit={(e) => { e.preventDefault(); setSent(true) }}
-                style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}
+              <form onSubmit={e => { e.preventDefault(); setSent(true) }}
+                style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(22px, 3vw, 28px)' }}
               >
-                {/* Row — Name + Org */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="gt-form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(18px, 3vw, 28px)' }}>
                   {[
-                    { label: 'Name',         name: 'name',         type: 'text',  placeholder: 'Full name'      },
-                    { label: 'Organization', name: 'organization',  type: 'text',  placeholder: 'Company or institution' },
-                  ].map((field) => (
-                    <div key={field.name} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      <label
-                        htmlFor={field.name}
-                        style={{
-                          fontFamily: 'var(--font-mono)',
-                          fontSize: '11px',
-                          letterSpacing: 'var(--ls-eyebrow)',
-                          textTransform: 'uppercase',
-                          color: 'var(--ink-muted)',
-                        }}
-                      >
-                        {t(field.label)}
-                      </label>
-                      <input
-                        id={field.name}
-                        name={field.name}
-                        type={field.type}
-                        placeholder={t(field.placeholder)}
-                        required={field.name === 'name'}
-                        style={{
-                          fontFamily: 'var(--font-sans)',
-                          fontSize: '15px',
-                          padding: '10px 0',
-                          background: 'transparent',
-                          border: 'none',
-                          borderBottom: '1px solid var(--line-strong)',
-                          color: 'var(--ink)',
-                          width: '100%',
-                          outline: 'none',
-                        }}
-                      />
+                    { label: t('Name'),         name: 'name',         type: 'text', placeholder: t('Full name') },
+                    { label: t('Organization'), name: 'organization', type: 'text', placeholder: t('Company or institution') },
+                  ].map(field => (
+                    <div key={field.name} style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                      <FieldLabel htmlFor={field.name}>{field.label}</FieldLabel>
+                      <input id={field.name} name={field.name} type={field.type} placeholder={field.placeholder}
+                        required={field.name === 'name'} style={inputStyle} onFocus={focusOn} onBlur={focusOff} />
                     </div>
                   ))}
                 </div>
 
-                {/* Email */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label
-                    htmlFor="email"
-                    style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '11px',
-                      letterSpacing: 'var(--ls-eyebrow)',
-                      textTransform: 'uppercase',
-                      color: 'var(--ink-muted)',
-                    }}
-                  >
-                    {t('Email')}
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="you@company.com"
-                    required
-                    style={{
-                      fontFamily: 'var(--font-sans)',
-                      fontSize: '15px',
-                      padding: '10px 0',
-                      background: 'transparent',
-                      border: 'none',
-                      borderBottom: '1px solid var(--line-strong)',
-                      color: 'var(--ink)',
-                      width: '100%',
-                      outline: 'none',
-                    }}
-                  />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                  <FieldLabel htmlFor="email">{t('Email')}</FieldLabel>
+                  <input id="email" name="email" type="email" placeholder="you@company.com" required
+                    style={inputStyle} onFocus={focusOn} onBlur={focusOff} />
                 </div>
 
-                {/* Interest pills */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <p
-                    style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '11px',
-                      letterSpacing: 'var(--ls-eyebrow)',
-                      textTransform: 'uppercase',
-                      color: 'var(--ink-muted)',
-                    }}
-                  >
-                    {t('Area of interest')}
-                  </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <FieldLabel htmlFor="">{t('Area of interest')}</FieldLabel>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {INTERESTS.map((item) => {
+                    {INTERESTS.map(item => {
                       const active = selected.includes(item)
                       return (
-                        <button
-                          key={item}
-                          type="button"
-                          onClick={() => toggle(item)}
+                        <button key={item} type="button" onClick={() => toggle(item)}
                           style={{
-                            fontFamily: 'var(--font-sans)',
-                            fontSize: '13px',
-                            fontWeight: 500,
-                            padding: '8px 14px',
-                            borderRadius: '999px',
-                            border: active
-                              ? '1px solid var(--hydrochar-900)'
-                              : '1px solid var(--line-strong)',
-                            background: active ? 'var(--hydrochar-900)' : 'transparent',
-                            color: active ? 'var(--bone-100)' : 'var(--ink)',
-                            cursor: 'pointer',
+                            fontFamily: 'var(--font-sans)', fontSize: '13px', fontWeight: 500,
+                            padding: '8px 15px', borderRadius: '999px', cursor: 'pointer',
+                            border: `1px solid ${active ? 'var(--forest)' : 'rgba(46,55,42,0.20)'}`,
+                            background: active ? 'var(--forest)' : 'transparent',
+                            color: active ? 'var(--fog-white)' : inkMuted,
                             transition: 'all 180ms var(--ease-expo)',
-                          }}
-                        >
+                          }}>
                           {t(item)}
                         </button>
                       )
@@ -402,72 +293,58 @@ export default function ContactSection() {
                   </div>
                 </div>
 
-                {/* Message */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label
-                    htmlFor="message"
-                    style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '11px',
-                      letterSpacing: 'var(--ls-eyebrow)',
-                      textTransform: 'uppercase',
-                      color: 'var(--ink-muted)',
-                    }}
-                  >
-                    {t('Message')}
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={3}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                  <FieldLabel htmlFor="message">{t('Message')}</FieldLabel>
+                  <textarea id="message" name="message" rows={3}
                     placeholder={t('Tell us about your project or interest.')}
-                    style={{
-                      fontFamily: 'var(--font-sans)',
-                      fontSize: '15px',
-                      padding: '10px 0',
-                      background: 'transparent',
-                      border: 'none',
-                      borderBottom: '1px solid var(--line-strong)',
-                      color: 'var(--ink)',
-                      width: '100%',
-                      outline: 'none',
-                      resize: 'none',
-                    }}
-                  />
+                    style={{ ...inputStyle, resize: 'none' }} onFocus={focusOn} onBlur={focusOff} />
                 </div>
 
-                {/* Submit */}
-                <button
-                  type="submit"
-                  style={{
-                    alignSelf: 'flex-start',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    fontFamily: 'var(--font-sans)',
-                    fontSize: '15px',
-                    fontWeight: 500,
-                    background: 'var(--hydrochar-900)',
-                    color: 'var(--bone-100)',
-                    padding: '14px 22px 14px 26px',
-                    borderRadius: '999px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'background 200ms',
-                  }}
+                <button type="submit" style={{
+                  alignSelf: 'flex-start', display: 'inline-flex', alignItems: 'center', gap: '10px',
+                  fontFamily: 'var(--font-display)', fontSize: '15px', fontWeight: 600,
+                  background: 'var(--forest)', color: 'var(--fog-white)', padding: '15px 26px',
+                  borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer',
+                  boxShadow: '0 10px 24px -10px rgba(46,55,42,0.45)',
+                  transition: 'background 200ms var(--ease-expo), transform 200ms var(--ease-expo)',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--deep-moss)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'var(--forest)'; e.currentTarget.style.transform = 'translateY(0)' }}
                 >
                   {t('Send message')}
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--moss)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M7 17 17 7" /><path d="M7 7h10v10" />
                   </svg>
                 </button>
-
               </form>
             )}
           </div>
         </div>
-
       </div>
+
+      {/* ── Responsive layout ───────────────────────────────── */}
+      <style>{`
+        .gt-hero {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: clamp(32px, 5vw, 56px);
+          align-items: end;
+          margin-bottom: clamp(48px, 7vw, 88px);
+        }
+        .gt-image { max-width: 460px; }
+        .gt-body {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: clamp(40px, 6vw, 72px);
+        }
+        @media (min-width: 1024px) {
+          .gt-hero  { grid-template-columns: 1.5fr 0.8fr; }
+          .gt-body  { grid-template-columns: 0.85fr 1.15fr; align-items: start; }
+        }
+        @media (max-width: 560px) {
+          .gt-form-row { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </section>
   )
 }
