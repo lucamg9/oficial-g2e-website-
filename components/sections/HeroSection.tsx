@@ -35,7 +35,7 @@ export default function HeroSection() {
   return (
     <section
       id="intro"
-      aria-label="G2E — circular economy from organic waste"
+      aria-label="G2E · circular economy from organic waste"
       style={{
         position:      'relative',
         minHeight:     '100vh',
@@ -94,7 +94,7 @@ export default function HeroSection() {
             }}
           >
             We collect organic waste from Mexico City and transform it into
-            hydrochar — a mineral-grade carbon material that replaces mineral coal.
+            hydrochar, a mineral grade carbon material that replaces mineral coal.
           </motion.p>
 
           <motion.div
@@ -212,7 +212,7 @@ export default function HeroSection() {
                 fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: '11px',
                 letterSpacing: '0.04em', color: 'var(--moss)', whiteSpace: 'nowrap',
               }}>
-                Mineral-grade carbon
+                Mineral grade carbon
               </span>
             </div>
 

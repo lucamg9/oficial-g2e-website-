@@ -2,7 +2,19 @@
 
 import { useEffect, useRef } from 'react'
 import Link from 'next/link'
-import gsap from 'gsap'
+
+/* ──────────────────────────────────────────────────────────────
+   Nav — the floating brand pill.
+
+   Logo lockup: the -CO₂ sprout emblem + the G2E logomark (both
+   transparent brand assets derived from the client files). Image
+   heights are set inline so they beat Tailwind's preflight
+   (img { height:auto }) — otherwise the PNGs render at full size.
+
+   Dynamic on scroll: it stays visible at all times, but at the very
+   top it sits open and airy, then once scrolled it condenses and
+   gains a solid frosted background + stronger shadow.
+   ────────────────────────────────────────────────────────────── */
 
 const NAV_LINKS = [
   { label: 'Technology',           href: '#technology' },
@@ -12,31 +24,52 @@ const NAV_LINKS = [
 ]
 
 export default function Nav() {
-  const headerRef   = useRef<HTMLElement>(null)
-  const revealedRef = useRef(false)
-
-  const revealNav = () => {
-    if (revealedRef.current) return
-    revealedRef.current = true
-    gsap.fromTo(
-      headerRef.current,
-      { opacity: 0, y: -16 },
-      { opacity: 1, y: 0, duration: 1.1, ease: 'power4.out', clearProps: 'transform' }
-    )
-  }
+  const headerRef = useRef<HTMLElement>(null)
+  const navRef    = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const header = headerRef.current
-    if (!header) return
+    const nav    = navRef.current
+    if (!header || !nav) return
 
-    gsap.set(header, { opacity: 0, y: -16 })
+    // Reveal on mount (CSS-transition driven so it composes cleanly with the
+    // scroll-driven transform below — both animate `transform`/`opacity`).
+    const reveal = requestAnimationFrame(() => {
+      header.style.opacity   = '1'
+      header.style.transform = 'translateY(0)'
+    })
 
-    // No intro gate anymore — reveal on mount. Keep the listener as a fallback
-    // for the hero's dispatch and any deep-link entry.
-    const onReveal = () => revealNav()
-    window.addEventListener('g2e:hero-reveal', onReveal)
-    revealNav()
-    return () => window.removeEventListener('g2e:hero-reveal', onReveal)
+    let scrolled = false
+    let raf = 0
+
+    const SOLID = 'color-mix(in srgb, #FAFAF7 94%, transparent)'
+    const SHEER = 'color-mix(in srgb, #FAFAF7 86%, transparent)'
+
+    const apply = () => {
+      raf = 0
+      // Condensed/solid state once we leave the very top — the bar itself
+      // always stays visible (no hide-on-scroll).
+      const nextScrolled = window.scrollY > 16
+      if (nextScrolled !== scrolled) {
+        scrolled = nextScrolled
+        nav.style.background = scrolled ? SOLID : SHEER
+        nav.style.boxShadow  = scrolled
+          ? '0 10px 30px -12px rgba(46,55,42,0.30)'
+          : 'var(--shadow-card)'
+        nav.style.padding    = scrolled ? '5px 7px 5px 16px' : '6px 8px 6px 18px'
+        nav.style.maxWidth   = scrolled ? '980px' : '1060px'
+      }
+    }
+
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(apply) }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    apply()
+
+    return () => {
+      cancelAnimationFrame(reveal)
+      window.removeEventListener('scroll', onScroll)
+      if (raf) cancelAnimationFrame(raf)
+    }
   }, [])
 
   return (
@@ -53,12 +86,15 @@ export default function Nav() {
         justifyContent:  'center',
         padding:         '0 20px',
         opacity:         0,
-        willChange:      'opacity',
+        transform:       'translateY(-16px)',
+        transition:      'transform 460ms var(--ease-expo, cubic-bezier(0.16,1,0.3,1)), opacity 600ms ease',
+        willChange:      'transform, opacity',
         pointerEvents:   'none',
       }}
     >
-      {/* Pill container — matches Daniel's .g2e-nav spec exactly */}
+      {/* Pill container */}
       <nav
+        ref={navRef}
         aria-label="Primary"
         style={{
           width:                '100%',
@@ -66,23 +102,26 @@ export default function Nav() {
           display:              'flex',
           alignItems:           'center',
           gap:                  '4px',
-          background:           `color-mix(in srgb, #FAFAF7 86%, transparent)`,
+          background:           'color-mix(in srgb, #FAFAF7 86%, transparent)',
           backdropFilter:       'blur(14px)',
           WebkitBackdropFilter: 'blur(14px)',
           border:               '1px solid var(--sand-300)',
           borderRadius:         'var(--radius-pill)',
-          padding:              '9px 9px 9px 18px',
+          padding:              '6px 8px 6px 18px',
           boxShadow:            'var(--shadow-card)',
           pointerEvents:        'auto',
+          transition:           'max-width 360ms var(--ease-expo, cubic-bezier(0.16,1,0.3,1)), padding 360ms var(--ease-expo, cubic-bezier(0.16,1,0.3,1)), background 300ms ease, box-shadow 300ms ease',
         }}
       >
-        {/* Logo — full SVG lockup (mark + G2E text) */}
+        {/* Logo lockup — emblem (logo_light.png) + G2E logomark (logo PDF).
+            Height is set inline to override Tailwind preflight. */}
         <Link
           href="/"
           aria-label="G2E home"
           style={{
             display:        'flex',
             alignItems:     'center',
+            gap:            '20px',
             marginRight:    'auto',
             textDecoration: 'none',
             flexShrink:     0,
@@ -90,10 +129,16 @@ export default function Nav() {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/assets/g2e-logo.svg"
+            src="/assets/logo-emblem.png"
+            alt=""
+            aria-hidden="true"
+            style={{ display: 'block', height: '44px', width: 'auto' }}
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/assets/logo-g2e.png"
             alt="G2E"
-            height={28}
-            style={{ display: 'block' }}
+            style={{ display: 'block', height: '34px', width: 'auto' }}
           />
         </Link>
 

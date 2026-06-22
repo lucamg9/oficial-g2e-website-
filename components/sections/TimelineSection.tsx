@@ -53,7 +53,7 @@ const MILESTONES: Milestone[] = [
     year:        '2013',
     label:       'Founding',
     title:       'G2E is Born',
-    description: 'To bring gasification to industrial scale, we found G2E — convinced we could help decarbonize Mexican industry through waste.',
+    description: 'To bring gasification to industrial scale, we found G2E, convinced we could help decarbonize Mexican industry through waste.',
     tag:         'Company',
     status:      'past',
     Icon:        Cog,
@@ -63,7 +63,7 @@ const MILESTONES: Milestone[] = [
     year:        '2014',
     label:       'Research',
     title:       'Partnership with UNAM',
-    description: "We begin working with UNAM's Institute of Engineering — the technical foundation for everything that followed.",
+    description: "We begin working with UNAM's Institute of Engineering, the technical foundation for everything that followed.",
     tag:         'Alliance',
     status:      'past',
     Icon:        GraduationCap,
@@ -73,7 +73,7 @@ const MILESTONES: Milestone[] = [
     year:        '2016',
     label:       'Infrastructure',
     title:       'Demonstration Center',
-    description: 'With SAGARPA funding, we open the UNAM–SAGARPA–G2E Gasification Technologies Demonstration Center at UNAM\'s main campus.',
+    description: 'With SAGARPA funding, we open the UNAM · SAGARPA · G2E Gasification Technologies Demonstration Center at UNAM\'s main campus.',
     tag:         'Build',
     status:      'past',
     Icon:        Building2,
@@ -93,7 +93,7 @@ const MILESTONES: Milestone[] = [
     year:        '2021',
     label:       'Build',
     title:       'Construction Begins',
-    description: 'Phase I construction starts at Bordo Poniente — the former landfill where over 1,000,000 m³ of organic matter release methane every day.',
+    description: 'Phase I construction starts at Bordo Poniente, the former landfill where over 1,000,000 m³ of organic matter release methane every day.',
     tag:         'Phase I',
     status:      'past',
     Icon:        Wrench,
@@ -123,7 +123,7 @@ const MILESTONES: Milestone[] = [
     year:        '2027',
     label:       'Phase II',
     title:       'Replication at Scale',
-    description: 'Phase II launches. A continental decarbonization platform designed for partners who think in decades — 10 new modules, verifiable carbon credits.',
+    description: 'Phase II launches. A continental decarbonization platform designed for partners who think in decades. Ten new modules, verifiable carbon credits.',
     tag:         'Next',
     status:      'future',
     Icon:        Rocket,
@@ -193,7 +193,7 @@ export default function TimelineSection() {
             </span>
           </span>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.10em', color: 'var(--ink-500)' }}>
-            2008 — 2027
+            2008 · 2027
           </span>
         </motion.div>
 
@@ -224,8 +224,8 @@ export default function TimelineSection() {
             maxWidth:   '540px',
             margin:     0,
           }}>
-            From the first seed planted in rural Mexico to a continental-scale
-            decarbonization platform — each milestone built on the resilience
+            From the first seed planted in rural Mexico to a continental scale
+            decarbonization platform. Each milestone builds on the resilience
             of the one before it.
           </p>
         </motion.div>

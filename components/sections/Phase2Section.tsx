@@ -21,7 +21,7 @@ const FIGURES = [
 
 const KEY_POINTS = [
   'Ten identical modules',
-  'One proven blueprint — faster & cheaper each build',
+  'One proven blueprint, faster and cheaper each build',
   'Replicable in any city',
 ]
 
@@ -32,7 +32,7 @@ export default function Phase2Section() {
     <section
       ref={sectionRef}
       id="phase2"
-      aria-label="Phase II — 2027 vision"
+      aria-label="Phase II · 2027 vision"
       style={{
         position:      'relative',
         background:    'var(--stone-ivory)',
@@ -73,7 +73,7 @@ export default function Phase2Section() {
           transition={{ duration: 0.9, ease }}
           style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '14px' }}
         >
-          <span className="g2e-eyebrow">2025 — 2027</span>
+          <span className="g2e-eyebrow">2025 · 2027</span>
           <h2 style={{
             fontFamily: 'var(--font-display)', fontWeight: 700,
             fontSize: 'clamp(2.2rem, 3.8vw, 3.4rem)', lineHeight: 1,
@@ -101,7 +101,7 @@ export default function Phase2Section() {
           >
             <Image
               src="/assets/phase2/facility.webp"
-              alt="The G2E hydrothermal carbonization plant at Bordo Poniente, Mexico City — the world's largest dedicated to municipal organic waste."
+              alt="The G2E hydrothermal carbonization plant at Bordo Poniente, Mexico City, the world's largest dedicated to municipal organic waste."
               fill
               sizes="(max-width: 1024px) 90vw, 720px"
               style={{ objectFit: 'cover', objectPosition: 'center', filter: 'saturate(0.84) contrast(1.02)' }}

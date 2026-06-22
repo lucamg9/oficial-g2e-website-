@@ -106,7 +106,7 @@ export default function Footer() {
           pointerEvents: 'none',
         }}
       >
-        GREEN TO ENERGY
+        G2E
       </div>
 
       {/* ── Content ──────────────────────────────────────────────────── */}
@@ -188,7 +188,7 @@ export default function Footer() {
                 maxWidth: '230px',
               }}
             >
-              Transforming municipal organic waste into hydrochar — decarbonizing industry at scale.
+              Transforming municipal organic waste into hydrochar, decarbonizing industry at scale.
             </p>
 
             {/* Email links */}

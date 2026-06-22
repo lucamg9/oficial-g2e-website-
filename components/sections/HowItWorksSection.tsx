@@ -28,9 +28,9 @@ const BEATS = [
   { t: 1 / 7, phase: '02', label: 'Intake',                caption: 'It arrives at the Bordo Poniente plant and enters the intake system.' },
   { t: 2 / 7, phase: '03', label: 'Slurry',                caption: 'Inside a sealed reactor, the waste becomes a homogeneous slurry.' },
   { t: 3 / 7, phase: '04', label: 'Pressure & heat',       caption: 'The reactor climbs to 220°C under controlled pressure.' },
-  { t: 4 / 7, phase: '05', label: 'Hydrothermal reaction', caption: 'Carbon bonds form as the organic matter transforms — with zero CO₂ emissions.' },
-  { t: 5 / 7, phase: '06', label: 'Carbonization',         caption: 'The reaction completes and hydrochar remains — a mineral-grade carbon.' },
-  { t: 6 / 7, phase: '07', label: 'Value at scale',        caption: 'Stable, measurable, replicable — ready to replace coal and regenerate soil, at city scale.' },
+  { t: 4 / 7, phase: '05', label: 'Hydrothermal reaction', caption: 'Carbon bonds form as the organic matter transforms, with zero CO₂ emissions.' },
+  { t: 5 / 7, phase: '06', label: 'Carbonization',         caption: 'The reaction completes and hydrochar remains, a mineral grade carbon.' },
+  { t: 6 / 7, phase: '07', label: 'Value at scale',        caption: 'Stable, measurable, replicable. Ready to replace coal and regenerate soil, at city scale.' },
 ]
 
 export default function HowItWorksSection() {

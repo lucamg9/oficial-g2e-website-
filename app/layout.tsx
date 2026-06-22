@@ -23,11 +23,11 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: {
-    default: 'G2E — Transforming Waste into Value',
-    template: '%s | G2E — Transforming Waste into Value',
+    default: 'G2E · Transforming Waste into Value',
+    template: '%s | G2E · Transforming Waste into Value',
   },
   description:
-    "G2E transforms organic waste into hydrochar — a clean-burning coal replacement and agricultural soil regenerant. Operating the world's largest hydrothermal carbonization plant in Mexico City.",
+    "G2E transforms organic waste into hydrochar, a clean burning coal replacement and agricultural soil regenerant. Operating the world's largest hydrothermal carbonization plant in Mexico City.",
   keywords: [
     'hydrothermal carbonization',
     'hydrochar',
@@ -42,10 +42,10 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: 'website',
-    siteName: 'G2E — Transforming Waste into Value',
-    title: 'G2E — Transforming Waste into Value',
+    siteName: 'G2E · Transforming Waste into Value',
+    title: 'G2E · Transforming Waste into Value',
     description:
-      'Transforming organic waste into hydrochar — a premium coal replacement, soil regenerant, and premium carbon credit generator.',
+      'Transforming organic waste into hydrochar, a premium coal replacement, soil regenerant, and premium carbon credit generator.',
   },
   robots: { index: true, follow: true },
 }
