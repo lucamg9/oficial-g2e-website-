@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 
 /* ──────────────────────────────────────────────────────────────
@@ -26,6 +26,32 @@ const NAV_LINKS = [
 export default function Nav() {
   const headerRef = useRef<HTMLElement>(null)
   const navRef    = useRef<HTMLElement>(null)
+
+  /* ── "In development" toast ─────────────────────────────────────────────
+     These sections aren't built yet, so clicking a link surfaces a calm
+     notice instead of navigating to a dead anchor. `label` keeps it mounted;
+     `open` drives the slide/fade. */
+  const [notice, setNotice] = useState<{ label: string } | null>(null)
+  const [noticeOpen, setNoticeOpen] = useState(false)
+  const hideTimer   = useRef<number | undefined>(undefined)
+  const unmountTimer = useRef<number | undefined>(undefined)
+
+  const showNotice = (label: string) => {
+    window.clearTimeout(hideTimer.current)
+    window.clearTimeout(unmountTimer.current)
+    setNotice({ label })
+    // next frame → transition in
+    requestAnimationFrame(() => requestAnimationFrame(() => setNoticeOpen(true)))
+    hideTimer.current = window.setTimeout(() => {
+      setNoticeOpen(false)
+      unmountTimer.current = window.setTimeout(() => setNotice(null), 340)
+    }, 2000)
+  }
+
+  useEffect(() => () => {
+    window.clearTimeout(hideTimer.current)
+    window.clearTimeout(unmountTimer.current)
+  }, [])
 
   useEffect(() => {
     const header = headerRef.current
@@ -73,6 +99,7 @@ export default function Nav() {
   }, [])
 
   return (
+    <>
     <header
       ref={headerRef}
       aria-label="Site navigation"
@@ -142,19 +169,23 @@ export default function Nav() {
           />
         </Link>
 
-        {/* Nav links */}
+        {/* Nav links — these sections are still in development, so they
+            surface a notice instead of navigating to a dead anchor. */}
         {NAV_LINKS.map(link => (
-          <Link
+          <button
             key={link.href}
-            href={link.href}
+            type="button"
+            onClick={() => showNotice(link.label)}
             style={{
               fontFamily:     'var(--font-sans)',
               fontSize:       '14px',
               fontWeight:     500,
               color:          'var(--ink-600)',
               padding:        '9px 15px',
+              border:         'none',
+              background:     'transparent',
               borderRadius:   'var(--radius-pill)',
-              textDecoration: 'none',
+              cursor:         'pointer',
               whiteSpace:     'nowrap',
               transition:     'background 220ms, color 220ms',
             }}
@@ -168,7 +199,7 @@ export default function Nav() {
             }}
           >
             {link.label}
-          </Link>
+          </button>
         ))}
 
         {/* CTA — clay accent pill */}
@@ -199,5 +230,63 @@ export default function Nav() {
         </Link>
       </nav>
     </header>
+
+    {/* ── "In development" toast — sits just under the pill, centred ─────── */}
+    {notice && (
+      <div
+        role="status"
+        aria-live="polite"
+        style={{
+          position:      'fixed',
+          top:           '84px',
+          left:          '50%',
+          zIndex:        101,
+          transform:     `translateX(-50%) translateY(${noticeOpen ? '0' : '-10px'})`,
+          opacity:       noticeOpen ? 1 : 0,
+          transition:    'opacity 280ms ease, transform 320ms var(--ease-expo, cubic-bezier(0.16,1,0.3,1))',
+          pointerEvents: 'none',
+          display:       'inline-flex',
+          alignItems:    'center',
+          gap:           '10px',
+          padding:       '10px 16px 10px 14px',
+          borderRadius:  '999px',
+          background:    'color-mix(in srgb, #2E372A 92%, transparent)',
+          backdropFilter:'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          border:        '1px solid rgba(245,243,238,0.12)',
+          boxShadow:     '0 14px 34px -14px rgba(46,55,42,0.55)',
+          whiteSpace:    'nowrap',
+          maxWidth:      'calc(100vw - 32px)',
+        }}
+      >
+        {/* pulsing moss dot */}
+        <span style={{ position: 'relative', display: 'inline-flex', width: '8px', height: '8px', flexShrink: 0 }}>
+          <span style={{
+            position: 'absolute', inset: 0, borderRadius: '50%',
+            background: 'var(--clay-500, #7A8F5A)', animation: 'g2e-ping 1.8s var(--ease-expo, ease-out) infinite',
+          }} />
+          <span style={{ position: 'relative', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--clay-500, #7A8F5A)' }} />
+        </span>
+        <span style={{
+          fontFamily:    'var(--font-sans)',
+          fontSize:      '13.5px',
+          fontWeight:    500,
+          color:         '#FAFAF7',
+          letterSpacing: '-0.01em',
+        }}>
+          <strong style={{ fontWeight: 600 }}>{notice.label}</strong>
+          {' '}is in development
+        </span>
+
+        <style>{`
+          @keyframes g2e-ping {
+            0%   { transform: scale(1);   opacity: 0.55; }
+            70%  { transform: scale(2.4); opacity: 0;    }
+            100% { transform: scale(2.4); opacity: 0;    }
+          }
+        `}</style>
+      </div>
+    )}
+    </>
   )
 }
