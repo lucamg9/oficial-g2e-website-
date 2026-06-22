@@ -385,7 +385,13 @@ html, body {
   align-items: center;
 }
 @media (max-width: 900px) {
-  .g2e-hero-grid { grid-template-columns: 1fr; gap: 48px; }
+  .g2e-hero-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+}
+
+/* Floating section-jump menu is redundant on mobile (the nav has a menu)
+   and would overlap content — hide it on small screens. */
+@media (max-width: 880px) {
+  .section-nav { display: none !important; }
 }
 
 /* ============================================================

@@ -204,6 +204,11 @@ export default function WhoWeAreSection() {
         zIndex:        1,
         pointerEvents: 'none',
       }} />
+      {/* Mobile-only readability scrim — full-width text needs more cover. */}
+      <div aria-hidden="true" className="wwa-mscrim" style={{
+        position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none', display: 'none',
+        background: 'linear-gradient(to bottom, rgba(46,55,42,0.74) 0%, rgba(46,55,42,0.88) 40%, rgba(46,55,42,0.94) 100%)',
+      }} />
 
       {/* ── Content layer ────────────────────────────────────────────── */}
       <div
@@ -217,7 +222,7 @@ export default function WhoWeAreSection() {
           pointerEvents: 'none',
         }}
       >
-        <div style={{
+        <div className="wwa-grid" style={{
           width:               '100%',
           display:             'grid',
           gridTemplateColumns: '1fr 1fr',
@@ -226,7 +231,7 @@ export default function WhoWeAreSection() {
         }}>
 
           {/* ── LEFT — stacked chapter panels ────────────────────────── */}
-          <div style={{ position: 'relative', height: '360px' }}>
+          <div className="wwa-stage" style={{ position: 'relative', height: '360px' }}>
             {CHAPTERS.map((ch, i) => (
               <div
                 key={i}
@@ -285,7 +290,7 @@ export default function WhoWeAreSection() {
                 </h2>
 
                 {/* Body */}
-                <p style={{
+                <p className="wwa-body" style={{
                   fontFamily: 'var(--font-sans)',
                   fontWeight: 300,
                   fontSize:   'clamp(0.92rem, 1.2vw, 1.06rem)',
@@ -361,7 +366,7 @@ export default function WhoWeAreSection() {
           </div>
 
           {/* ── RIGHT — vertical chapter dot indicator ───────────────── */}
-          <div style={{
+          <div className="wwa-dots" style={{
             display:        'flex',
             justifyContent: 'flex-end',
             alignItems:     'center',
@@ -433,6 +438,17 @@ export default function WhoWeAreSection() {
           ))}
         </div>
       </div>
+
+      {/* ── Responsive ─────────────────────────────────────────────── */}
+      <style>{`
+        @media (max-width: 768px) {
+          .wwa-grid   { grid-template-columns: 1fr !important; gap: 0 !important; }
+          .wwa-dots   { display: none !important; }
+          .wwa-stage  { height: auto !important; min-height: 420px; }
+          .wwa-mscrim { display: block !important; }
+          .wwa-body   { color: rgba(245,243,238,0.95) !important; font-weight: 400 !important; }
+        }
+      `}</style>
 
     </section>
   )

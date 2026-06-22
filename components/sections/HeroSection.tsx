@@ -73,8 +73,8 @@ export default function HeroSection() {
             style={{
               fontFamily:    'var(--font-display)',
               fontWeight:    700,
-              fontSize:      'clamp(3.2rem, 6.5vw, 5.5rem)',
-              lineHeight:    1.0,
+              fontSize:      'clamp(2.5rem, 8vw, 5.5rem)',
+              lineHeight:    1.02,
               letterSpacing: '-0.03em',
               color:         'var(--forest)',
               maxWidth:      '12ch',

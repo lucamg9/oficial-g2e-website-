@@ -80,6 +80,7 @@ export default function SectionNav() {
   return (
     <div
       ref={menuRef}
+      className="section-nav"
       style={{
         position:   'fixed',
         right:      '24px',

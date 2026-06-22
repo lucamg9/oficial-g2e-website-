@@ -87,6 +87,7 @@ export default function Phase2Section() {
 
         {/* Centre — the real plant, full & uncropped, emerging from the soil */}
         <motion.div
+          className="phase2-photo"
           initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: false, margin: '-80px' }}
@@ -171,7 +172,7 @@ export default function Phase2Section() {
           WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat',
         }} />
         {/* Base darkening so the white figures stand out on the soil */}
-        <div aria-hidden="true" style={{
+        <div aria-hidden="true" className="phase2-figbase" style={{
           position: 'absolute', left: 0, right: 0, bottom: 0, height: '72%', zIndex: 2, pointerEvents: 'none',
           background: 'linear-gradient(180deg, transparent 0%, rgba(6,4,2,0.55) 38%, rgba(4,3,1,0.90) 72%, rgba(2,2,1,0.96) 100%)',
         }} />
@@ -224,6 +225,16 @@ export default function Phase2Section() {
         }
         .phase2-grid h2 { white-space: nowrap; }
         .phase2-grid ul li { text-align: left; }
+        /* On phones/tablets the key points sit between the photo and the soil
+           band, so the photo's negative overlap would collide with them. */
+        @media (max-width: 1023px) {
+          .phase2-photo   { margin-bottom: 0 !important; }
+          .phase2-grid    { padding-bottom: clamp(190px, 26vh, 240px); }
+          /* Figures stack into two rows on narrow screens — extend the dark
+             backing so every figure sits on dark, not the lighter soil. */
+          .phase2-figbase { height: 100% !important;
+            background: linear-gradient(180deg, rgba(6,4,2,0.20) 0%, rgba(5,3,2,0.74) 30%, rgba(2,2,1,0.95) 100%) !important; }
+        }
         @media (min-width: 1024px) {
           .phase2-grid {
             grid-template-columns: minmax(200px, 0.8fr) minmax(420px, 720px) minmax(200px, 0.9fr);
