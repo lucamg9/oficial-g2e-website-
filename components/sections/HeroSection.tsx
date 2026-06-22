@@ -13,8 +13,8 @@ import { useT } from '@/lib/i18n'
           It is rendered by HydrocharJourney on a fixed layer so it
           can travel into the next section on scroll; the hero only
           reserves an invisible anchor (#hydrochar-anchor) for it.
-   Easter egg: a cornfield image peeks through a small gooey bubble
-          that follows the cursor (CursorReveal).
+   Easter egg: the G2E "carved in soil" image peeks through a small
+          gooey bubble that follows the cursor (CursorReveal).
    Palette + fonts: the site's 7-color system, Space Grotesk +
    Inter. Nothing outside the system.
    ────────────────────────────────────────────────────────────── */
@@ -50,10 +50,10 @@ export default function HeroSection() {
         overflow:      'hidden',
       }}
     >
-      {/* Cornfield peeking through a gooey bubble around the cursor.
-          Sits behind all content so it reveals in the negative space
-          and softly behind the text/card. */}
-      <CursorReveal src="/assets/generated/cornfield.webp" radius={150} trail={5} />
+      {/* The G2E "carved in soil" image peeking through a gooey bubble that
+          follows the cursor. Sits behind all content so it reveals in the
+          negative space and softly behind the text/card. */}
+      <CursorReveal src="/assets/generated/soil-reveal.webp" radius={120} trail={5} />
 
       {/* The biochar lives here, on a fixed layer, so it can travel into
           the next section on scroll. Direct child of the section (no
