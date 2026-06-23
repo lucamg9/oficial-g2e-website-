@@ -65,7 +65,7 @@ export default function HeroSection() {
         style={{ position: 'relative', zIndex: 1 }}
       >
         {/* ── Left: minimal, dominant copy ───────────────────── */}
-        <div>
+        <div className="hero-copy">
           <motion.h1
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
@@ -100,10 +100,11 @@ export default function HeroSection() {
           </motion.p>
 
           <motion.div
+            className="hero-cta"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease, delay: 0.22 }}
-            style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginTop: '40px' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginTop: 'clamp(32px, 5vw, 40px)' }}
           >
             <a
               href="#contact"
@@ -155,6 +156,7 @@ export default function HeroSection() {
 
         {/* ── Right: the hydrochar — live 3D + spec section ────── */}
         <motion.div
+          className="hero-visual"
           initial={{ opacity: 0, y: 24, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 1.0, ease, delay: 0.2 }}
@@ -186,6 +188,7 @@ export default function HeroSection() {
               shadow runs softly behind it, never abruptly cut. Sits above
               the fixed biochar layer (z-index) to preserve that overlap. */}
           <div
+            className="hero-spec"
             style={{
               position:     'relative',
               zIndex:       3,
@@ -195,7 +198,7 @@ export default function HeroSection() {
               display:      'flex',
               alignItems:   'stretch',
               gap:          '14px',
-              padding:      '18px 22px',
+              padding:      '18px 20px',
               borderRadius: 'var(--radius-lg)',
               background:   'var(--fog-white)',
               border:       '1px solid var(--limestone)',
@@ -203,7 +206,7 @@ export default function HeroSection() {
             }}
           >
             {/* Identity */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', paddingRight: '6px' }}>
+            <div className="hero-spec-id" style={{ display: 'flex', flexDirection: 'column', gap: '3px', paddingRight: '6px', flexShrink: 0 }}>
               <span style={{
                 fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '19px',
                 letterSpacing: '-0.01em', color: 'var(--forest)', lineHeight: 1.05,
@@ -219,41 +222,46 @@ export default function HeroSection() {
             </div>
 
             {/* Data points */}
-            {[
-              { value: '220°C', label: 'Process temp' },
-              { value: 'Zero',  label: 'CO₂ emissions' },
-              { value: 'Coal',  label: 'Replaces' },
-            ].map((d) => (
-              <div
-                key={d.label}
-                style={{
-                  flex: 1,
-                  display: 'flex', flexDirection: 'column', gap: '3px',
-                  paddingLeft: '14px',
-                  borderLeft: '1px solid var(--line)',
-                }}
-              >
-                <span style={{
-                  fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '16px',
-                  letterSpacing: '-0.01em', color: 'var(--forest)', lineHeight: 1.05,
-                }}>
-                  {t(d.value)}
-                </span>
-                <span style={{
-                  fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: '10px',
-                  letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--fg-muted)',
-                  lineHeight: 1.2,
-                }}>
-                  {t(d.label)}
-                </span>
-              </div>
-            ))}
+            <div className="hero-spec-stats" style={{
+              flex: 1, display: 'flex', gap: '14px',
+              paddingLeft: '14px', borderLeft: '1px solid var(--line)',
+            }}>
+              {[
+                { value: '220°C', label: 'Process temp' },
+                { value: 'Zero',  label: 'CO₂ emissions' },
+                { value: 'Coal',  label: 'Replaces' },
+              ].map((d, i) => (
+                <div
+                  key={d.label}
+                  style={{
+                    flex: 1, display: 'flex', flexDirection: 'column', gap: '3px',
+                    paddingLeft: i ? '14px' : 0,
+                    borderLeft: i ? '1px solid var(--line)' : 'none',
+                  }}
+                >
+                  <span style={{
+                    fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '16px',
+                    letterSpacing: '-0.01em', color: 'var(--forest)', lineHeight: 1.05,
+                  }}>
+                    {t(d.value)}
+                  </span>
+                  <span style={{
+                    fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: '10px',
+                    letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--fg-muted)',
+                    lineHeight: 1.2,
+                  }}>
+                    {t(d.label)}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </motion.div>
       </div>
 
       {/* Subtle scroll cue — editorial, bottom-left. */}
       <motion.div
+        className="hero-scrollcue"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, ease, delay: 0.6 }}
@@ -272,6 +280,28 @@ export default function HeroSection() {
         <span style={{ width: '46px', height: '1px', background: 'var(--limestone)', display: 'block' }} />
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--moss)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m5 12 7 7 7-7"/></svg>
       </motion.div>
+
+      {/* ── Responsive ─────────────────────────────────────────────── */}
+      <style>{`
+        /* Single-column range: the carbon becomes an ambient background that
+           bleeds off the bottom, so the hero stays to one screen instead of
+           stacking text -> big square -> spec card. */
+        @media (max-width: 900px) {
+          #intro          { min-height: 100svh; padding-bottom: 0 !important; }
+          .g2e-hero-grid  { position: relative; align-items: start;
+                            min-height: calc(100svh - var(--nav-h) - 64px); }
+          .hero-copy      { position: relative; z-index: 2; }
+          .hero-visual    { position: absolute !important; left: 50%; bottom: 0;
+                            width: min(92vw, 480px); transform: translate(-50%, 20%);
+                            margin: 0 !important; z-index: 0 !important; pointer-events: none; }
+          .hero-visual .hero-spec { display: none !important; }
+          .hero-scrollcue { display: none !important; }
+        }
+        @media (max-width: 600px) {
+          .hero-cta        { flex-direction: column; align-items: stretch; }
+          .hero-cta > a    { width: 100%; justify-content: center; }
+        }
+      `}</style>
     </section>
   )
 }

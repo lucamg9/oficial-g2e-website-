@@ -229,11 +229,11 @@ export default function Phase2Section() {
            band, so the photo's negative overlap would collide with them. */
         @media (max-width: 1023px) {
           .phase2-photo   { margin-bottom: 0 !important; }
-          .phase2-grid    { padding-bottom: clamp(190px, 26vh, 240px); }
+          .phase2-grid    { padding-top: clamp(60px, 11vw, 96px); padding-bottom: clamp(200px, 27vh, 250px); }
           /* Figures stack into two rows on narrow screens — extend the dark
              backing so every figure sits on dark, not the lighter soil. */
           .phase2-figbase { height: 100% !important;
-            background: linear-gradient(180deg, rgba(6,4,2,0.20) 0%, rgba(5,3,2,0.74) 30%, rgba(2,2,1,0.95) 100%) !important; }
+            background: linear-gradient(180deg, rgba(6,4,2,0.42) 0%, rgba(5,3,2,0.82) 26%, rgba(2,2,1,0.96) 100%) !important; }
         }
         @media (min-width: 1024px) {
           .phase2-grid {

@@ -392,6 +392,9 @@ html, body {
    and would overlap content — hide it on small screens. */
 @media (max-width: 880px) {
   .section-nav { display: none !important; }
+  /* The floating CTA overlaps content on small screens and the nav menu
+     already carries a "Get in touch" action. */
+  .contact-fab { display: none !important; }
 }
 
 /* ============================================================

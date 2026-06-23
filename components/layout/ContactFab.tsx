@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useT } from '@/lib/i18n'
 
 export default function ContactFab() {
   const [show, setShow] = useState(false)
+  const t = useT()
 
   useEffect(() => {
     const onScroll = () => setShow(window.scrollY > window.innerHeight * 0.8)
@@ -14,6 +16,7 @@ export default function ContactFab() {
 
   return (
     <div
+      className="contact-fab"
       style={{
         position: 'fixed',
         bottom: '24px',
@@ -46,7 +49,7 @@ export default function ContactFab() {
         onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--hydrochar-700)')}
         onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--hydrochar-900)')}
       >
-        Get in touch
+        {t('Get in touch')}
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
         </svg>
