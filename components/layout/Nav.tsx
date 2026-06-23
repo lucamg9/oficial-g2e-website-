@@ -147,15 +147,13 @@ export default function Nav() {
           transition: 'padding 360ms var(--ease-expo, cubic-bezier(0.16,1,0.3,1)), background 300ms ease, box-shadow 300ms ease',
         }}
       >
-        {/* Logo lockup */}
+        {/* Logo — the G2E logomark (brand PDF, transparent). */}
         <Link href="/" aria-label="G2E home" className="nav-logo" style={{
-          display: 'flex', alignItems: 'center', gap: '20px',
-          marginRight: 'auto', textDecoration: 'none', flexShrink: 0,
+          display: 'flex', alignItems: 'center',
+          marginLeft: '10px', marginRight: 'auto', textDecoration: 'none', flexShrink: 0,
         }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/logo-emblem.png" alt="" aria-hidden="true" className="nav-emblem" style={{ display: 'block', height: '44px', width: 'auto' }} />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/logo-g2e.png" alt="G2E" className="nav-wordmark" style={{ display: 'block', height: '34px', width: 'auto' }} />
+          <img src="/assets/logo-g2e.png" alt="G2E" className="nav-wordmark" style={{ display: 'block', height: '36px', width: 'auto' }} />
         </Link>
 
         {/* Desktop inline items */}
@@ -310,14 +308,10 @@ export default function Nav() {
         .nav-inline      { display: none !important; }
         .nav-burger      { display: inline-flex !important; }
         .nav-mobile-wrap { display: block !important; }
-        .nav-emblem      { height: 38px !important; }
-        .nav-wordmark    { height: 28px !important; }
-        .nav-logo        { gap: 14px !important; }
+        .nav-wordmark    { height: 30px !important; }
       }
       @media (max-width: 420px) {
-        .nav-emblem   { height: 32px !important; }
-        .nav-wordmark { height: 24px !important; }
-        .nav-logo     { gap: 11px !important; }
+        .nav-wordmark { height: 26px !important; }
       }
     `}</style>
     </>

@@ -134,10 +134,9 @@ export default function Footer() {
           <div ref={logoRowRef} style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: 'var(--space-6)' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/assets/g2e-logo-light.svg"
+              src="/assets/logo-emblem-light.png"
               alt="G2E"
-              height={36}
-              style={{ display: 'block', flexShrink: 0 }}
+              style={{ display: 'block', height: '52px', width: 'auto', flexShrink: 0 }}
             />
             <span
               style={{
