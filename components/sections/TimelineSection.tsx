@@ -177,6 +177,18 @@ export default function TimelineSection() {
 
       {/* ── Section header ───────────────────────────────────────────── */}
       <div className="g2e-container" style={{ position: 'relative', zIndex: 1, marginBottom: 'clamp(56px, 8vw, 96px)' }}>
+       <div className="tl-header" style={{ position: 'relative', maxWidth: '640px' }}>
+        {/* Frosted backing — keeps the header legible over the living roots
+            (invisible on the plain cream, only softens/lightens the roots
+            where they pass behind the text). */}
+        <div aria-hidden="true" className="tl-header-bg" style={{
+          position: 'absolute', inset: '-18px -22px', borderRadius: '24px', zIndex: 0,
+          background: 'rgba(244,242,237,0.5)',
+          backdropFilter: 'blur(9px)', WebkitBackdropFilter: 'blur(9px)',
+          maskImage: 'linear-gradient(to bottom, #000 80%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, #000 80%, transparent 100%)',
+        }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -229,6 +241,8 @@ export default function TimelineSection() {
             {t('From the first seed planted in rural Mexico to a continental scale decarbonization platform. Each milestone builds on the resilience of the one before it.')}
           </p>
         </motion.div>
+        </div>
+       </div>
       </div>
 
       {/* ── Milestone rows (over the living helix backbone) ───────────── */}
