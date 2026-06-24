@@ -50,10 +50,10 @@ export default function HeroSection() {
         overflow:      'hidden',
       }}
     >
-      {/* The G2E "carved in soil" image peeking through a gooey bubble that
+      {/* A Mexican mountain landscape peeking through a gooey bubble that
           follows the cursor. Sits behind all content so it reveals in the
           negative space and softly behind the text/card. */}
-      <CursorReveal src="/assets/generated/soil-reveal.webp" radius={120} trail={5} />
+      <CursorReveal src="/assets/generated/mountain-reveal.webp" radius={120} trail={5} />
 
       {/* The biochar lives here, on a fixed layer, so it can travel into
           the next section on scroll. Direct child of the section (no
