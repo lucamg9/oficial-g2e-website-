@@ -178,10 +178,10 @@ export default function Phase2Section() {
         }} />
 
         <div
-          className="g2e-container"
+          className="g2e-container phase2-figpanel"
           style={{ position: 'relative', zIndex: 3, display: 'flex', flexDirection: 'column', gap: '14px', paddingBottom: 'clamp(22px, 3vw, 36px)' }}
         >
-          <div style={{
+          <div className="phase2-figgrid" style={{
             display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
             gap: 'clamp(14px, 3vw, 40px)',
           }}>
@@ -203,7 +203,7 @@ export default function Phase2Section() {
               </div>
             ))}
           </div>
-          <span style={{
+          <span className="phase2-cap" style={{
             fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: '10.5px',
             letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(250,250,247,0.5)',
           }}>
@@ -229,11 +229,24 @@ export default function Phase2Section() {
            band, so the photo's negative overlap would collide with them. */
         @media (max-width: 1023px) {
           .phase2-photo   { margin-bottom: 0 !important; }
-          .phase2-grid    { padding-top: clamp(60px, 11vw, 96px); padding-bottom: clamp(200px, 27vh, 250px); }
-          /* Figures stack into two rows on narrow screens — extend the dark
-             backing so every figure sits on dark, not the lighter soil. */
-          .phase2-figbase { height: 100% !important;
-            background: linear-gradient(180deg, rgba(6,4,2,0.42) 0%, rgba(5,3,2,0.82) 26%, rgba(2,2,1,0.96) 100%) !important; }
+          .phase2-grid    { padding-top: clamp(60px, 11vw, 96px); padding-bottom: clamp(230px, 32vh, 280px); }
+          /* The figures get their own solid dark panel so every figure sits on
+             dark (no more white-on-white top row), with a soft top edge that
+             blends out of the soil above. */
+          .phase2-figpanel {
+            background: linear-gradient(180deg, rgba(10,8,5,0) 0%, rgba(8,6,4,0.97) 7%, rgba(3,2,1,0.99) 100%) !important;
+            padding-top: 34px !important;
+            padding-bottom: clamp(28px, 6vw, 40px) !important;
+            gap: 20px !important;
+          }
+          .phase2-figgrid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 24px 18px !important;
+          }
+          .phase2-cap {
+            padding-top: 16px !important;
+            border-top: 1px solid rgba(250,250,247,0.14);
+          }
         }
         @media (min-width: 1024px) {
           .phase2-grid {
