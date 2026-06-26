@@ -60,9 +60,26 @@ export default function HowItWorksSection() {
     const video = videoRef.current
     if (!section || !video) return
 
-    try { video.pause(); video.currentTime = 0 } catch { /* ignore */ }
+    // Mobile Safari won't paint a seeked frame of an un-played inline video,
+    // so on mobile we load a small version and autoplay + loop it; the step
+    // captions still advance on scroll (driven by ScrollTrigger below).
+    const mobile = window.matchMedia('(max-width: 900px)').matches
+      || window.matchMedia('(pointer: coarse)').matches
+    let onTouch: (() => void) | null = null
 
-    /* ── Scrub loop — ease currentTime toward the scroll target ───────── */
+    if (mobile) {
+      video.src = '/motion/hiw/story-mobile.mp4'
+      video.loop = true
+      video.muted = true
+      const play = () => { video.play().catch(() => {}) }
+      play()
+      onTouch = () => play()
+      document.addEventListener('touchstart', onTouch, { once: true })
+    } else {
+      try { video.pause(); video.currentTime = 0 } catch { /* ignore */ }
+    }
+
+    /* ── Scrub loop — ease currentTime toward the scroll target (desktop) ─ */
     const tick = () => {
       if (video.readyState >= 2) {
         const next = lerpFn(lerpedTime.current, targetTime.current, LERP)
@@ -73,7 +90,7 @@ export default function HowItWorksSection() {
       }
       rafRef.current = requestAnimationFrame(tick)
     }
-    rafRef.current = requestAnimationFrame(tick)
+    if (!mobile) rafRef.current = requestAnimationFrame(tick)
 
     /* ── Clean beat transition: fade out → swap → fade up in ──────────── */
     const goToBeat = (idx: number) => {
@@ -152,6 +169,7 @@ export default function HowItWorksSection() {
     return () => {
       st.kill()
       cancelAnimationFrame(rafRef.current)
+      if (onTouch) document.removeEventListener('touchstart', onTouch)
       try { video.pause() } catch { /* ignore */ }
     }
   }, [])
@@ -182,6 +200,7 @@ export default function HowItWorksSection() {
         <video
           ref={videoRef}
           src={STORY_SRC}
+          poster="/motion/hiw/story-poster.jpg"
           muted
           playsInline
           preload="auto"

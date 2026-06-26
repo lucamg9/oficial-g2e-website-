@@ -57,11 +57,30 @@ export default function WhoWeAreSection() {
   const last = CHAPTERS.length - 1
   const t = useT()
 
-  /* ─── RAF lerp scrub ──────────────────────────────────────────────────── */
+  /* ─── Playback ────────────────────────────────────────────────────────────
+     Desktop scrubs the film by scroll (currentTime). Mobile Safari won't paint
+     a seeked frame of an un-played inline video, so on mobile we load a small
+     version and just autoplay + loop it (muted, inline — which iOS plays
+     reliably); the chapter text still advances on scroll. */
   useEffect(() => {
+    const v = videoRef.current
+    if (!v) return
+    const mobile = window.matchMedia('(max-width: 900px)').matches
+      || window.matchMedia('(pointer: coarse)').matches
+
+    if (mobile) {
+      v.src = '/motion/story/who-we-are-mobile.mp4'
+      v.loop = true
+      v.muted = true
+      const play = () => { v.play().catch(() => {}) }
+      play()
+      const onTouch = () => play()
+      document.addEventListener('touchstart', onTouch, { once: true })
+      return () => document.removeEventListener('touchstart', onTouch)
+    }
+
     const tick = () => {
-      const v = videoRef.current
-      if (v && v.readyState >= 2) {
+      if (v.readyState >= 2) {
         const next = lerpedTime.current + (targetTime.current - lerpedTime.current) * LERP
         if (Math.abs(next - lerpedTime.current) > 0.0005) {
           lerpedTime.current = next
@@ -164,6 +183,7 @@ export default function WhoWeAreSection() {
       <video
         ref={videoRef}
         src={VIDEO_SRC}
+        poster="/motion/story/who-we-are-poster.jpg"
         muted
         playsInline
         preload="auto"
@@ -207,7 +227,7 @@ export default function WhoWeAreSection() {
       {/* Mobile-only readability scrim — full-width text needs more cover. */}
       <div aria-hidden="true" className="wwa-mscrim" style={{
         position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none', display: 'none',
-        background: 'linear-gradient(to bottom, rgba(46,55,42,0.74) 0%, rgba(46,55,42,0.88) 40%, rgba(46,55,42,0.94) 100%)',
+        background: 'linear-gradient(to bottom, rgba(46,55,42,0.30) 0%, rgba(46,55,42,0.52) 52%, rgba(46,55,42,0.80) 100%)',
       }} />
 
       {/* ── Content layer ────────────────────────────────────────────── */}
@@ -276,7 +296,7 @@ export default function WhoWeAreSection() {
                 </div>
 
                 {/* Headline */}
-                <h2 style={{
+                <h2 className="wwa-headline" style={{
                   fontFamily:    'var(--font-display)',
                   fontWeight:    800,
                   fontSize:      'clamp(2.2rem, 3.8vw, 3.8rem)',
@@ -445,8 +465,10 @@ export default function WhoWeAreSection() {
           .wwa-grid   { grid-template-columns: 1fr !important; gap: 0 !important; }
           .wwa-dots   { display: none !important; }
           .wwa-stage  { height: auto !important; min-height: 420px; }
-          .wwa-mscrim { display: block !important; }
-          .wwa-body   { color: rgba(245,243,238,0.95) !important; font-weight: 400 !important; }
+          .wwa-mscrim   { display: block !important; }
+          .wwa-body     { color: rgba(245,243,238,0.95) !important; font-weight: 400 !important;
+                          text-shadow: 0 1px 14px rgba(20,24,16,0.7); }
+          .wwa-headline { text-shadow: 0 2px 18px rgba(20,24,16,0.6); }
         }
       `}</style>
 
