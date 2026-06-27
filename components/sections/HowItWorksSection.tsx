@@ -69,7 +69,7 @@ export default function HowItWorksSection() {
     let onTouch: (() => void) | null = null
 
     if (mobile) {
-      video.src = '/motion/hiw/story-scrub.mp4'
+      video.src = '/motion/hiw/story-hd.mp4'
       video.muted = true
       const prime = () => { video.play().then(() => video.pause()).catch(() => {}) }
       prime()

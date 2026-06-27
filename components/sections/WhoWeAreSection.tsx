@@ -70,7 +70,7 @@ export default function WhoWeAreSection() {
     let onTouch: (() => void) | null = null
 
     if (mobile) {
-      v.src = '/motion/story/who-we-are-scrub.mp4'
+      v.src = '/motion/story/who-we-are-hd.mp4'
       v.muted = true
       const prime = () => { v.play().then(() => v.pause()).catch(() => {}) }
       prime()
