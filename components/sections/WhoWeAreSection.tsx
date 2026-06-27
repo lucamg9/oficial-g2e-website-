@@ -58,25 +58,24 @@ export default function WhoWeAreSection() {
   const t = useT()
 
   /* ─── Playback ────────────────────────────────────────────────────────────
-     Desktop scrubs the film by scroll (currentTime). Mobile Safari won't paint
-     a seeked frame of an un-played inline video, so on mobile we load a small
-     version and just autoplay + loop it (muted, inline — which iOS plays
-     reliably); the chapter text still advances on scroll. */
+     Both desktop and mobile scrub the film by scroll (currentTime → the rAF
+     lerp below). Mobile loads a seek-optimised version (frequent keyframes so
+     seeking is smooth) and is "primed" with a muted play→pause, because iOS
+     only paints seeked frames after a video has played at least once. */
   useEffect(() => {
     const v = videoRef.current
     if (!v) return
     const mobile = window.matchMedia('(max-width: 900px)').matches
       || window.matchMedia('(pointer: coarse)').matches
+    let onTouch: (() => void) | null = null
 
     if (mobile) {
-      v.src = '/motion/story/who-we-are-hq.mp4'
-      v.loop = true
+      v.src = '/motion/story/who-we-are-scrub.mp4'
       v.muted = true
-      const play = () => { v.play().catch(() => {}) }
-      play()
-      const onTouch = () => play()
+      const prime = () => { v.play().then(() => v.pause()).catch(() => {}) }
+      prime()
+      onTouch = () => prime()
       document.addEventListener('touchstart', onTouch, { once: true })
-      return () => document.removeEventListener('touchstart', onTouch)
     }
 
     const tick = () => {
@@ -90,13 +89,23 @@ export default function WhoWeAreSection() {
       rafRef.current = requestAnimationFrame(tick)
     }
     rafRef.current = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(rafRef.current)
+    return () => {
+      cancelAnimationFrame(rafRef.current)
+      if (onTouch) document.removeEventListener('touchstart', onTouch)
+    }
   }, [])
 
   /* ─── ScrollTrigger ───────────────────────────────────────────────────── */
   useEffect(() => {
     const section = sectionRef.current
     if (!section) return
+
+    // Shorter pinned scroll distance on phones/tablets so the section doesn't
+    // feel like it traps the scroll; the chapter/film mapping is progress-based
+    // (0→1) so pacing stays correct at any distance.
+    const mobile = window.matchMedia('(max-width: 900px)').matches
+      || window.matchMedia('(pointer: coarse)').matches
+    const dist = mobile ? 2000 : SCROLL_DIST
 
     const resetToStart = () => {
       targetTime.current  = 0
@@ -117,7 +126,7 @@ export default function WhoWeAreSection() {
     const st = ScrollTrigger.create({
       trigger: section,
       start:   'top top',
-      end:     `+=${SCROLL_DIST}`,
+      end:     `+=${dist}`,
       pin:     true,
       scrub:   0.6,
       anticipatePin: 1,

@@ -17,6 +17,13 @@ export function LenisProvider({ children }: { children: ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null)
 
   useEffect(() => {
+    // Touch devices keep their native momentum scrolling — Lenis adds a JS
+    // rAF layer that fights iOS/Android inertial scroll and makes pinned
+    // scrub sections feel laggy. ScrollTrigger reads native scroll directly
+    // when Lenis isn't driving it, so the mobile experience stays smooth.
+    const isTouch = window.matchMedia('(pointer: coarse)').matches
+    if (isTouch) return
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),

@@ -60,26 +60,26 @@ export default function HowItWorksSection() {
     const video = videoRef.current
     if (!section || !video) return
 
-    // Mobile Safari won't paint a seeked frame of an un-played inline video,
-    // so on mobile we load a small version and autoplay + loop it; the step
-    // captions still advance on scroll (driven by ScrollTrigger below).
+    // Both desktop and mobile scrub the film by scroll. Mobile loads a
+    // seek-optimised version (frequent keyframes for smooth seeking) and is
+    // primed with a muted play→pause, because iOS only paints seeked frames
+    // after a video has played at least once.
     const mobile = window.matchMedia('(max-width: 900px)').matches
       || window.matchMedia('(pointer: coarse)').matches
     let onTouch: (() => void) | null = null
 
     if (mobile) {
-      video.src = '/motion/hiw/story-hq.mp4'
-      video.loop = true
+      video.src = '/motion/hiw/story-scrub.mp4'
       video.muted = true
-      const play = () => { video.play().catch(() => {}) }
-      play()
-      onTouch = () => play()
+      const prime = () => { video.play().then(() => video.pause()).catch(() => {}) }
+      prime()
+      onTouch = () => prime()
       document.addEventListener('touchstart', onTouch, { once: true })
     } else {
       try { video.pause(); video.currentTime = 0 } catch { /* ignore */ }
     }
 
-    /* ── Scrub loop — ease currentTime toward the scroll target (desktop) ─ */
+    /* ── Scrub loop — ease currentTime toward the scroll target ──────────── */
     const tick = () => {
       if (video.readyState >= 2) {
         const next = lerpFn(lerpedTime.current, targetTime.current, LERP)
@@ -90,7 +90,7 @@ export default function HowItWorksSection() {
       }
       rafRef.current = requestAnimationFrame(tick)
     }
-    if (!mobile) rafRef.current = requestAnimationFrame(tick)
+    rafRef.current = requestAnimationFrame(tick)
 
     /* ── Clean beat transition: fade out → swap → fade up in ──────────── */
     const goToBeat = (idx: number) => {
@@ -140,7 +140,9 @@ export default function HowItWorksSection() {
       trigger: section,
       pin:     stickyRef.current,
       start:   'top top',
-      end:     `+=${SCROLL_DIST}`,
+      // Shorter pinned distance on phones/tablets so the film doesn't trap the
+      // scroll; beats are progress-based so pacing stays correct.
+      end:     `+=${mobile ? 2800 : SCROLL_DIST}`,
       scrub:   0.6,
       anticipatePin: 1,
       invalidateOnRefresh: true,
