@@ -68,7 +68,7 @@ export default function HowItWorksSection() {
     let onTouch: (() => void) | null = null
 
     if (mobile) {
-      video.src = '/motion/hiw/story-mobile.mp4'
+      video.src = '/motion/hiw/story-hq.mp4'
       video.loop = true
       video.muted = true
       const play = () => { video.play().catch(() => {}) }

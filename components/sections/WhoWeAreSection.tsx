@@ -69,7 +69,7 @@ export default function WhoWeAreSection() {
       || window.matchMedia('(pointer: coarse)').matches
 
     if (mobile) {
-      v.src = '/motion/story/who-we-are-mobile.mp4'
+      v.src = '/motion/story/who-we-are-hq.mp4'
       v.loop = true
       v.muted = true
       const play = () => { v.play().catch(() => {}) }
