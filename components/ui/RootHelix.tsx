@@ -86,6 +86,20 @@ export default function RootHelix({ progressRef, className, style }: Props) {
     const svg = svgRef.current
     if (!wrap || !svg) return
 
+    // Phones/tablets: pull the camera back (smaller geometry = less zoomed-in,
+    // finer roots read sharper) and do far less work per frame (coarser
+    // sampling, shorter trail, fewer roots, sparser hairs) so growth stays
+    // smooth and doesn't starve the milestone-card reveals.
+    const mobile = window.matchMedia('(max-width: 900px)').matches
+      || window.matchMedia('(pointer: coarse)').matches
+    const S         = mobile ? 0.62 : 1
+    const DYv       = mobile ? 16 : DY
+    const TRAILv    = mobile ? 760 : TRAIL
+    const HAIRSTEPv = mobile ? 11 : HAIR_STEP
+    const TIP_LENv  = TIP_LEN * S
+    const TOP_LENv  = TOP_LEN * S
+    const MAXR      = mobile ? 8 : ROOTS.length
+
     let lastP = -1
     let lastW = 0
 
@@ -112,8 +126,8 @@ export default function RootHelix({ progressRef, className, style }: Props) {
     const halfWidthAt = (distFromTip: number, distFromTop: number, full: number) => {
       const hw = full / 2
       let f = 1
-      if (distFromTip < TIP_LEN) f = Math.min(f, 0.10 + 0.90 * Math.pow(clamp01(distFromTip / TIP_LEN), 0.7))
-      if (distFromTop < TOP_LEN) f = Math.min(f, 0.30 + 0.70 * clamp01(distFromTop / TOP_LEN))
+      if (distFromTip < TIP_LENv) f = Math.min(f, 0.10 + 0.90 * Math.pow(clamp01(distFromTip / TIP_LENv), 0.7))
+      if (distFromTop < TOP_LENv) f = Math.min(f, 0.30 + 0.70 * clamp01(distFromTop / TOP_LENv))
       return hw * f
     }
 
@@ -131,10 +145,19 @@ export default function RootHelix({ progressRef, className, style }: Props) {
           const hairsEl = hairRefs.current[ri]
           const tipEl   = tipRefs.current[ri]
 
+          // Drop the finest secondary roots on phones — fewer ribbons to
+          // rebuild each frame.
+          if (ri >= MAXR) {
+            if (ribbon) ribbon.setAttribute('d', '')
+            if (hairsEl) hairsEl.setAttribute('d', '')
+            if (tipEl) tipEl.setAttribute('opacity', '0')
+            return
+          }
+
           // Tip pinned `lift` px above the viewport bottom (which maps to
           // section-y = p*H), so the end stays on screen as it grows.
-          const tipY   = clamp(p * H - R.lift, 0, H)
-          const yStart = Math.max(0, tipY - TRAIL)
+          const tipY   = clamp(p * H - R.lift * S, 0, H)
+          const yStart = Math.max(0, tipY - TRAILv)
 
           if (tipY - yStart < 6) {
             if (ribbon) ribbon.setAttribute('d', '')
@@ -144,11 +167,11 @@ export default function RootHelix({ progressRef, className, style }: Props) {
           }
 
           const xAt = (y: number) =>
-            cx + R.x0 + R.drift * Math.pow(clamp01(y / H), R.bend) + gnarl(y, R.seed) * R.wob
+            cx + R.x0 * S + R.drift * S * Math.pow(clamp01(y / H), R.bend) + gnarl(y, R.seed) * R.wob * S
 
           // Sample the centreline.
           const ys: number[] = []
-          for (let y = yStart; y < tipY; y += DY) ys.push(y)
+          for (let y = yStart; y < tipY; y += DYv) ys.push(y)
           ys.push(tipY)
           const n = ys.length
           const xs = ys.map(xAt)
@@ -168,7 +191,7 @@ export default function RootHelix({ progressRef, className, style }: Props) {
             const tl = Math.hypot(tx, ty) || 1
             tx /= tl; ty /= tl
             const nx = -ty, ny = tx                       // unit normal
-            const hw = halfWidthAt(tipY - y, y - yStart, R.thick)
+            const hw = halfWidthAt(tipY - y, y - yStart, R.thick * S)
             const lx = x + nx * hw, ly = y + ny * hw
             const rx = x - nx * hw, ry = y - ny * hw
             left.push(`${lx.toFixed(1)} ${ly.toFixed(1)}`)
@@ -186,14 +209,14 @@ export default function RootHelix({ progressRef, className, style }: Props) {
           // Root hairs — short whiskers angled outward + down, fading in
           // along the grown length and thinning toward the tip.
           let hd = ''
-          for (let i = 2; i < n - 2; i += HAIR_STEP) {
+          for (let i = 2; i < n - 2; i += HAIRSTEPv) {
             const e = edgeL[i]
             const dft = tipY - e.y
             const dfs = e.y - yStart
             const fade = clamp01(dft / 220) * clamp01(dfs / 140)
             if (fade < 0.06) continue
-            const side = (i % (HAIR_STEP * 2) === 0) ? 1 : -1
-            const len = (5 + rand(R.seed, i) * 11) * fade * R.hair
+            const side = (i % (HAIRSTEPv * 2) === 0) ? 1 : -1
+            const len = (5 + rand(R.seed, i) * 11) * fade * R.hair * S
             if (len < 2) continue
             // anchor on the edge, push outward along the normal + slight down
             const ax = e.x + e.nx * e.hw * side
@@ -215,7 +238,7 @@ export default function RootHelix({ progressRef, className, style }: Props) {
             if (tipY > 4 && p < 0.999) {
               tipEl.setAttribute('cx', xs[n - 1].toFixed(1))
               tipEl.setAttribute('cy', ys[n - 1].toFixed(1))
-              tipEl.setAttribute('r', String(Math.max(1.6, R.thick * 0.16)))
+              tipEl.setAttribute('r', String(Math.max(1.4, R.thick * S * 0.16)))
               tipEl.setAttribute('opacity', '0.55')
             } else {
               tipEl.setAttribute('opacity', '0')

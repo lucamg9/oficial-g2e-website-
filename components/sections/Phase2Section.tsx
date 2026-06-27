@@ -119,6 +119,7 @@ export default function Phase2Section() {
 
         {/* Right — key points only */}
         <motion.ul
+          className="phase2-points"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: false, margin: '-80px' }}
@@ -229,22 +230,35 @@ export default function Phase2Section() {
            band, so the photo's negative overlap would collide with them. */
         @media (max-width: 1023px) {
           .phase2-photo   { margin-bottom: 0 !important; }
-          .phase2-grid    { padding-top: clamp(60px, 11vw, 96px); padding-bottom: clamp(230px, 32vh, 280px); }
+          /* Even vertical rhythm: more air between title → photo → points, and
+             extra clearance so the points never crowd the dark figures band. */
+          .phase2-grid    {
+            padding-top: clamp(60px, 11vw, 96px);
+            padding-bottom: clamp(256px, 36vh, 312px);
+            gap: clamp(40px, 9vw, 56px) !important;
+          }
+          /* The key points: roomier line spacing, a touch larger, held in a
+             tidy centred column so the text reads cleanly under the title. */
+          .phase2-points  { gap: 24px !important; max-width: 340px; }
+          .phase2-points li span:last-child {
+            font-size: 1rem !important;
+            line-height: 1.62 !important;
+          }
           /* The figures get their own solid dark panel so every figure sits on
              dark (no more white-on-white top row), with a soft top edge that
              blends out of the soil above. */
           .phase2-figpanel {
             background: linear-gradient(180deg, rgba(10,8,5,0) 0%, rgba(8,6,4,0.97) 7%, rgba(3,2,1,0.99) 100%) !important;
-            padding-top: 34px !important;
-            padding-bottom: clamp(28px, 6vw, 40px) !important;
-            gap: 20px !important;
+            padding-top: 36px !important;
+            padding-bottom: clamp(34px, 7vw, 48px) !important;
+            gap: 22px !important;
           }
           .phase2-figgrid {
             grid-template-columns: 1fr 1fr !important;
-            gap: 24px 18px !important;
+            gap: 26px 18px !important;
           }
           .phase2-cap {
-            padding-top: 16px !important;
+            padding-top: 18px !important;
             border-top: 1px solid rgba(250,250,247,0.14);
           }
         }
