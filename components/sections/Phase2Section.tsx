@@ -158,6 +158,8 @@ export default function Phase2Section() {
           src="/assets/phase2/soil.webp"
           alt=""
           aria-hidden="true"
+          decoding="async"
+          loading="lazy"
           style={{ position: 'absolute', left: 0, bottom: 0, width: '100%', height: 'auto', display: 'block', zIndex: 0, pointerEvents: 'none', transform: 'scaleY(0.7)', transformOrigin: 'bottom' }}
         />
         {/* Left→right lighting — soil lit from the left, so its right side

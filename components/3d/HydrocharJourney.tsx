@@ -28,8 +28,9 @@ const HydrocharCanvas = dynamic(() => import('@/components/3d/HydrocharCanvas'),
   loading: () => (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/assets/generated/hydrochar-real.png"
+      src="/assets/generated/hydrochar-real.webp"
       alt=""
+      decoding="async"
       style={{
         width: '100%', height: '100%', objectFit: 'contain',
         filter: 'drop-shadow(0 26px 26px rgba(46,55,42,0.30))',

@@ -194,7 +194,7 @@ export default function WhoWeAreSection() {
       <video
         ref={videoRef}
         src={VIDEO_SRC}
-        poster="/motion/story/who-we-are-poster.jpg"
+        poster="/motion/story/who-we-are-start.jpg"
         muted
         playsInline
         preload="auto"

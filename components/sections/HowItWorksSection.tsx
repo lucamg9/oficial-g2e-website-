@@ -204,7 +204,7 @@ export default function HowItWorksSection() {
         <video
           ref={videoRef}
           src={STORY_SRC}
-          poster="/motion/hiw/story-poster.jpg"
+          poster="/motion/hiw/story-start.jpg"
           muted
           playsInline
           preload="auto"
