@@ -119,7 +119,9 @@ export default function WhoWeAreSection() {
       start:   'top top',
       end:     `+=${SCROLL_DIST}`,
       pin:     true,
-      scrub:   0.4,
+      scrub:   0.6,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
       onLeave() { resetToStart() },
       onUpdate(self) {
         const p = self.progress

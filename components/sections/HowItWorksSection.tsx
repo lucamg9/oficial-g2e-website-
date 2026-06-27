@@ -141,7 +141,9 @@ export default function HowItWorksSection() {
       pin:     stickyRef.current,
       start:   'top top',
       end:     `+=${SCROLL_DIST}`,
-      scrub:   0.4,
+      scrub:   0.6,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
       // Don't reset on forward leave — hold the final frame (G2E bags) and
       // the 7th beat as the section scrolls away into the next one.
       onLeaveBack() { resetToStart() },
@@ -189,11 +191,11 @@ export default function HowItWorksSection() {
       ref={sectionRef}
       id="how-it-works"
       aria-label="How it works"
-      style={{ height: `calc(100vh + ${SCROLL_DIST}px)`, position: 'relative' }}
+      style={{ position: 'relative' }}
     >
       <div
         ref={stickyRef}
-        style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden', background: '#2E372A' }}
+        style={{ height: '100vh', overflow: 'hidden', background: '#2E372A' }}
       >
         {/* One continuous film, scrubbed by scroll */}
         {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
