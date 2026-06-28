@@ -13,6 +13,16 @@ export function useLenis() {
   return useContext(LenisContext)
 }
 
+// Module-level handle to the live Lenis instance. The context value is captured
+// at first render (when the ref is still null), so components that need the
+// instance imperatively — e.g. SectionNav's scroll-to — read it through here.
+// Null on touch devices (Lenis isn't created there) so callers fall back to
+// native scrolling.
+let activeLenis: Lenis | null = null
+export function getLenis() {
+  return activeLenis
+}
+
 export function LenisProvider({ children }: { children: ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null)
 
@@ -31,6 +41,7 @@ export function LenisProvider({ children }: { children: ReactNode }) {
     })
 
     lenisRef.current = lenis
+    activeLenis = lenis
 
     // GSAP + Lenis integration
     lenis.on('scroll', () => ScrollTrigger.update())
@@ -40,6 +51,7 @@ export function LenisProvider({ children }: { children: ReactNode }) {
     return () => {
       lenis.destroy()
       lenisRef.current = null
+      activeLenis = null
     }
   }, [])
 

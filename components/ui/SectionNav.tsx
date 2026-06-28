@@ -4,17 +4,20 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useT } from '@/lib/i18n'
+import { getLenis } from '@/lib/lenis-provider'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// id = DOM section id. hero uses 'intro' (the IntroSequence section) but
-// navigates to its END (the hero reveal at p=1.0), not its start.
+// id = DOM section id. Order MUST match the render order in app/page.tsx:
+// Hero → Who We Are → Our Story → Phase II → How It Works → Contact.
+// `end` navigates to the trigger's end instead of its start (unused now —
+// every entry goes to its section start).
 const SECTIONS = [
-  { id: 'intro',        label: 'Hero',         end: true  },
+  { id: 'intro',        label: 'Hero',         end: false },
   { id: 'about',        label: 'Who We Are',   end: false },
   { id: 'timeline',     label: 'Our Story',    end: false },
-  { id: 'how-it-works', label: 'How It Works', end: false },
   { id: 'phase2',       label: 'Phase II',     end: false },
+  { id: 'how-it-works', label: 'How It Works', end: false },
   { id: 'contact',      label: 'Contact',      end: false },
 ]
 
@@ -24,7 +27,7 @@ function getScrollPos(el: HTMLElement, useEnd: boolean): number {
   const triggers = ScrollTrigger.getAll()
   const st = triggers.find(t => t.trigger === el)
   if (st) return useEnd ? st.end - 2 : st.start
-  return el.offsetTop
+  return el.getBoundingClientRect().top + window.scrollY
 }
 
 export default function SectionNav() {
@@ -44,7 +47,7 @@ export default function SectionNav() {
         const el = document.getElementById(SECTIONS[i].id)
         if (!el) continue
         const st = triggers.find(t => t.trigger === el)
-        const start = st ? st.start : el.offsetTop
+        const start = st ? st.start : el.getBoundingClientRect().top + window.scrollY
         if (scrollY >= start - 10) { best = i; break }
       }
       // Hero (idx 0) is active only until WhoWeAre starts
@@ -74,7 +77,13 @@ export default function SectionNav() {
     const { id, end } = SECTIONS[idx]
     const el = document.getElementById(id)
     if (!el) return
-    window.scrollTo({ top: getScrollPos(el, end), behavior: 'smooth' })
+    const top = Math.max(0, getScrollPos(el, end))
+    // On desktop Lenis drives scrolling — using its scrollTo lands accurately
+    // (window.scrollTo gets overridden by Lenis on the next frame). On touch
+    // devices Lenis is off, so fall back to native smooth scroll.
+    const lenis = getLenis()
+    if (lenis) lenis.scrollTo(top, { duration: 1.1 })
+    else window.scrollTo({ top, behavior: 'smooth' })
   }, [])
 
   return (
